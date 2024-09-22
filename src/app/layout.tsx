@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import { AuthProvider } from "./context/AuthContext";
+import Navbar from "@/components/Navbar";
+import AuthWrapper from "../app/context/AuthWrapper";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,7 +25,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins} antialiased`}>
         <Theme>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <AuthWrapper>
+              <Navbar />
+              {children}
+            </AuthWrapper>
+          </AuthProvider>
         </Theme>
       </body>
     </html>

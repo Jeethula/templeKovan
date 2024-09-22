@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(cuid())  // You can use email as id if needed
+  email       String      @unique
+  role        String
+  posts       Post[]
+  comments    Comment[]
+  likedPosts   Post[]      @relation("LikedPosts")
+  dislikedPosts Post[]    @relation("DislikedPosts")
+  referral    String?     
+  parentId    String?     
+  parent      User?       @relation("UserParent", fields: [parentId], references: [id])
+   children    User[]      @relation("UserParent")
+  personalInfo PersonalInfo? 
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model PersonalInfo {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  address1    String?
+  address2    String?
+  state       String?
+  phoneNumber String?
+  country     String?
+  firstName   String
+  lastName    String
+  avatarUrl   String?
+  oldRecord   Json?     
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isApproved  String?     @default("null")
+  user        User      @relation(fields: [email], references: [email])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+  comments    Comment[]
+  likedBy     User[]    @relation("LikedPosts")
+  dislikedBy  User[]    @relation("DislikedPosts")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  content     String
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+  post        Post      @relation(fields: [postId], references: [id])
+  postId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+
