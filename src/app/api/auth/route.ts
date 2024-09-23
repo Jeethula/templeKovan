@@ -1,8 +1,6 @@
 // pages/api/auth/google-signin.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-// import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/utils/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -43,7 +41,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               email,
               phoneNumber,
               firstName: '',
-              lastName: ''
+              lastName: '',
+              address1: null,
+              address2: null,
+              state: null,
+              country: null,
+              isApproved: null
             }
           }
         },
