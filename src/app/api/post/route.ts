@@ -11,12 +11,24 @@ export async function GET(req: NextRequest) {
                 content:true,
                 likes:true,
                 dislikes:true,
+                likedBy:{
+                    select:{
+                        id:true
+                    }
+                },
+                dislikedBy:{
+                    select:{
+                        id:true
+                    }
+                },
                 createdAt:true,
+                comments:true,
                 author:{
                     select:{
                         personalInfo:{
                             select:{
                                 firstName:true,
+                                avatarUrl:true
                             }
                         }
                     }
@@ -37,7 +49,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const { title, content, authorId } = await req.json();
     try{
-        const post=await prisma.post.create({
+        await prisma.post.create({
             data:{
                 title,
                 content,
@@ -47,7 +59,7 @@ export async function POST(req: NextRequest) {
 
             }
         })
-        return NextResponse.json({post:post,status:200})
+        return NextResponse.json({status:200})
     }
     catch(e){
         return NextResponse.json({error:e,status:500})

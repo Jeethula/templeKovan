@@ -7,6 +7,7 @@ type Params={
 
 export async function GET(req: NextRequest,{ params }: { params: Params }) {
     const { id } = params
+    console.log(id)
     try{
         const post=await prisma.post.findUnique({
             where:{
@@ -18,11 +19,33 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                 content:true,
                 likes:true,
                 dislikes:true,
-                createdAt:true,
-                author:{
+                likedBy:{
                     select:{
-                        email:true,
+                        id:true
                     }
+                },
+                dislikedBy:{
+                    select:{
+                        id:true
+                    }
+                },
+                createdAt:true,
+                comments:{
+                    select:{
+                        id:true,
+                        content:true,
+                        createdAt:true,
+                        author:{
+                            select:{
+                                personalInfo:{
+                                    select:{
+                                        firstName:true,
+                                        avatarUrl:true
+                                    }
+                                }
+                            }
+                        },
+                        }
                 }
             }
         })

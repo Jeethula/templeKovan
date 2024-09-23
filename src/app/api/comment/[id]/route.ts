@@ -16,8 +16,15 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
             select:{
                 id:true,
                 content:true,
-                authorId:true,
-                postId:true,
+                author:{
+                    select:{
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                            }
+                        }
+                    }
+                },
                 createdAt:true,
             }
         })
