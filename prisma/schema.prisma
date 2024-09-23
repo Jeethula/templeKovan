@@ -52,6 +52,8 @@ model Post {
   id          String   @id @default(cuid())
   title       String
   content     String
+  likes       Int
+  dislikes    Int
   author      User      @relation(fields: [authorId], references: [id])
   authorId    String
   comments    Comment[]
