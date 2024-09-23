@@ -43,7 +43,7 @@ function Posts() {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/post`, {
+      const res = await fetch('/api/post', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
