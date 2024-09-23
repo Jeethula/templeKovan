@@ -8,7 +8,7 @@ export async function POST(req:Request){
 
     try{
         const body = await req.json();
-        console.log(body);
+        console.log(body, "body");
         const userDetails = await prisma.personalInfo.create({
             data:{
                 email: body?.email,
@@ -19,9 +19,14 @@ export async function POST(req:Request){
                 country: body?.country,
                 firstName: body?.firstName,
                 lastName : body?.lastName,
-                avatarUrl: body?.avatarUrl,
-                isApproved:"null"
+                avatarUrl: body?.avatarUrl ,
+                pincode: body?.pincode,
+                city: body?.city,
+                isApproved:"null",
+                salutation: body?.salutation,
+                comments: body?.comments
         }})
+        console.log("completed")
         return NextResponse.json({userDetails,status:200,success:"user profile created"});
 
 
@@ -39,6 +44,7 @@ export async function PUT(req:Request){
                 email:body?.email
             },
             data:{
+                email: body?.email,
                 address1: body?.address1,
                 address2: body?.address2,
                 state: body?.state,
@@ -46,8 +52,10 @@ export async function PUT(req:Request){
                 country: body?.country,
                 firstName: body?.firstName,
                 lastName : body?.lastName,
-                avatarUrl: body?.avatarUrl,
-                isApproved:"null"
+                avatarUrl: body?.avatarUrl ,
+                pincode: body?.pincode,
+                city: body?.city,
+                isApproved: body?.isApproved || "null"
         }})
         return NextResponse.json({userDetails,status:200,success:"user profile updated"});
 

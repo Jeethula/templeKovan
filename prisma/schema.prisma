@@ -40,8 +40,12 @@ model PersonalInfo {
   country     String?
   firstName   String
   lastName    String
+  pincode     String?
+  city        String?
   avatarUrl   String?
-  oldRecord   Json?     
+  oldRecord   Json?   
+  salutation  String?
+  comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   isApproved  String?     @default("null")
