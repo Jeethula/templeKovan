@@ -27,6 +27,12 @@ interface Post {
     likes: number;
     dislikes: number;
     createdAt: string;
+    author:{
+        personalInfo:{
+            firstName:string
+            avatarUrl:string
+        }
+    }
     comments: Comment[];
     image: string | null;
     user_name: string;
@@ -43,7 +49,6 @@ function Post({ params }: { params: { id: string } }) {
     const [comment, setComment] = useState<string>('');
     const userId='cm1eopy330001hyu0r2k6ws30'
     const [error, setError] = useState<{ comment: string }>({ comment: '' });
-    const { user } = useAuth();
 
     const fetchData = async () => {
         try {
@@ -71,11 +76,6 @@ function Post({ params }: { params: { id: string } }) {
     };
 
     useEffect(() => {
-        // Retrieve user ID from session storage
-        // const storedUserId = sessionStorage.getItem('userId');
-        // if (storedUserId) {
-        //   setUserId(storedUserId);
-        // }
         fetchData();
     }, []);
 
@@ -197,8 +197,8 @@ function Post({ params }: { params: { id: string } }) {
                 </div>
                 <div className='flex justify-between items-center border-b border-gray-400 pb-4 mb-4'>
                     <div className='flex items-center w-36 justify-start gap-3'>
-                        <Image src={user?.photoURL || '/default-avatar.png'} alt="" width={32} height={32} className='rounded-full' />
-                        <h2 className='text-xl font-semibold'>{post.user_name}</h2>
+                        <Image src={post.author.personalInfo.avatarUrl|| '/user.svg'} alt="image" width={32} height={32} className='rounded-full' />
+                        <h2 className='text-xl font-semibold'>{post.author.personalInfo.firstName}</h2>
                     </div>
                     <div>
                         <p>{getRelativeTime(post.createdAt)}</p>

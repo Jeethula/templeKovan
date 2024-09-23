@@ -30,6 +30,16 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                     }
                 },
                 createdAt:true,
+                author:{
+                    select:{
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                                avatarUrl:true
+                            }
+                        }
+                    }
+                },
                 comments:{
                     select:{
                         id:true,

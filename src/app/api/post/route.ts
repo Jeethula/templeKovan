@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
                 id:true,
                 title:true,
                 content:true,
+                image:true,
                 likes:true,
                 dislikes:true,
                 likedBy:{
@@ -33,6 +34,9 @@ export async function GET(req: NextRequest) {
                         }
                     }
                 }
+            },
+            orderBy:{
+                createdAt:"desc"
             }
         })
         return NextResponse.json({posts:posts,status:200})
@@ -47,12 +51,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const { title, content, authorId } = await req.json();
+    const { title, content, authorId,image } = await req.json();
+    console.log(title, content, authorId,image);
+    
     try{
         await prisma.post.create({
             data:{
                 title,
                 content,
+                image:image || null,
                 authorId,
                 likes:0,
                 dislikes:0

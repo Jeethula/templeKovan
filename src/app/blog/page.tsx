@@ -182,12 +182,13 @@ function Posts() {
           <div className='flex justify-between items-center border-b border-gray-200 pb-3 mb-2'>
             <div className='flex items-center w-36 justify-start gap-3'>
               <Image 
-              src={post.author?.personalInfo?.avatarUrl || '/user.svg'}
-              alt="User profile picture"  
-              width={30} 
-              height={30}
-              className="rounded-full"
+                src={post.author.personalInfo.avatarUrl|| '/user.svg'}
+                alt="User profile picture"  
+                width={30} 
+                height={30}
+                className="rounded-full"
               />
+              <h2 className='text-xl text-gray-400'>{post.author.personalInfo.firstName}</h2>
             </div>
             <div className='text-gray-400'>{getRelativeTime(post.createdAt)}</div>
           </div>

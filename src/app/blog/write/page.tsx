@@ -54,6 +54,8 @@ function WritePost() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    console.log(data);
+    
     if (!data.title || !data.content) {
       if (!data.title) {
         setError((prev) => ({
@@ -73,14 +75,14 @@ function WritePost() {
     try {
         console.log(data);
         
-      const response = await fetch(
+    const response = await fetch(
         "/api/post",
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...data, authorId: userId }),
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...data, authorId: userId }),
         }
-      );
+    );
       const result = await response.json();
       if (result.status ===200) {
         router.push("/blog");
