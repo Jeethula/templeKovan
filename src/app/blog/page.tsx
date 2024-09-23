@@ -50,13 +50,16 @@ function Posts() {
       const data = await res.json();
     
 
-        setPosts(data.posts.map((post: Post) => ({
-          ...post,
-          userInteraction: post.likedBy?.some(u => u.id === userId) ? 'like' 
-                   : post.dislikedBy?.some(u => u.id === userId) ? 'dislike'
-                   : 'none'
-        })));
-        console.log(posts);
+        if (data.posts) {
+          setPosts(data.posts.map((post: Post) => ({
+            ...post,
+            userInteraction: post.likedBy?.some((u: { id: string; }) => u.id === userId) ? 'like'
+              : post.dislikedBy?.some((u: { id: string; }) => u.id === userId) ? 'dislike'
+              : 'none'
+          })));
+        } else {
+          console.error('No posts found in the response');
+        }
 
     } catch (error) {
       console.error('Error fetching posts:', error);
