@@ -35,14 +35,55 @@ export async function DELETE(req: NextRequest) {
 
     const {authorId,comment_id}=await req.json()
 
-
     try{
-        const comments=await prisma.comment.deleteMany({
+
+        const user1=await prisma.comment.findUnique({
             where:{
-                id:comment_id,
+                id:comment_id
+            },
+            select:{
+                authorId:true
             }
         })
-        return NextResponse.json({comments:comments,status:200})
+
+        const user2=await prisma.user.findUnique({
+            where:{
+                id:authorId
+            },
+            select:{
+                role:true
+            }
+        })
+
+        if(user1)
+        {
+            if(user1.authorId!==authorId)
+            {
+                if(user2)
+                {
+                    if(user2.role!=="Admin")
+                    {
+                        await prisma.comment.delete({
+                            where:{
+                                id:comment_id
+                            }
+                        })
+                        return NextResponse.json({message:"Comment Deleted Successfully",status:200})
+                    }
+                    else
+                    {
+                        return NextResponse.json({error:"You are not authorized to delete this comment",status:401})
+                    }
+                }
+                return NextResponse.json({error:"You are not authorized to delete this comment",status:401})
+            }
+            await prisma.comment.delete({
+                where:{
+                    id:comment_id,
+                }
+            })
+            return NextResponse.json({message:"Comment Deleted Successfully",status:200})
+        }
     }
     catch(e){
         return NextResponse.json({error:e,status:500})
