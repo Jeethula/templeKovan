@@ -1,66 +1,32 @@
-// pages/api/auth/google-signin.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '@/utils/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/utils/prisma";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  const { email, phoneNumber } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
-
-  try {
-    // Try to find the user by email or phone number
-    let user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email },
-          { personalInfo: { phoneNumber } }
-        ]
-      },
-      include: {
-        personalInfo: true
-      }
-    });
-
-    if (user) {
-      // User exists, return the user data
-      return res.status(200).json(user);
-    } else {
-      // User doesn't exist, create a new user
-      user = await prisma.user.create({
-        data: {
-          email,
-          role: 'USER',
-          personalInfo: {
-            create: {
-              email,
-              phoneNumber,
-              firstName: '',
-              lastName: '',
-              address1: null,
-              address2: null,
-              state: null,
-              country: null,
-              isApproved: null
-            }
-          }
-        },
-        include: {
-          personalInfo: true
+export async function POST(req:Request){
+    try {
+        const body = await req.json();
+        console.log(body?.email);
+        if(body?.email !== "" || body?.email !==undefined || body?.email !==null){
+            console.log(body?.email);
+            const user = await prisma.user.findUnique({
+                where:{
+                    email:body?.email
+                }
+            })
+            if(user){
+                return NextResponse.json({user,status:200,success:"user found"});
+            }else{
+                const newUser = await prisma.user.create({
+                    data:{
+                        email: body?.email,
+                        role: 'user'
+                    }
+                })
+                return NextResponse.json({user:newUser,status:200,success:"user created"});
         }
-      });
-
-      return res.status(201).json(user);
     }
-  } catch (error) {
-    console.error('Error in Google Sign In:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  } finally {
-    await prisma.$disconnect();
-  }
+
+    }catch(e){
+        return NextResponse.json({error:"error in user",status:404});
+    }
 }
+
