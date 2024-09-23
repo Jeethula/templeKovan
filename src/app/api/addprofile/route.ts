@@ -1,91 +1,70 @@
-// import { NextResponse } from "next/server";
-// import prisma from "../../../utils/prisma";
+import { NextResponse } from "next/server";
+import prisma from "@/utils/prisma";
 
-// export async function POST(req: Request) {
-//     try {
-//         const body = await req.json();
-//         console.log(body);
+export async function POST(req: Request) {
+  console.log("fwrfrfwrfwf")
+  try {
+    const body = await req.json();
+    console.log(body,"2ednoe2dned");
+    const { referrerEmail, newUserEmail, personalInfo } = body;
 
-//         // Check if the user adding this profile is authenticated
-//         if (!body.currentUserEmail) {
-//             return NextResponse.json({ error: "Unauthorized", status: 401 });
-//         }
+    // Validate input
+    if (!referrerEmail || !newUserEmail || !personalInfo) {
+      return NextResponse.json({ error: "Missing required information", status: 400 });
+    }
 
-//         // Find the current user
-//         const currentUser = await prisma.user.findUnique({
-//             where: { email: body.currentUserEmail }
-//         });
+    // Check if the referrer exists
+    const referrer = await prisma.user.findUnique({
+      where: { email: referrerEmail }
+    });
 
-//         if (!currentUser) {
-//             return NextResponse.json({ error: "Current user not found", status: 404 });
-//         }
+    if (!referrer) {
+      return NextResponse.json({ error: "Referrer not found", status: 404 });
+    }
 
-//         // Create a new user with referral information
-//         const newUser = await prisma.user.create({
-//             data: {
-//                 email: body.email,
-//                 role: "User",
-//                 referredBy: { connect: { id: currentUser.id } }
-//             }
-//         });
+    // Start a transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create new user
+      const newUser = await prisma.user.create({
+        data: {
+          email: newUserEmail,
+          role: 'user',
+          referral: referrerEmail,
+          parent: { connect: { id: referrer.id } }
+        }
+      });
 
-//         // Create personal info for the new user
-//         const userDetails = await prisma.personalInfo.create({
-//             data: {
-//                 email: body.email,
-//                 address1: body.address1,
-//                 address2: body.address2,
-//                 state: body.state,
-//                 phoneNumber: body.phoneNumber,
-//                 country: body.country,
-//                 firstName: body.firstName,
-//                 lastName: body.lastName,
-//                 avatarUrl: body.avatarUrl,
-//                 isApproved: "null",
-//                 user: { connect: { email: body.email } }
-//             }
-//         });
+      // Create personal info for the new user
+      const newPersonalInfo = await prisma.personalInfo.create({
+        data: {
+          email: newUserEmail,
+          firstName: personalInfo.firstName,
+          lastName: personalInfo.lastName,
+          address1: personalInfo.address1,
+          address2: personalInfo.address2,
+          state: personalInfo.state,
+          phoneNumber: personalInfo.phoneNumber,
+          country: personalInfo.country,
+          pincode: personalInfo.pincode,
+          city: personalInfo.city,
+          avatarUrl: personalInfo.avatarUrl,
+          salutation: personalInfo.salutation,
+          comments: personalInfo.comments || "",
+          isApproved: "pending"
+        }
+      });
 
-//         return NextResponse.json({ userDetails, newUser, status: 200, success: "User profile created with referral" });
+      return { newUser, newPersonalInfo };
+    });
 
-//     } catch (e) {
-//         console.error(e);
-//         return NextResponse.json({ error: "Error in posting user profile", status: 500 });
-//     }
-// }
+    return NextResponse.json({
+      status: 200,
+      success: "New user added successfully",
+      data: result
+    });
 
-// // Other functions (PUT, GET, DELETE, PATCH) remain the same
-
-// export async function GET(req: Request) {
-//     try {
-//         const url = new URL(req.url);
-//         const email = url.searchParams.get('email');
-
-//         if (!email) {
-//             return NextResponse.json({ error: "Email is required", status: 400 });
-//         }
-
-//         const userDetails = await prisma.user.findUnique({
-//             where: { email: email },
-//             include: {
-//                 personalInfo: true,
-//                 referredBy: {
-//                     select: { email: true, personalInfo: { select: { firstName: true, lastName: true } } }
-//                 },
-//                 referrals: {
-//                     select: { email: true, personalInfo: { select: { firstName: true, lastName: true } } }
-//                 }
-//             }
-//         });
-
-//         if (!userDetails) {
-//             return NextResponse.json({ error: "User not found", status: 404 });
-//         }
-
-//         return NextResponse.json({ userDetails, status: 200, success: "User profile found" });
-
-//     } catch (e) {
-//         console.error(e);
-//         return NextResponse.json({ error: "Error in getting user profile", status: 500 });
-//     }
-// }
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Error adding new user", status: 500 });
+  }
+}

@@ -1,302 +1,174 @@
 "use client"
-import React,{ useState } from "react";
- 
-interface UserDetails{
-    salutation:string;
-    first_name:string;
-    last_name:string;
-    phone_number:string;
-    address_line_1:string;
-    address_line_2:string;
-    city:string;
-    state:string;
-    country:string;
-    pincode:string;
-    comments:string;
-}
- 
-interface Error{
-    salutation:string;
-    first_name:string;
-    last_name:string;
-    phone_number:string;
-    address_line_1:string;
-    address_line_2:string;
-    city:string;
-    state:string;
-    country:string;
-    pincode:string;
-    comments:string;
-}
- 
- 
-export default function forms() {
-        const [userDetails,setUserDetails]=useState<UserDetails>({salutation:'',first_name:'',last_name:'',phone_number:'',address_line_1:'',address_line_2:'',city:'',state:'',country:'',pincode:'',comments:''});
- 
-        const [error,setError]=useState<Error>({salutation:'',first_name:'',last_name:'',phone_number:'',address_line_1:'',address_line_2:'',city:'',state:'',country:'',pincode:'',comments:''});
- 
-       let errorStatus:boolean=false;
- 
-        const handleChange=(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>)=>{
-            console.log(e.target.name);
-            console.log(e.target.value);
-            if(e.target.name=='phone_number')
-            {
-                if(isNaN(Number(e.target.value)))
-                {
-                    return
-                }
-            }
-            setUserDetails((prev)=>({...prev,[e.target.name]:e.target.value}));
-            console.log(userDetails);
-        }
- 
-        const handleSubmit=(e: React.FormEvent<HTMLFormElement>)=>{
-            e.preventDefault();
-            if(error.salutation==''||error.first_name==''||error.last_name==''||error.phone_number==''||error.address_line_1==''||error.address_line_2==''||error.city==''||error.state==''||error.country==''||error.pincode==''||error.comments=='')
-            {
-                if(userDetails.salutation=='')
-                {
-                    setError((prev)=>({...prev,salutation:'Salutation is required'}));
-                }
-                if(userDetails.first_name=='')
-                {
-                    setError((prev)=>({...prev,first_name:'First name is required'}));
-                }
-                if(userDetails.last_name=='')
-                {
-                    setError((prev)=>({...prev,last_name:'Last name is required'}))
-                }
- 
-                if(userDetails.phone_number=='')
-                {
-                    setError((prev)=>({...prev,phone_number:'Phone number is required'}))
-                }
-                if(userDetails.address_line_1=='')
-                {
-                    setError((prev)=>({...prev,address_line_1:'Address 1 is required'}))
-                }
-                if(userDetails.address_line_2=='')
-                {
-                    setError((prev)=>({...prev,address_line_2:'Address 2 is required'}))
-                }
-                if(userDetails.city=='')
-                {
-                    setError((prev)=>({...prev,city:'City is required'}))
-                }
-                if(userDetails.state=='')
-                {
-                    setError((prev)=>({...prev,state:'State is required'}))
-                }
-                if(userDetails.country=='')
-                {
-                    setError((prev)=>({...prev,country:'Country is required'}))
-                }
-                if(userDetails.pincode=='')
-                {
-                    setError((prev)=>({...prev,pincode:'Pincode is required'}))
-                }
-                errorStatus=true;
-                return
-            }
-            if(userDetails.pincode.length!=6)
-            {
-                setError((prev)=>({...prev,pincode:'Pincode should be of 6 digits'}));
-                errorStatus=true;
-            }
-            if(userDetails.phone_number.length!=10)
-            {
-                setError((prev)=>({...prev,phone_number:'Phone number should be of 10 digits'}));
-                errorStatus=true;
-            }
-            if(errorStatus)
-            {
-                return
-            }
- 
-        }
- 
-    return(
-        <div>
-            <div className="flex justify-center items-center max-w-screen min-h-screen bg-white">
-                <div className="bg-white h-fit w-[75%] p-4 mt-5">
-                    <h1 className="text-2xl font-bold mb-8">Add Another Person</h1>
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">SALUTATION</label>
-                            <select
-                                name="salutation"
-                                value={userDetails.salutation}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,salutation:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.salutation!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            >
-                                    <option value="">Select</option>
-                                    <option value="Mr.">Mr.</option>
-                                    <option value="Ms.">Ms.</option>
-                                    <option value="Mrs.">Mrs.</option>
-                                    <option value="Dr.">Dr.</option>
-                                    <option value="Prof.">Prof.</option>
-                                    <option value="Mx.">Mx.</option>
-                            </select>
-                            {error.salutation&&<p className="text-red-500">{error.salutation}</p>}
-                        </div>
+import React, { useState } from 'react';
+import { UserDetails, initialUserDetails } from '../../utils/type';
+import { useAuth } from '../context/AuthContext';
 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1"> FIRST NAME</label>
-                            <input
-                                type="text"
-                                name="first_name"
-                                placeholder="Enter First Name"
-                                value={userDetails.first_name}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,first_name:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.first_name!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.first_name&&<p className="text-red-500">{error.first_name}</p>}
- 
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">LAST NAME</label>
-                            <input
-                                type="text"
-                                name="last_name"
-                                placeholder="Enter Last Name"
-                                value={userDetails.last_name}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,last_name:''}))}
-                                className={`w-full px-3 py-2 -fit mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.last_name!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.last_name&&<p className="text-red-500">{error.last_name}</p>}
- 
-                           
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">PHONE NUMBER</label>
-                            <input
-                                type="text"
-                                name="phone_number"
-                                placeholder="Enter Phone Number"
-                                value={userDetails.phone_number}
-                                maxLength={10}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,phone_number:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.phone_number!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.phone_number&&<p className="text-red-500">{error.phone_number}</p>}
-                        </div>
- 
-                       
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1" >ADDRESS LINE 1</label>
-                            <input
-                                type="text"
-                                name="address_line_1"
-                                placeholder="Enter Door Number, Apartment Name"
-                                value={userDetails.address_line_1}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,address_line_1:''}))}
-                                className={`w-full px-3 py-2  mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.address_line_1!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.address_line_1&&<p className="text-red-500">{error.address_line_1}</p>}
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1" >ADDRESS LINE 2</label>
-                            <input
-                                type="text"
-                                name="address_line_2"
-                                placeholder="Enter Street Name, Area Name"
-                                value={userDetails.address_line_2}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,address_line_2:''}))}
-                                className={`w-full px-3 py-2 -fit mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.address_line_2!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.address_line_2&&<p className="text-red-500">{error.address_line_2}</p>}
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">CITY</label>
-                            <input
-                                type="text"
-                                name="city"
-                                placeholder="Enter City"
-                                value={userDetails.city}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,city:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.city!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                             />
-                             {error.city&&<p className="text-red-500">{error.city}</p>}
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">STATE</label>
-                            <input
-                                type="text"
-                                name="state"
-                                placeholder="Enter State"
-                                value={userDetails.state}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,state:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.state!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.state&&<p className="text-red-500">{error.state}</p>}
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">PIN CODE</label>
-                            <input
-                                type="text"  
-                                name="pincode"
-                                placeholder="Enter Pincode"
-                                value={userDetails.pincode}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,pincode:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.pincode!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.pincode&&<p className="text-red-500">{error.pincode}</p>}
-                        </div>
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">COUNTRY</label>
-                            <input
-                                type="text"  
-                                name="country"
-                                placeholder="Enter Country"
-                                value={userDetails.country}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,country:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.country!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            />
-                            {error.country&&<p className="text-red-500">{error.country}</p>}
-                        </div>
- 
- 
-                        <div className="mb-4">
-                            <label className="block font-semibold text-sm text-black mb-1">COMMENTS</label>
-                            <textarea
-                                name="comments"
-                                placeholder="Enter Comments"
-                                value={userDetails.comments}
-                                onChange={handleChange}
-                                onFocus={(e)=>setError((prev)=>({...prev,comments:''}))}
-                                className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${error.comments!=''?('ring-2 ring-red-500'):('focus:ring-blue-500')}`}
-                            ></textarea>
-                            {error.comments&&<p className="text-red-500">{error.comments}</p>}
-                        </div>
- 
- 
- 
-                        <div className="flex justify-end items-center mt-7 mb-4">
-                            <button type="submit" className="font-semibold px-2 py-1 bg-blue-500 text-white rounded-md">Submit</button>
-                        </div>
- 
-                    </form>
- 
-                </div>
-            </div>
-        </div>
-    )
-}
+const UserDetailsForm: React.FC = () => {
+  const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
+  const [errors, setErrors] = useState<Partial<UserDetails & { email: string }>>({});
+  const { user } = useAuth();
+  const [email, setEmail] = useState<string>('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (name === 'phone_number' && isNaN(Number(value))) return;
+    setUserDetails(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<UserDetails > = {};
+    let isValid = true;
+  
+    Object.entries(userDetails).forEach(([key, value]) => {
+      if (value === '' && key !== 'address_line_2') {
+        console.log(`${key} validation failed`);
+        newErrors[key as keyof UserDetails] = `${key.replace('_', ' ')} is required`;
+        isValid = false;
+      }
+    });
+  
+    if (userDetails.pincode.length !== 6) {
+      console.log("Pincode validation failed");
+      newErrors.pincode = 'Pincode should be 6 digits';
+      isValid = false;
+    }
+  
+    if (userDetails.phone_number.length !== 10) {
+      console.log("Phone number validation failed");
+      newErrors.phone_number = 'Phone number should be 10 digits';
+      isValid = false;
+    }
+  
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      window.alert('Please fill all the required fields correctly');
+      return;
+    }
+    
+    const userDetailsToSend = {
+      firstName: userDetails.first_name,
+      lastName: userDetails.last_name,
+      phoneNumber: userDetails.phone_number,
+      address1: userDetails.address_line_1,
+      address2: userDetails.address_line_2,
+      city: userDetails.city,
+      state: userDetails.state,
+      pincode: userDetails.pincode,
+      country: userDetails.country,
+      comments: userDetails.comments,
+      avatarUrl: user?.photoURL || '',
+      salutation: userDetails.salutation,
+    };
+
+    try {
+      const res = await fetch('/api/addprofile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          personalInfo: userDetailsToSend,
+          referrerEmail: user?.email,
+          newUserEmail: email
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        window.alert('Profile added successfully');
+        setUserDetails(initialUserDetails);
+        setEmail('');
+      } else {
+        const errorData = await res.json();
+        console.error('Error:', errorData);
+        window.alert('Failed to add profile. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      window.alert('Network error. Please check your connection and try again.');
+    }
+  };
+
+  const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
+    <div className="mb-4">
+      <label className="block font-semibold text-sm text-black mb-1">{label.toUpperCase()}</label>
+      {type === 'select' ? (
+        <select
+          name={name}
+          value={userDetails[name]}
+          onChange={handleChange}
+          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
+        >
+          <option value="">Select</option>
+          {options?.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      ) : type === 'textarea' ? (
+        <textarea
+          name={name}
+          placeholder={`Enter ${label}`}
+          value={userDetails[name]}
+          onChange={handleChange}
+          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
+        />
+      ) : (
+        <input
+          type={type}
+          name={name}
+          placeholder={`Enter ${label}`}
+          value={userDetails[name]}
+          onChange={handleChange}
+          maxLength={name === 'phone_number' ? 10 : name === 'pincode' ? 6 : undefined}
+          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
+        />
+      )}
+      {errors[name] && <p className="text-red-500">{errors[name]}</p>}
+    </div>
+  );
+
+  return (
+    <div className="flex justify-center items-center max-w-screen min-h-screen bg-white">
+      <div className="bg-white h-fit w-[75%] p-4 mt-5">
+        <h1 className="text-2xl font-bold mb-8">User Details</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block font-semibold text-sm text-black mb-1">EMAIL</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors.email ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
+            />
+            {errors.email && <p className="text-red-500">{errors.email}</p>}
+          </div>
+          {renderField('salutation', 'Salutation', 'select', ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.', 'Mx.'])}
+          {renderField('first_name', 'First Name')}
+          {renderField('last_name', 'Last Name')}
+          {renderField('phone_number', 'Phone Number')}
+          {renderField('address_line_1', 'Address Line 1')}
+          {renderField('address_line_2', 'Address Line 2')}
+          {renderField('city', 'City')}
+          {renderField('state', 'State')}
+          {renderField('pincode', 'Pin Code')}
+          {renderField('country', 'Country')}
+          {renderField('comments', 'Comments', 'textarea')}
+          <div className="flex justify-end items-center mt-7 mb-4">
+            <button type="submit" className="font-semibold px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default UserDetailsForm;

@@ -37,5 +37,5 @@ export const initialUserDetails: UserDetails = {
     state: '',
     country: '',
     pincode: '',
-    comments: ''
+    comments: '',
   };
