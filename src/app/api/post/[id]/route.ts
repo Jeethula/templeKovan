@@ -32,6 +32,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                 createdAt:true,
                 author:{
                     select:{
+                        id:true,
                         personalInfo:{
                             select:{
                                 firstName:true,

@@ -1,60 +1,59 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";;
-import Link from 'next/link';
-import Image from 'next/image';
-import { useAuth } from '../context/AuthContext';
-import { Post } from '../../utils/type';
-import LoadingPageUi from '@/components/LoadingPageUi';
-import LoadingUI from '../../components/LoadingUI';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
+import Link from "next/link";
+import Image from "next/image";
+import { Post } from "../../utils/type";
+import LoadingUI from "../../components/LoadingUI";
+import { useRouter } from "next/navigation";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-  const userId:string=sessionData.id;
+  const [search, setSearch] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [comment, setComment] = useState<string>("");
+  const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
-  console.log(user);
-  
+  const router = useRouter();
 
-  useEffect(() => {    
+  useEffect(() => {
     fetchData();
   }, []);
-
 
   const fetchData = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/post', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/post", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
       const data = await res.json();
-      console.log(data, 'data');
-    
 
-        if (data.posts) {
-          setPosts(data.posts.map((post: Post) => ({
-            ...post,
-            userInteraction: post.likedBy?.some((u: { id: string; }) => u.id === userId) ? 'like'
-              : post.dislikedBy?.some((u: { id: string; }) => u.id === userId) ? 'dislike'
-              : 'none'
-          }))); 
-        } else {
-          console.error('No posts found in the response');
-        }
-
+      if (data.posts) {
+        const postsWithInteraction = data.posts.map((post: Post) => ({
+          ...post,
+          userInteraction: post.likedBy?.some(
+            (u: { id: string }) => u.id === userId
+          )
+            ? "like"
+            : post.dislikedBy?.some((u: { id: string }) => u.id === userId)
+            ? "dislike"
+            : "none",
+        }));
+        setPosts(postsWithInteraction);
+        setFilteredPosts(postsWithInteraction); 
+      } else {
+        console.error("No posts found in the response");
+      }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
     }
   };
-
-  const router = useRouter();
 
   const getRelativeTime = (date: string) => {
     const currentTime = new Date();
@@ -78,71 +77,80 @@ function Posts() {
     }
   };
 
-  const handleInteraction = async (postId: string, interactionType: 'like' | 'dislike') => {
+  const handleInteraction = async (
+    postId: string,
+    interactionType: "like" | "dislike"
+  ) => {
     if (!userId) return;
-    const post = posts.find(p => p.id === postId);
+    const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
-    let endpoint1: string, endpoint2: string | null = null;
-    let newInteraction: 'like' | 'dislike' | 'none';
-    let likesChange = 0, dislikesChange = 0;
+    let endpoint1: string,
+      endpoint2: string | null = null;
+    let newInteraction: "like" | "dislike" | "none";
+    let likesChange = 0,
+      dislikesChange = 0;
 
-    if (interactionType === 'like') {
-      if (post.userInteraction === 'like') {
-        endpoint1 = '/api/post/like/decrement';
-        newInteraction = 'none';
+    if (interactionType === "like") {
+      if (post.userInteraction === "like") {
+        endpoint1 = "/api/post/like/decrement";
+        newInteraction = "none";
         likesChange = -1;
       } else {
-        endpoint1 = '/api/post/like/increment';
-        if (post.userInteraction === 'dislike') {
-          endpoint2 = '/api/post/dislike/decrement';
+        endpoint1 = "/api/post/like/increment";
+        if (post.userInteraction === "dislike") {
+          endpoint2 = "/api/post/dislike/decrement";
         }
-        newInteraction = 'like';
+        newInteraction = "like";
         likesChange = 1;
-        if (post.userInteraction === 'dislike') {
+        if (post.userInteraction === "dislike") {
           dislikesChange = -1;
         }
       }
     } else {
-      if (post.userInteraction === 'dislike') {
-        endpoint1 = '/api/post/dislike/decrement';
-        newInteraction = 'none';
+      if (post.userInteraction === "dislike") {
+        endpoint1 = "/api/post/dislike/decrement";
+        newInteraction = "none";
         dislikesChange = -1;
       } else {
-        endpoint1 = '/api/post/dislike/increment';
-        if (post.userInteraction === 'like') {
-          endpoint2 = '/api/post/like/decrement';
+        endpoint1 = "/api/post/dislike/increment";
+        if (post.userInteraction === "like") {
+          endpoint2 = "/api/post/like/decrement";
         }
-        newInteraction = 'dislike';
+        newInteraction = "dislike";
         dislikesChange = 1;
-        if (post.userInteraction === 'like') {
+        if (post.userInteraction === "like") {
           likesChange = -1;
         }
       }
     }
 
-    setPosts(prevPosts => prevPosts.map(p =>
-      p.id === postId
-        ? {
-            ...p,
-            likes: p.likes + likesChange,
-            dislikes: p.dislikes + dislikesChange,
-            userInteraction: newInteraction,
-            liked_by: newInteraction === 'like'
-              ? [...(p.likedBy || []), { id: userId }]
-              : (p.likedBy || []).filter(u => u.id !== userId),
-            disliked_by: newInteraction === 'dislike'
-              ? [...(p.dislikedBy || []), { id: userId }]
-              : (p.dislikedBy || []).filter(u => u.id !== userId)
-          }
-        : p
-    ));
+    setPosts((prevPosts) =>
+      prevPosts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              likes: p.likes + likesChange,
+              dislikes: p.dislikes + dislikesChange,
+              userInteraction: newInteraction,
+              liked_by:
+                newInteraction === "like"
+                  ? [...(p.likedBy || []), { id: userId }]
+                  : (p.likedBy || []).filter((u) => u.id !== userId),
+              disliked_by:
+                newInteraction === "dislike"
+                  ? [...(p.dislikedBy || []), { id: userId }]
+                  : (p.dislikedBy || []).filter((u) => u.id !== userId),
+            }
+          : p
+      )
+    );
 
     try {
       const response = await fetch(endpoint1, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, user_id: userId })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_id: postId, user_id: userId }),
       });
       const result = await response.json();
     } catch (error) {
@@ -152,9 +160,9 @@ function Posts() {
     if (endpoint2) {
       try {
         const response = await fetch(endpoint2, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ post_id: postId, user_id: userId })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ post_id: postId, user_id: userId }),
         });
         const result = await response.json();
       } catch (error) {
@@ -162,110 +170,171 @@ function Posts() {
       }
     }
   };
-  const handleDelete = async (postId: string) => {
-    try {
-      const response = await fetch('/api/post', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id:postId, authorId:userId })
-      });
-
-      if (response.ok) {
-        setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-      } else {
-        console.error('Failed to delete post');
-      }
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    }
-  };
 
   const handleReadmore = (postId: string) => {
-      router.push(`blog/${postId}`);
+    router.push(`blog/${postId}`);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearch(val);
+    if(val === "") return setFilteredPosts(posts);
+    const filtered = posts.filter((item) => item.title.toLowerCase().includes(val.toLowerCase()));
+    setFilteredPosts(filtered);
+};
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setComment(e.target.value);
+  };
+
+  const handleCommentSubmit = async (postId:string) => {
+    if (!userId) return;
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    try {
+      const response = await fetch("/api/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_id: postId, user_id: userId, content: comment }),
+      });
+      
+      const result = await response.json();
+      console.log(result);
+      
+      if(result.status===200){
+        setComment("");
+        fetchData();
+      }
+    } catch (error) {
+      console.error(`Error adding comment:`, error);
+    }
   }
 
   return (
-  <div className='bg-[#f4f4f4]'>
-    <div className='mx-[20%] w-[50%]'>
-      <div className='flex justify-between items-center pt-5 mb-6 gap-x-5'>
-        <input type="text" placeholder='Search Posts' className='w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400' />
-        <Link href='/blog/write' className=' bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2'>Create Post</Link>
-      </div>
-      {
-        loading && <LoadingUI />
-      }
-      {posts.map((post) => (
-        <div key={post.id} className=' bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5'>
-          <div className='flex justify-between items-center border-b border-gray-200 pb-3 mb-2'>
-            <div className='flex items-center w-36 justify-start gap-3'>
-              <Image 
-                src={post.author.personalInfo.avatarUrl || '/user.svg'}
-                alt="User profile picture"  
-                width={30} 
-                height={30}
-                className="rounded-full"
-              />
-              <h2 className='text-lg font-semibold text-gray-500'>{post.author.personalInfo.firstName}</h2>
-            </div>
-            <div className='flex items-center gap-x-4'>
-              {post.author.id === userId && (
-                <button 
-                  onClick={() => handleDelete(post.id)}
-                  className='text-white bg-red-500 px-2 py-1 rounded-md'
-                  aria-label="Delete post"
-                >
-                  delete
-                </button>
-              )}
-              <div className='text-gray-400'>{getRelativeTime(post.createdAt)}</div>
-            </div>
-          </div>
-
-          <div className='mb-2'>
-            <Link className='font-bold text-2xl hover:underline' href={`/blog/${post.id}`}>{post.title}</Link>
-            {post.image && (
-              <div className='flex justify-center mb-2'>
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-[200px] h-[150px] mt-2 rounded-lg"
-                />
-              </div>
-            )}
-            <div className='mt-2'>
-            <p className={`text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4  `}>{post?.content}</p> 
-            {post?.content.length > 50 && <h1 className="text-blue-700 hover:text-blue-900 underline cursor-pointer" onClick={() => handleReadmore(post.id)}>Read more</h1>}
-            </div>
-          </div>
-
-          <div className='flex justify-between items-center border-b border-gray-200 pb-2'>
-            <div className='flex gap-x-4 items-center'>
-              <div className='flex items-center gap-x-1 '>
-                <button onClick={() => handleInteraction(post.id, 'like')}>
-                  {post.userInteraction === 'like' ? <BiSolidLike className='size-6' fill='green' /> : <BiLike className='size-6' fill='green' />}
-                </button>
-                <p className='text-xl'>{post.likes}</p>
-              </div>
-              <div className='flex items-center gap-x-1 '>
-                <button onClick={() => handleInteraction(post.id, 'dislike')}>
-                  {post.userInteraction === 'dislike' ? <BiSolidDislike className='size-6' fill='red' /> : <BiDislike className='size-6' fill='red' />}
-                </button>
-                <p>{post.dislikes}</p>
-              </div>
-            </div>
-            <div className='flex justify-between'>
-            <Link href={`/blog/${post.id}`}> 
-             <p className='text-gray-400 text-base cursor-pointer'>{post.comments.length} comments</p>
-            </Link> 
-            </div>
-          </div>
-          <div className='mt-4'>
-              <input type="text" placeholder='Add a Comment' className='w-full px-3 py-2 border border-gray-400 rounded-md bg-gray-100 placeholder:text-gray-400' />
-          </div>
+    <div className="bg-[#f4f4f4]">
+      <div className="mx-[20%] w-[50%]">
+        <div className="flex justify-between items-center pt-5 mb-6 gap-x-5">
+          <input
+            type="text"
+            onChange={handleChange}
+            value={search}
+            placeholder="Search Posts"
+            className="w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400"
+          />
+          <Link
+            href="/blog/write"
+            className=" bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2"
+          >
+            Create Post
+          </Link>
         </div>
-      ))}
+        {loading && <LoadingUI />}
+        {filteredPosts.map((post) => (
+          <div
+            key={post.id}
+            className=" bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5"
+          >
+            <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
+              <div className="flex items-center w-36 justify-start gap-3">
+                <Image
+                  src={post.author.personalInfo.avatarUrl || "/user.svg"}
+                  alt="User profile picture"
+                  width={30}
+                  height={30}
+                  className="rounded-full"
+                />
+                <h2 className="text-lg font-semibold text-gray-500">
+                  {post.author.personalInfo.firstName}
+                </h2>
+              </div>
+              <div className="flex items-center gap-x-4">
+                <div className="text-gray-400">
+                  {getRelativeTime(post.createdAt)}
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-2">
+              <Link
+                className="font-bold text-2xl hover:underline"
+                href={`/blog/${post.id}`}
+              >
+                {post.title}
+              </Link>
+              {post.image && (
+                <div className="flex justify-center mb-2">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-[200px] h-[150px] mt-2 rounded-lg"
+                  />
+                </div>
+              )}
+              <div className="mt-2">
+                <p
+                  className={`text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4  `}
+                >
+                  {post?.content}
+                </p>
+                {post?.content.length > 50 && (
+                  <h1
+                    className="text-blue-700 hover:text-blue-900 underline cursor-pointer"
+                    onClick={() => handleReadmore(post.id)}
+                  >
+                    Read more
+                  </h1>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+              <div className="flex gap-x-4 items-center">
+                <div className="flex items-center gap-x-1 ">
+                  <button onClick={() => handleInteraction(post.id, "like")}>
+                    {post.userInteraction === "like" ? (
+                      <BiSolidLike className="size-6" fill="green" />
+                    ) : (
+                      <BiLike className="size-6" fill="green" />
+                    )}
+                  </button>
+                  <p className="text-xl">{post.likes}</p>
+                </div>
+                <div className="flex items-center gap-x-1 ">
+                  <button onClick={() => handleInteraction(post.id, "dislike")}>
+                    {post.userInteraction === "dislike" ? (
+                      <BiSolidDislike className="size-6" fill="red" />
+                    ) : (
+                      <BiDislike className="size-6" fill="red" />
+                    )}
+                  </button>
+                  <p>{post.dislikes}</p>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <Link href={`/blog/${post.id}`}>
+                  <p className="text-gray-400 text-base cursor-pointer">
+                    {post.comments.length} comments
+                  </p>
+                </Link>
+              </div>
+            </div>
+            <div className="mt-4">
+              <input
+                type="text"
+                onChange={handleCommentChange}
+                value={comment}
+                placeholder="Add a Comment"
+                className="w-full px-3 py-2 border border-gray-400 rounded-md bg-gray-100 placeholder:text-gray-400"
+              />
+            </div>
+            <div className="flex justify-start mt-4">
+              {comment.length>0&& <button className='text-white bg-orange-500 rounded-md px-2 py-1' onClick={async () => await handleCommentSubmit(post.id)}>Add Comment</button>}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
   );
 }
 

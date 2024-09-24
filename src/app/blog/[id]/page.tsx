@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { AiOutlineLike, AiOutlineDislike, AiFillLike, AiFillDislike } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import LoadingPageUi from '@/components/LoadingPageUi';
 import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from 'react-icons/bi';
@@ -27,6 +27,7 @@ interface Post {
     dislikes: number;
     createdAt: string;
     author:{
+        id:string;
         personalInfo:{
             firstName:string
             avatarUrl:string
@@ -42,13 +43,14 @@ interface Post {
 
 function Post({ params }: { params: { id: string } }) {
 
-    console.log(params.id);
     
     const [post, setPost] = useState<Post | null>(null); 
     const [comment, setComment] = useState<string>('');
     const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
     const userId:string=sessionData.id;
+    const role:string=sessionData.role;
     const [error, setError] = useState<{ comment: string }>({ comment: '' });
+    const router = useRouter();
 
     const fetchData = async () => {
         try {
@@ -185,16 +187,35 @@ function Post({ params }: { params: { id: string } }) {
         if (minutes > 0) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
         return "Just now";
     };
+
+    const handleDelete = async (postId: string) => {
+        try {
+          const response = await fetch("/api/post", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ post_id: postId, authorId: userId }),
+          });
+    
+          if (response.ok) {
+            router.push("/blog");
+          } else {
+            console.error("Failed to delete post");
+          }
+        } catch (error) {
+          console.error("Error deleting post:", error);
+        }
+      };
     
     return post===null ? <p><LoadingPageUi/></p> : 
     (  
      <div className='bg-[#f4f4f4] w-full h-full min-w-screen min-h-screen'>
         <div className='max-w-2xl bg-[#f4f4f4] mx-60 mb-5 pt-5'>
             <div>
-                <div className='mb-7'>
+                <div className='mb-7 flex justify-between items-center'>
                     <Link className='hover:underline text-blue-500 flex items-center gap-1' href='/blog'>
                         <FaArrowLeft className='size-4' /> Back to Posts
                     </Link>
+                    {post.author.id === userId||role=='Admin' && <button onClick={() => handleDelete(post.id)} className='bg-red-500 text-white rounded-md px-2 py-1 font-semibold'>Delete</button>}
                 </div>
                 <div className='flex justify-between items-center border-b border-gray-400 pb-4 mb-4'>
                     <div className='flex items-center w-36 justify-start gap-3'>
