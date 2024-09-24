@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { User, MapPin, Phone, Mail, FileText, ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
 
+
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
