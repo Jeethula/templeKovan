@@ -48,6 +48,7 @@ function Posts() {
         headers: { 'Content-Type': 'application/json' },
       });
       const data = await res.json();
+      console.log(data, 'data');
     
 
         if (data.posts) {
