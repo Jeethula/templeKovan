@@ -24,7 +24,7 @@ model User {
   referral    String?     
   parentId    String?     
   parent      User?       @relation("UserParent", fields: [parentId], references: [id])
-   children    User[]      @relation("UserParent")
+  children    User[]      @relation("UserParent")
   personalInfo PersonalInfo? 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
