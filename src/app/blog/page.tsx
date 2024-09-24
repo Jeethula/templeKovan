@@ -38,7 +38,7 @@ function Posts() {
             userInteraction: post.likedBy?.some((u: { id: string; }) => u.id === userId) ? 'like'
               : post.dislikedBy?.some((u: { id: string; }) => u.id === userId) ? 'dislike'
               : 'none'
-          })));
+          }))); 
         } else {
           console.error('No posts found in the response');
         }
@@ -156,6 +156,23 @@ function Posts() {
       }
     }
   };
+  const handleDelete = async (postId: string) => {
+    try {
+      const response = await fetch('/api/post', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id:postId, authorId:userId })
+      });
+
+      if (response.ok) {
+        setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      } else {
+        console.error('Failed to delete post');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
 
   return (
   <div className='bg-[#fdf0f4]'>
@@ -169,7 +186,7 @@ function Posts() {
           <div className='flex justify-between items-center border-b border-gray-200 pb-3 mb-2'>
             <div className='flex items-center w-36 justify-start gap-3'>
               <Image 
-                src={post.author.personalInfo.avatarUrl|| '/user.svg'}
+                src={post.author.personalInfo.avatarUrl || '/user.svg'}
                 alt="User profile picture"  
                 width={30} 
                 height={30}
@@ -177,7 +194,18 @@ function Posts() {
               />
               <h2 className='text-lg font-semibold text-gray-500'>{post.author.personalInfo.firstName}</h2>
             </div>
-            <div className='text-gray-400'>{getRelativeTime(post.createdAt)}</div>
+            <div className='flex items-center gap-x-4'>
+              {post.author.id === userId && (
+                <button 
+                  onClick={() => handleDelete(post.id)}
+                  className='text-white bg-red-500 px-2 py-1 rounded-md'
+                  aria-label="Delete post"
+                >
+                  delete
+                </button>
+              )}
+              <div className='text-gray-400'>{getRelativeTime(post.createdAt)}</div>
+            </div>
           </div>
 
           <div className='mb-2'>
@@ -186,7 +214,7 @@ function Posts() {
               <div className='flex justify-center mb-2'>
                 <img 
                   src={post.image} 
-                  alt="Post image" 
+                  alt={post.title} 
                   className="w-[200px] h-[150px] mt-2 rounded-lg"
                 />
               </div>

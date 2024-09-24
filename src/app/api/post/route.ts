@@ -25,7 +25,9 @@ export async function GET(req: NextRequest) {
                 createdAt:true,
                 comments:true,
                 author:{
+
                     select:{
+                        id:true,
                         personalInfo:{
                             select:{
                                 firstName:true,

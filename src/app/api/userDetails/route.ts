@@ -133,6 +133,7 @@ export async function PATCH(req: Request) {
     try {
         const body = await req.json();
         console.log(body);
+        console.log(body.email, body.adminEmail, body.isApproved);
 
         if (!body.email || !body.adminEmail || !body.isApproved ) {
             return NextResponse.json({ error: "data missing", status: 400 });

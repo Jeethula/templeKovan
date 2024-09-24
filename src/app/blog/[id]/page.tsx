@@ -1,11 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useParams } from "next/navigation";
 import { AiOutlineLike, AiOutlineDislike, AiFillLike, AiFillDislike } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '../../context/AuthContext';
 
 
 interface Comment {
@@ -47,7 +45,8 @@ function Post({ params }: { params: { id: string } }) {
     
     const [post, setPost] = useState<Post | null>(null); 
     const [comment, setComment] = useState<string>('');
-    const userId='cm1eopy330001hyu0r2k6ws30'
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const userId:string=sessionData.id;
     const [error, setError] = useState<{ comment: string }>({ comment: '' });
 
     const fetchData = async () => {
