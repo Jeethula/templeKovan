@@ -100,7 +100,6 @@ const UserDetailsForm: React.FC = () => {
             body:JSON.stringify(userDetailsToSend)
         })
         console.log(res,"response");
-        // setUserDetails();
     }
   }
 
@@ -140,7 +139,7 @@ const UserDetailsForm: React.FC = () => {
 
   const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
     <div className="mb-4">
-      <label className="block font-semibold text-sm text-black mb-1">{label.toUpperCase()}</label>
+      <label className="block font-semibold text-sm text-[#233543] mb-1">{label.toUpperCase()}</label>
       {type === 'select' ? (
         <select
           name={name}
@@ -177,9 +176,9 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-white">
-      <div className="bg-white h-fit w-[75%] p-4 mt-5">
-        <h1 className="text-2xl font-bold mb-8">User Details</h1>
+    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
+      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 w-[75%] p-4 px-9 mt-5">
+        <h1 className="text-2xl font-bold mb-8">Your Details</h1>
         <form onSubmit={handleSubmit}>
           {renderField('salutation', 'Salutation', 'select', ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.', 'Mx.'])}
           {renderField('first_name', 'First Name')}
@@ -192,9 +191,9 @@ const UserDetailsForm: React.FC = () => {
           {renderField('pincode', 'Pin Code')}
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
-          <div className="flex justify-end items-center mt-7 mb-4">
-           { !isupdate && <button type="submit" className="font-semibold px-2 py-1 bg-blue-500 text-white rounded-md">Submit</button>}
-           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold px-2 py-1 bg-blue-500 text-white rounded-md">update</div>}
+          <div className="flex justify-start items-center mt-7 mb-4">
+           { !isupdate && <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-500  text-white rounded-md">Submit</button>}
+           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-violet-600 hover:bg-violet-500  text-white rounded-md">Update Details</div>}
           </div>
         </form>
       </div>

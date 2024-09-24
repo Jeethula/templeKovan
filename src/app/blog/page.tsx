@@ -1,30 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { AiOutlineLike, AiOutlineDislike, AiFillLike, AiFillDislike } from "react-icons/ai";
+import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";;
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  likes: number;
-  dislikes: number;
-  createdAt: string;
-  comments: any[];
-  image: string | null;
-  author: {
-    personalInfo: {
-      firstName: string;
-      avatarUrl: string;
-    };
-  };
-  userInteraction?: 'like' | 'dislike' | 'none';
-  likedBy: { id: string }[];
-  dislikedBy: { id: string }[];
-}
+import { Post } from '../../utils/type';
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -177,12 +158,14 @@ function Posts() {
   };
 
   return (
-    <div className='max-w-md mx-auto mb-5 sm:max-w-2xl'>
-      <div>
-        <Link href='/blog/write'>Write Post</Link>
+  <div className='bg-[#fdf0f4]'>
+    <div className='mx-[20%] w-[50%]'>
+      <div className='flex justify-between items-center pt-5 mb-6 gap-x-5'>
+        <input type="text" placeholder='Search Posts' className='w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400' />
+        <Link href='/blog/write' className='bg-violet-600 hover:bg-violet-700 rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2'>Create Post</Link>
       </div>
       {posts.map((post) => (
-        <div key={post.id} className='font-mono bg-white p-4 border border-gray-300 shadow-md rounded-md mb-5'>
+        <div key={post.id} className=' bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5'>
           <div className='flex justify-between items-center border-b border-gray-200 pb-3 mb-2'>
             <div className='flex items-center w-36 justify-start gap-3'>
               <Image 
@@ -192,7 +175,7 @@ function Posts() {
                 height={30}
                 className="rounded-full"
               />
-              <h2 className='text-xl text-gray-400'>{post.author.personalInfo.firstName}</h2>
+              <h2 className='text-lg font-semibold text-gray-500'>{post.author.personalInfo.firstName}</h2>
             </div>
             <div className='text-gray-400'>{getRelativeTime(post.createdAt)}</div>
           </div>
@@ -217,13 +200,13 @@ function Posts() {
             <div className='flex gap-3 items-center'>
               <div className='flex items-center'>
                 <button onClick={() => handleInteraction(post.id, 'like')}>
-                  {post.userInteraction === 'like' ? <AiFillLike className='size-6' fill='blue' /> : <AiOutlineLike className='size-6' fill='blue' />}
+                  {post.userInteraction === 'like' ? <BiSolidLike className='size-6' fill='green' /> : <BiLike className='size-6' fill='green' />}
                 </button>
                 <p className='text-xl'>{post.likes}</p>
               </div>
               <div className='flex items-center'>
                 <button onClick={() => handleInteraction(post.id, 'dislike')}>
-                  {post.userInteraction === 'dislike' ? <AiFillDislike className='size-6' fill='red' /> : <AiOutlineDislike className='size-6' fill='red' />}
+                  {post.userInteraction === 'dislike' ? <BiSolidDislike className='size-6' fill='red' /> : <BiDislike className='size-6' fill='red' />}
                 </button>
                 <p>{post.dislikes}</p>
               </div>
@@ -241,6 +224,7 @@ function Posts() {
         </div>
       ))}
     </div>
+  </div>
   );
 }
 

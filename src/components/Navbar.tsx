@@ -28,12 +28,12 @@ const Navbar = () => {
   ];
   
     return (
-        <nav className="flex gap-x-6 text-gray-500 bg-white sticky top-0 z-10 h-fit lg:mt-6 p-3 w-screen xl:px-56 md:px-24 sm:px-8 px-3 ">
-            {nav.map((nav, index) => (
+<nav className="flex gap-x-6 text-white   bg-[#673399]   sticky top-0 z-10 h-fit lg:p-3 w-screen xl:px-56 md:px-24 sm:px-8 px-3">
+{nav.map((nav, index) => (
                 <Link
                     key={index}
                     href={nav.path}
-                    className={`text-lg ${pathname === (nav.path) ? 'text-pink-500 font-bold' : 'text-gray-500 font-semibold'}`}
+                    className={`text-lg transition-colors duration-100 ${pathname === (nav.path) ? ' text-[#fed028] font-semibold' : 'hover:text-[#fed028] font-semibold'}`}
                 >
                     {nav.name}
                 </Link>

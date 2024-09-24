@@ -39,3 +39,23 @@ export const initialUserDetails: UserDetails = {
     pincode: '',
     comments: '',
   };
+
+ export interface Post {
+    id: string;
+    title: string;
+    content: string;
+    likes: number;
+    dislikes: number;
+    createdAt: string;
+    comments: any[];
+    image: string | null;
+    author: {
+      personalInfo: {
+        firstName: string;
+        avatarUrl: string;
+      };
+    };
+    userInteraction?: 'like' | 'dislike' | 'none';
+    likedBy: { id: string }[];
+    dislikedBy: { id: string }[];
+  }
