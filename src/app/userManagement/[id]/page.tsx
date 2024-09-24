@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { User, MapPin, Phone, Mail, FileText, ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
+import LoadingPageUi from "@/components/LoadingPageUi";
 
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
@@ -53,11 +54,11 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading) return <div className="text-center mt-10"><LoadingPageUi/></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-2xl">
+    <div className="max-w-4xl mx-auto mt-10 p-8 bg-[#f4f4f4] rounded-xl shadow-2xl">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
       {profile && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

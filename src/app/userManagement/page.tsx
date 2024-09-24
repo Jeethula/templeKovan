@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-enterprise';
@@ -9,6 +8,10 @@ import { useRouter } from 'next/navigation';
 import { ColDef } from 'ag-grid-community';
 import { Check, Clock } from 'lucide-react';
 import './style.css';
+import { formatDate } from '@/utils/formatdate';
+import { FaCheckDouble } from 'react-icons/fa';
+import { IoCheckmarkDone } from 'react-icons/io5';
+import { RxCross1 } from 'react-icons/rx';
 
 const PersonalInfoGrid = () => {
   const router = useRouter();
@@ -24,6 +27,10 @@ const PersonalInfoGrid = () => {
   };
 
   useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if(sessionData.role !== 'Admin') {
+      router.push('/unAuthorized');
+    }
     fetchData();
   }, []);
 
@@ -46,15 +53,23 @@ const PersonalInfoGrid = () => {
     if (params.value === 'pending') {
       return (
         <div className='flex justify-center items-center text-yellow-500 font-bold'>
-          <Clock size={14} style={{marginRight: '4px'}} />
+          <Clock size={16} style={{marginRight: '4px'}} />
           Pending
+        </div>
+      );
+    }
+    if (params.value === 'rejected') {
+      return (
+        <div className='flex justify-center items-center text-red-500 font-bold'>
+          <RxCross1 size={16} style={{marginRight: '4px'}} />
+          Rejected
         </div>
       );
     }
     if (params.value === 'approved') {
       return (
           <div className='flex justify-center items-center text-green-500 font-bold'>
-          <Check size={14} style={{marginRight: '4px'}} />
+          <IoCheckmarkDone size={20} style={{marginRight: '4px'}} />
           Approved
           </div>
       );
@@ -99,11 +114,8 @@ const PersonalInfoGrid = () => {
       sortable: true, 
       filter: 'agDateColumnFilter',
       valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
+        console.log(params.value,"2efeferfrefr")
+        return new Date(params.value).toLocaleDateString() 
       },
       flex: 2,
       cellStyle: { textAlign: 'center' }
@@ -134,9 +146,9 @@ const PersonalInfoGrid = () => {
   };
 
   return (
-    <div className=" mt-5 flex items-center justify-center ">
-      <div className="w-full max-w-7xl bg-white rounded-xl shadow-lg ">
-        <div className="ag-theme-alpine" style={{ height: '50%', width: '50%' }}>
+  <div className='bg-[#f4f4f4] h-full w-full min-h-screen min-w-screen'>
+    <div className=" pt-5 flex flex-col items-center gap-y-5 justify-center ">
+        <div className="ag-theme-alpine" style={{ height: '70%', width: '90%' }}>
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
@@ -149,7 +161,7 @@ const PersonalInfoGrid = () => {
               'hover:bg-blue-50 cursor-pointer': () => true,
             }}
             headerHeight={48}
-            rowHeight={56}
+            rowHeight={45}
             domLayout="autoHeight"
             animateRows={true}
             enableCellTextSelection={true}
@@ -157,6 +169,7 @@ const PersonalInfoGrid = () => {
             
           />
         </div>
+
       </div>
     </div>
   );

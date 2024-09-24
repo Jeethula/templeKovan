@@ -19,7 +19,8 @@ export async function GET(){
                 country:true,
                 comments:true,
                 isApproved:true,
-                avatarUrl:true
+                avatarUrl:true,
+                createdAt:true,
             },
             orderBy:{
                 createdAt:"desc"
