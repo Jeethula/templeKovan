@@ -50,6 +50,7 @@ export const initialUserDetails: UserDetails = {
     comments: any[];
     image: string | null;
     author: {
+      id:string;
       personalInfo: {
         firstName: string;
         avatarUrl: string;
