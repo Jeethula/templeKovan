@@ -12,7 +12,7 @@ function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [comment, setComment] = useState<string>("");
+  const [comments, setComments] = useState<{ [key: string]: string }>({}); 
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
@@ -82,9 +82,9 @@ function Posts() {
     interactionType: "like" | "dislike"
   ) => {
     if (!userId) return;
-    const post = posts.find((p) => p.id === postId);
+    const post = filteredPosts.find((p) => p.id === postId);
     if (!post) return;
-
+    console.log("post", post);
     let endpoint1: string,
       endpoint2: string | null = null;
     let newInteraction: "like" | "dislike" | "none";
@@ -124,7 +124,49 @@ function Posts() {
         }
       }
     }
+    try {
+      const response = await fetch(endpoint1, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_id: postId, user_id: userId }),
+      });
+    } catch (error) {
+      console.error(`Error ${interactionType}ing post:`, error);
+    }
 
+    if (endpoint2) {
+      try {
+        const response = await fetch(endpoint2, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ post_id: postId, user_id: userId }),
+        });
+      } catch (error) {
+        console.error(`Error updating opposite interaction:`, error);
+      }
+    }
+
+    setFilteredPosts((prevPosts) =>
+      prevPosts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              likes: p.likes + likesChange,
+              dislikes: p.dislikes + dislikesChange,
+              userInteraction: newInteraction,
+              liked_by:
+                newInteraction === "like"
+                  ? [...(p.likedBy || []), { id: userId }]
+                  : (p.likedBy || []).filter((u) => u.id !== userId),
+              disliked_by:
+                newInteraction === "dislike"
+                  ? [...(p.dislikedBy || []), { id: userId }]
+                  : (p.dislikedBy || []).filter((u) => u.id !== userId),
+            }
+          : p
+      )
+    );
+    
     setPosts((prevPosts) =>
       prevPosts.map((p) =>
         p.id === postId
@@ -145,30 +187,6 @@ function Posts() {
           : p
       )
     );
-
-    try {
-      const response = await fetch(endpoint1, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: postId, user_id: userId }),
-      });
-      const result = await response.json();
-    } catch (error) {
-      console.error(`Error ${interactionType}ing post:`, error);
-    }
-
-    if (endpoint2) {
-      try {
-        const response = await fetch(endpoint2, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ post_id: postId, user_id: userId }),
-        });
-        const result = await response.json();
-      } catch (error) {
-        console.error(`Error updating opposite interaction:`, error);
-      }
-    }
   };
 
   const handleReadmore = (postId: string) => {
@@ -183,12 +201,17 @@ function Posts() {
     setFilteredPosts(filtered);
 };
 
-  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setComment(e.target.value);
-  };
+const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: string) => {
+  setComments((prevComments) => ({
+    ...prevComments,
+    [postId]: e.target.value,
+  }));
+};
 
-  const handleCommentSubmit = async (postId:string) => {
-    if (!userId) return;
+  const handleCommentSubmit = async (postId: string) => {
+    const comment = comments[postId];
+    if (!userId || !comment) return;
+
     const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
@@ -201,15 +224,18 @@ function Posts() {
       
       const result = await response.json();
       console.log(result);
-      
-      if(result.status===200){
-        setComment("");
+
+      if (result.status === 200) {
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postId]: "",
+        }));
         fetchData();
       }
     } catch (error) {
       console.error(`Error adding comment:`, error);
     }
-  }
+  };
 
   return (
     <div className="bg-[#f4f4f4]">
@@ -220,11 +246,11 @@ function Posts() {
             onChange={handleChange}
             value={search}
             placeholder="Search Posts"
-            className="w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400"
+            className="w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md placeholder:text-gray-400"
           />
           <Link
             href="/blog/write"
-            className=" bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2"
+            className="bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2"
           >
             Create Post
           </Link>
@@ -233,7 +259,7 @@ function Posts() {
         {filteredPosts.map((post) => (
           <div
             key={post.id}
-            className=" bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5"
+            className="bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5"
           >
             <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
               <div className="flex items-center w-36 justify-start gap-3">
@@ -249,9 +275,7 @@ function Posts() {
                 </h2>
               </div>
               <div className="flex items-center gap-x-4">
-                <div className="text-gray-400">
-                  {getRelativeTime(post.createdAt)}
-                </div>
+                <div className="text-gray-400">{getRelativeTime(post.createdAt)}</div>
               </div>
             </div>
 
@@ -272,9 +296,7 @@ function Posts() {
                 </div>
               )}
               <div className="mt-2">
-                <p
-                  className={`text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4  `}
-                >
+                <p className="text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4">
                   {post?.content}
                 </p>
                 {post?.content.length > 50 && (
@@ -290,7 +312,7 @@ function Posts() {
 
             <div className="flex justify-between items-center border-b border-gray-200 pb-2">
               <div className="flex gap-x-4 items-center">
-                <div className="flex items-center gap-x-1 ">
+                <div className="flex items-center gap-x-1">
                   <button onClick={() => handleInteraction(post.id, "like")}>
                     {post.userInteraction === "like" ? (
                       <BiSolidLike className="size-6" fill="green" />
@@ -300,7 +322,7 @@ function Posts() {
                   </button>
                   <p className="text-xl">{post.likes}</p>
                 </div>
-                <div className="flex items-center gap-x-1 ">
+                <div className="flex items-center gap-x-1">
                   <button onClick={() => handleInteraction(post.id, "dislike")}>
                     {post.userInteraction === "dislike" ? (
                       <BiSolidDislike className="size-6" fill="red" />
@@ -322,20 +344,27 @@ function Posts() {
             <div className="mt-4">
               <input
                 type="text"
-                onChange={handleCommentChange}
-                value={comment}
+                onChange={(e) => handleCommentChange(e, post.id)} 
+                value={comments[post.id] || ""}
                 placeholder="Add a Comment"
                 className="w-full px-3 py-2 border border-gray-400 rounded-md bg-gray-100 placeholder:text-gray-400"
               />
             </div>
             <div className="flex justify-start mt-4">
-              {comment.length>0&& <button className='text-white bg-orange-500 rounded-md px-2 py-1' onClick={async () => await handleCommentSubmit(post.id)}>Add Comment</button>}
+              {comments[post.id]?.length > 0 && (
+                <button
+                  className="text-white bg-orange-500 rounded-md px-2 py-1"
+                  onClick={async () => await handleCommentSubmit(post.id)}
+                >
+                  Add Comment
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
     </div>
   );
-}
+};
 
 export default Posts;
