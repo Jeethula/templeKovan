@@ -97,7 +97,7 @@ const UserDetailsForm: React.FC = () => {
 
   const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
     <div className="mb-4">
-      <label className="block font-semibold text-sm text-black mb-1">{label.toUpperCase()}</label>
+      <label className="block font-semibold text-sm text-black mb-1">{label}</label>
       {type === 'select' ? (
         <select
           name={name}
@@ -122,7 +122,7 @@ const UserDetailsForm: React.FC = () => {
         <input
           type={type}
           name={name}
-          placeholder={`Enter ${label}`}
+          placeholder={`Enter ${label === "Address Line 1" ? "Door No" : label === "Address Line 2" ? "Street Name" : label}`}
           value={userDetails[name]}
           onChange={handleChange}
           maxLength={name === 'phone_number' ? 10 : name === 'pincode' ? 6 : undefined}
@@ -134,13 +134,13 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]  ">
-      <div className="bg-white h-fit w-[75%] rounded-xl p-4 px-9 mt-5 mb-10">
+    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#f4f4f4]  ">
+      <div className="bg-white h-fit w-[75%] rounded-xl shadow-xl p-4 px-9 mt-5 mb-10">
         <h1 className="text-2xl text-wrap font-bold mb-2">Add Profile </h1>
         <p className='text-gray-500 text-wrap mb-5'>Fill in the details of the new user in the form below, who will be your referral.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block font-semibold text-sm text-[#233543] mb-1">EMAIL</label>
+            <label className="block font-semibold text-sm text-[#233543] mb-1">EmaiL</label>
             <input
               type="email"
               value={email}
@@ -163,7 +163,7 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-700  text-white rounded-md">
+            <button type="submit" className="font-semibold p-2 bg-orange-500 hover:bg-orange-600   text-white rounded-md">
               Create Profile
             </button>
           </div>

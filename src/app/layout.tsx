@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins} antialiased bg-[#fdf0f4]`}>
+      <body className={`${poppins} antialiased bg-yellow-50`}>
         <Theme>
           <AuthProvider>
             <AuthWrapper>

@@ -4,6 +4,8 @@ import { AiOutlineLike, AiOutlineDislike, AiFillLike, AiFillDislike } from "reac
 import { FaArrowLeft } from "react-icons/fa";
 import Link from 'next/link';
 import Image from 'next/image';
+import LoadingPageUi from '@/components/LoadingPageUi';
+import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from 'react-icons/bi';
 
 
 interface Comment {
@@ -17,7 +19,6 @@ interface Comment {
         }
     }
 }
-
 interface Post {
     id: string;
     title: string;
@@ -185,10 +186,11 @@ function Post({ params }: { params: { id: string } }) {
         return "Just now";
     };
     
-    return post===null ? <p>Loading...</p> : 
-    (
-        <div>
-            <div className='max-w-2xl bg-white mx-auto mb-5 mt-5'>
+    return post===null ? <p><LoadingPageUi/></p> : 
+    (  
+     <div className='bg-[#f4f4f4] w-full h-full min-w-screen min-h-screen'>
+        <div className='max-w-2xl bg-[#f4f4f4] mx-60 mb-5 pt-5'>
+            <div>
                 <div className='mb-7'>
                     <Link className='hover:underline text-blue-500 flex items-center gap-1' href='/blog'>
                         <FaArrowLeft className='size-4' /> Back to Posts
@@ -211,16 +213,16 @@ function Post({ params }: { params: { id: string } }) {
                 )}
                 <p className='mb-4'>{post.content}</p>
                 <div className='flex justify-between items-center'>
-                    <div className='flex gap-3 items-center'>
-                        <div className='flex items-center'>
+                    <div className='flex gap-x-4 items-center'>
+                        <div className='flex items-center gap-x-1'>
                             <button onClick={() => handleInteraction('like')}>
-                                {post.userInteraction === 'like' ? <AiFillLike className='size-6' fill='blue' /> : <AiOutlineLike className='size-6' fill='blue' />}
+                                {post.userInteraction === 'like' ? <BiSolidLike className='size-6' fill='green' /> : <BiLike className='size-6' fill='green' />}
                             </button>
                             <p className='text-xl'>{post.likes}</p>
                         </div>
-                        <div className='flex items-center'>
+                        <div className='flex items-center gap-x-1'>
                             <button onClick={() => handleInteraction('dislike')}>
-                                {post.userInteraction === 'dislike' ? <AiFillDislike className='size-6' fill='red' /> : <AiOutlineDislike className='size-6' fill='red' />}
+                                {post.userInteraction === 'dislike' ? <BiSolidDislike className='size-6' fill='red' /> : <BiDislike className='size-6' fill='red' />}
                             </button>
                             <p className='text-xl'>{post.dislikes}</p>
                         </div>
@@ -229,8 +231,8 @@ function Post({ params }: { params: { id: string } }) {
 
             </div>
 
-            <div className='max-w-2xl mx-auto'>
-                <h2 className='text-xl font-semibold mb-5'>Comments</h2>
+            <div >
+                <h2 className='text-xl font-semibold mt-5 mb-5'>Comments</h2>
                 <div className='mb-5'>
                     <form onSubmit={handleSubmit}>
                         <textarea 
@@ -262,7 +264,7 @@ function Post({ params }: { params: { id: string } }) {
                     </div>
                 ))}
             </div>                
-
+            </div>
         </div>
     );
 }

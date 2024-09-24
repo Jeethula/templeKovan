@@ -6,6 +6,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
 import { Post } from '../../utils/type';
+import LoadingPageUi from '@/components/LoadingPageUi';
+import LoadingUI from '../../components/LoadingUI';
+import { useRouter } from 'next/navigation';
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -19,6 +22,7 @@ function Posts() {
   useEffect(() => {    
     fetchData();
   }, []);
+
 
   const fetchData = async () => {
     if (loading) return;
@@ -49,6 +53,8 @@ function Posts() {
       setLoading(false);
     }
   };
+
+  const router = useRouter();
 
   const getRelativeTime = (date: string) => {
     const currentTime = new Date();
@@ -174,13 +180,20 @@ function Posts() {
     }
   };
 
+  const handleReadmore = (postId: string) => {
+      router.push(`blog/${postId}`);
+  }
+
   return (
-  <div className='bg-[#fdf0f4]'>
+  <div className='bg-[#f4f4f4]'>
     <div className='mx-[20%] w-[50%]'>
       <div className='flex justify-between items-center pt-5 mb-6 gap-x-5'>
         <input type="text" placeholder='Search Posts' className='w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400' />
-        <Link href='/blog/write' className='bg-violet-600 hover:bg-violet-700 rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2'>Create Post</Link>
+        <Link href='/blog/write' className=' bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2'>Create Post</Link>
       </div>
+      {
+        loading && <LoadingUI />
+      }
       {posts.map((post) => (
         <div key={post.id} className=' bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5'>
           <div className='flex justify-between items-center border-b border-gray-200 pb-3 mb-2'>
@@ -220,19 +233,20 @@ function Posts() {
               </div>
             )}
             <div className='mt-2'>
-              <p className='mb-4 w-full max-h-40 overflow-auto text-gray-700 tracking-wide p-2 leading-6 text-base'>{post.content}</p>
+            <p className={`text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4  `}>{post?.content}</p> 
+            {post?.content.length > 50 && <h1 className="text-blue-700 hover:text-blue-900 underline cursor-pointer" onClick={() => handleReadmore(post.id)}>Read more</h1>}
             </div>
           </div>
 
           <div className='flex justify-between items-center border-b border-gray-200 pb-2'>
-            <div className='flex gap-3 items-center'>
-              <div className='flex items-center'>
+            <div className='flex gap-x-4 items-center'>
+              <div className='flex items-center gap-x-1 '>
                 <button onClick={() => handleInteraction(post.id, 'like')}>
                   {post.userInteraction === 'like' ? <BiSolidLike className='size-6' fill='green' /> : <BiLike className='size-6' fill='green' />}
                 </button>
                 <p className='text-xl'>{post.likes}</p>
               </div>
-              <div className='flex items-center'>
+              <div className='flex items-center gap-x-1 '>
                 <button onClick={() => handleInteraction(post.id, 'dislike')}>
                   {post.userInteraction === 'dislike' ? <BiSolidDislike className='size-6' fill='red' /> : <BiDislike className='size-6' fill='red' />}
                 </button>
@@ -240,14 +254,13 @@ function Posts() {
               </div>
             </div>
             <div className='flex justify-between'>
-              <p className='text-gray-400 text-base'>{post.comments.length} comments</p>
+            <Link href={`/blog/${post.id}`}> 
+             <p className='text-gray-400 text-base cursor-pointer'>{post.comments.length} comments</p>
+            </Link> 
             </div>
           </div>
-
           <div className='mt-4'>
-            <Link href={`/blog/${post.id}`}>
               <input type="text" placeholder='Add a Comment' className='w-full px-3 py-2 border border-gray-400 rounded-md bg-gray-100 placeholder:text-gray-400' />
-            </Link>
           </div>
         </div>
       ))}

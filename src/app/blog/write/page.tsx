@@ -94,10 +94,10 @@ function WritePost() {
 
 
   return (
-    <div className="max-w-2xl mx-auto mt-5 font-mono">
-      <h1 className="font-semibold">
-        Blogging: Because therapy is expensive and your cat's not a good
-        listener
+    <div className="bg-[#f4f4f4] h-full w-full min-h-screen min-w-screen">
+    <div className="max-w-2xl mx-60 bg-[#f4f4f4]">
+      <h1 className="font-semibold text-2xl pt-5">
+        Write a new post
       </h1>
       <form className="mt-5" onSubmit={handleSubmit}>
         <div className="mb-5">
@@ -160,6 +160,7 @@ function WritePost() {
         </div>
       </form>
     </div>
+  </div>
   );
 };
 

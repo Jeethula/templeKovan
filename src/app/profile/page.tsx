@@ -139,7 +139,7 @@ const UserDetailsForm: React.FC = () => {
 
   const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
     <div className="mb-4">
-      <label className="block font-semibold text-sm text-[#233543] mb-1">{label.toUpperCase()}</label>
+      <label className="block font-semibold text-md text-[#233543] mb-1">{label}</label>
       {type === 'select' ? (
         <select
           name={name}
@@ -164,7 +164,7 @@ const UserDetailsForm: React.FC = () => {
         <input
           type={type}
           name={name}
-          placeholder={`Enter ${label}`}
+          placeholder={`Enter ${label === "Address Line 1" ? "Door No" : label === "Address Line 2" ? "Street Name" : label}`}
           value={userDetails[name]}
           onChange={handleChange}
           maxLength={name === 'phone_number' ? 10 : name === 'pincode' ? 6 : undefined}
@@ -176,7 +176,7 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
+    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#f4f4f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 w-[75%] p-4 px-9 mt-5">
         <h1 className="text-2xl font-bold mb-8">Your Details</h1>
         <form onSubmit={handleSubmit}>
@@ -192,8 +192,8 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-           { !isupdate && <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-500  text-white rounded-md">Submit</button>}
-           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-violet-600 hover:bg-violet-500  text-white rounded-md">Update Details</div>}
+           { !isupdate && <button type="submit" className="font-semibold p-2 bg-orange-300 hover:bg-orange-600   text-white rounded-md">Submit</button>}
+           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-orange-500 hover:bg-orange-600  text-white rounded-md">Update Details</div>}
           </div>
         </form>
       </div>
