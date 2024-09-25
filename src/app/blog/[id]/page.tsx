@@ -86,6 +86,7 @@ function Post({ params }: { params: { id: string } }) {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
         if (!comment) {
             setError({ comment: 'Comment is required' });
             return;
