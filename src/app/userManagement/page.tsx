@@ -6,10 +6,8 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useRouter } from 'next/navigation';
 import { ColDef } from 'ag-grid-community';
-import { Check, Clock } from 'lucide-react';
+import {  Clock } from 'lucide-react';
 import './style.css';
-import { formatDate } from '@/utils/formatdate';
-import { FaCheckDouble } from 'react-icons/fa';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 
