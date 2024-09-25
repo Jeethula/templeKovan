@@ -18,6 +18,7 @@ function Posts() {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
+  const [commentLoading, setCommentLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -211,6 +212,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
 };
 
   const handleCommentSubmit = async (postId: string) => {
+    setCommentLoading(true)
     const comment = comments[postId];
     if (!userId || !comment) return;
 
@@ -233,8 +235,10 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
           ...prevComments,
           [postId]: "",
         }));
+        setCommentLoading(false);
         fetchData();
       } else {
+        setCommentLoading(false);
         toast.error("Failed to add comment. Please try again.");
       }
     } catch (error) {
@@ -363,7 +367,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
               />
             </div>
             <div className="flex justify-start mt-4">
-              {comments[post.id]?.length > 0 && (
+              {comments[post.id]?.length > 0 && !commentLoading &&  (
                 <button
                   className="text-white bg-violet-500 hover:bg-violet-600 rounded-md px-2 py-1"
                   onClick={async () => await handleCommentSubmit(post.id)}

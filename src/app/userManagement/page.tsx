@@ -223,12 +223,16 @@ const PersonalInfoGrid = () => {
   return (
     <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen'>
       <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
+        <div className='flex w-full items-center justify-between gap-y-5 px-3'>
+          <h1 className='text-3xl font-semibold text-orange-500'>Manage Users</h1>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4"
+          className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-4 py-2 rounded-md mb-4"
           onClick={() => setShowAllData(!showAllData)}
         >
           {showAllData ? 'View Less Data' : 'View All Data'}
         </button>
+        </div>
+
         <div className="ag-theme-alpine" style={{ height: '80%', width: '100%' }}>
           <AgGridReact
             rowData={rowData}

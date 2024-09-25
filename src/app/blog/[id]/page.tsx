@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
+import toast from "react-hot-toast";
 
 interface Comment {
   user_name: string;
@@ -48,6 +49,7 @@ function Post({ params }: { params: { id: string } }) {
   const role: string = sessionData.role;
   const [error, setError] = useState<{ comment: string }>({ comment: "" });
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchData = async () => {
     try {
@@ -93,6 +95,7 @@ function Post({ params }: { params: { id: string } }) {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
@@ -105,10 +108,18 @@ function Post({ params }: { params: { id: string } }) {
       });
 
       const data = await response.json();
-      setComment("");
-      await fetchData();
+      if (response.ok) {
+        toast.success("Comment added successfully!");
+        setComment("");
+        await fetchData();
+      } else {
+        toast.error("Failed to add comment. Please try again.");
+      }
     } catch (error) {
       console.error("Error submitting comment:", error);
+      toast.error("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,6 +215,7 @@ function Post({ params }: { params: { id: string } }) {
   };
 
   const handleDelete = async (postId: string) => {
+    setLoading(true);
     try {
       const response = await fetch("/api/post", {
         method: "DELETE",
@@ -212,12 +224,16 @@ function Post({ params }: { params: { id: string } }) {
       });
 
       if (response.ok) {
+        toast.success("Post deleted successfully!");
         router.push("/blog");
       } else {
-        console.error("Failed to delete post");
+        toast.error("Failed to delete post. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting post:", error);
+      toast.error("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -314,8 +330,29 @@ function Post({ params }: { params: { id: string } }) {
                 onFocus={() => setError((prev) => ({ ...prev, comment: "" }))}
               ></textarea>
               {error.comment && <p className="text-red-500">{error.comment}</p>}
-              <button className="bg-violet-500 hover:bg-violet-600 text-white rounded-md px-3 py-2 font-semibold mt-5">
-                Post Comment
+              <button
+                type="submit"
+                disabled={loading}
+                className={`bg-violet-500 hover:bg-violet-600 text-white rounded-md px-3 py-2 font-semibold mt-5 ${
+                  loading ? "cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Posting Comment...
+                  </div>
+                ) : (
+                  "Post Comment"
+                )}
               </button>
             </form>
           </div>

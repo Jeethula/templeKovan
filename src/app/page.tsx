@@ -22,7 +22,11 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    UserDetails();
+    UserDetails().then(()=>{
+      if(sessionStorage.getItem('user') === null){
+        window.location.href = '/';
+      }
+    });
   },[])
 
   return (
