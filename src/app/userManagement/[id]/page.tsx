@@ -11,19 +11,10 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
-
-  interface Profile {
-    email: string;
-    [key: string]: string  ;
-  }
 interface Post {
   posts: Post[];
 }
 
-  interface HistoryItem {
-    updatedAt: string;
-    [key: string]: string  ;
-  }
 interface User {
   // other properties...
   posts: Post[];
