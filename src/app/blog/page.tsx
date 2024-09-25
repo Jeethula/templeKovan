@@ -155,6 +155,8 @@ function Posts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post_id: postId, user_id: userId }),
       });
+      const result = await response.json();
+      console.log(result);
     } catch (error) {
       console.error(`Error ${interactionType}ing post:`, error);
     }
@@ -166,6 +168,8 @@ function Posts() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ post_id: postId, user_id: userId }),
         });
+        const result = await response.json();
+        console.log(result);
       } catch (error) {
         console.error(`Error updating opposite interaction:`, error);
       }

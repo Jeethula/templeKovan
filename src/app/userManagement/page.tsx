@@ -47,17 +47,17 @@ const PersonalInfoGrid = () => {
   const paginationPageSizeSelector = [10, 20, 50, 100];
 
   const statusCellRenderer = (params: { value: string }) => {
-    const statusStyle = {
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 'fit-content',
-      margin: '0 auto',
-    };
+    // const statusStyle = {
+    //   padding: '4px 8px',
+    //   borderRadius: '12px',
+    //   fontSize: '0.875rem',
+    //   fontWeight: '500',
+    //   display: 'flex',
+    //   alignItems: 'center',
+    //   justifyContent: 'center',
+    //   width: 'fit-content',
+    //   margin: '0 auto',
+    // };
 
     if (params.value === 'pending') {
       return (
@@ -205,10 +205,11 @@ const PersonalInfoGrid = () => {
     resizable: true,
   }), []);
 
-  const onRowClicked = (event: any) => {
-    const selectedId = event.data.id;
-    router.push(`userManagement/${selectedId}`);
-  };
+const onRowClicked = (event: { data: { id: string } }) => {
+  const selectedId = event.data.id;
+  router.push(`userManagement/${selectedId}`);
+}
+
 
   const getColumnDefs = () => {
     if (showAllData) {

@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Inter } from "next/font/google";
@@ -18,10 +19,10 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+// const poppins = Poppins({
+//   subsets: ["latin"],
+//   weight: ["400", "500", "600", "700"],
+// });
 
 export default function RootLayout({
   children,
@@ -30,6 +31,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Add the Google Translate script */}
+        <script
+          type="text/javascript"
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        ></script>
+      </head>
       <body className={`${inter} antialiased bg-[#fdf0f4]`}>
         <Theme>
           <AuthProvider>

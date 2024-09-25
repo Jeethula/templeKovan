@@ -2,18 +2,28 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Backpack, MessageSquare, MessageSquareOff, UserCircle2 } from 'lucide-react';
+import {  MessageSquare, UserCircle2 } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
-import { BsFileTextFill, BsPhoneFill, BsTrash2Fill } from "react-icons/bs";
+import { BsFileTextFill, BsPhoneFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
-  const [profile, setProfile] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  interface Profile {
+    email: string;
+    [key: string]: any; 
+  }
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  interface HistoryItem {
+    updatedAt: string;
+    [key: string]: any;
+  }
+
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -36,6 +46,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         setLoading(false);
       }
     } catch (e) {
+      console.log(e)
       setError("An error occurred while fetching the profile");
       setLoading(false);
     }
@@ -56,6 +67,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       }
       setLoading(false);
     } catch (e) {
+      console.log(e)
       setError("An error occurred while fetching the history");
       setLoading(false);
     }
@@ -66,13 +78,14 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const res = await fetch('/api/userDetails', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: profile.email, isApproved: status, adminEmail: adminEmail }),
+        body: JSON.stringify({ email: profile?.email, isApproved: status, adminEmail: adminEmail }),
       });
       const result = await res.json();
       if (result.success) {
         router.push('/userManagement');
       }
     } catch (e) {
+      console.log(e)
       setError("An error occurred while updating the status");
     }
   };
@@ -84,16 +97,16 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
-  const getChanges = (current: any, previous: any) => {
-    const changes: any[] = [];
+  const getChanges = (current: Profile, previous: HistoryItem): Change[] => {
+    const changes: Change[] = [];
     const personalInfoFields = ['salutation', 'firstName', 'lastName', 'email', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments', 'isApproved'];
-
+  
     personalInfoFields.forEach(field => {
       if (current[field] !== previous[field]) {
         changes.push({ field, from: previous[field], to: current[field] });
       }
     });
-
+  
     return changes;
   };
 
@@ -218,7 +231,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           Changes History
         </h3>
         {history.map((historyItem, index) => {
-          const changes = getChanges(profile, historyItem);
+          const changes = profile ? getChanges(profile, historyItem) : [];
           return (
             <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
               <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">

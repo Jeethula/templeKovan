@@ -49,7 +49,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithPopup, User } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../Firebase/Firebase';
 
 const Login = () => {

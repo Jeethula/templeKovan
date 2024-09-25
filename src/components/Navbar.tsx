@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { signOut } from 'firebase/auth';
 import { auth } from '../Firebase/Firebase';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import TranslateComponent from './TranslateComponent';
 
 const Navbar = () => {
     const pathname = usePathname();
@@ -67,6 +68,7 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
+          <div className='p-3'><TranslateComponent /> </div> 
         </div>
       )}
     </div>
@@ -99,6 +101,9 @@ const Navbar = () => {
       ))}
     </div>
   </div>
+  <div className='hidden md:block'>
+  <TranslateComponent />
+</div>
   <button
     onClick={handleSignOut}
     className="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"

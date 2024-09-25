@@ -106,8 +106,6 @@ function Post({ params }: { params: { id: string } }) {
           user_id: userId,
         }),
       });
-
-      const data = await response.json();
       if (response.ok) {
         toast.success("Comment added successfully!");
         setComment("");

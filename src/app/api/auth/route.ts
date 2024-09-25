@@ -26,6 +26,7 @@ export async function POST(req:Request){
     }
 
     }catch(e){
+        console.log(e)
         return NextResponse.json({error:"error in user",status:404});
     }
 }

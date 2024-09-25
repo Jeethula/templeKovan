@@ -1,5 +1,4 @@
 "use client";
-import Navbar from '@/components/Navbar';
 import { useAuth } from './AuthContext';
 import Login from '../../components/Login';
 
