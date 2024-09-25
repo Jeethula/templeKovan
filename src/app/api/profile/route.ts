@@ -85,3 +85,5 @@ export async function POST(req:Request){
         return NextResponse.json({error:e,status:500})
     }
 }
+
+// delete operation
