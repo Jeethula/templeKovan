@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Backpack, MessageSquare, MessageSquareOff, UserCircle2} from 'lucide-react';
+import { Backpack, MessageSquare, MessageSquareOff, UserCircle2 } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
@@ -13,6 +13,7 @@ import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [profile, setProfile] = useState<any>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -29,12 +30,33 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const data = await res.json();
       if (data.status === 200) {
         setProfile(data.details);
+        fetchHistory(data.details.email);
       } else {
         setError("User profile not found");
+        setLoading(false);
+      }
+    } catch (e) {
+      setError("An error occurred while fetching the profile");
+      setLoading(false);
+    }
+  };
+
+  const fetchHistory = async (email: string) => {
+    try {
+      const res = await fetch('/api/profilehistory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.status === 200) {
+        setHistory(data.details);
+      } else {
+        setError("User history not found");
       }
       setLoading(false);
     } catch (e) {
-      setError("An error occurred while fetching the profile");
+      setError("An error occurred while fetching the history");
       setLoading(false);
     }
   };
@@ -61,6 +83,31 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
   if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
+
+  const getChanges = (current: any, previous: any) => {
+    const changes: any[] = [];
+    const personalInfoFields = ['salutation', 'firstName', 'lastName', 'email', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments', 'isApproved'];
+
+    personalInfoFields.forEach(field => {
+      if (current[field] !== previous[field]) {
+        changes.push({ field, from: previous[field], to: current[field] });
+      }
+    });
+
+    return changes;
+  };
+
+  interface Change {
+    field: string;
+    from: any;
+    to: any;
+  }
+
+  const ChangeHistoryItem = ({ change }: { change: Change }) => (
+    <p className="text-gray-700">
+      <span className="font-medium">{change.field}:</span> {JSON.stringify(change.from)} → {JSON.stringify(change.to)}
+    </p>
+  );
 
   return (
     <div className="w-full min-w-screen h-full min-h-screen p-4 sm:p-8 bg-[#fdf0f4] rounded-xl">
@@ -116,15 +163,15 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center">
                   <BsFileTextFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Posts:</span> {profile.user.posts?.length || 0}</p>
+                  <p className="text-gray-700"><span className="font-medium">Posts:</span> {profile.user?.posts?.length || 0}</p>
                 </div>
                 <div className="flex items-center">
                   <PiThumbsUpFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Liked:</span> {profile.user.likedPosts?.length || 0}</p>
+                  <p className="text-gray-700"><span className="font-medium">Liked:</span> {profile.user?.likedPosts?.length || 0}</p>
                 </div>
                 <div className="flex items-center">
                   <PiThumbsDownFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Disliked:</span> {profile.user.dislikedPosts?.length || 0}</p>
+                  <p className="text-gray-700"><span className="font-medium">Disliked:</span> {profile.user?.dislikedPosts?.length || 0}</p>
                 </div>
                 <div className="flex items-center">
                   <MessageSquare size={20} className="mr-2 text-[#663399]" fill="currentColor" />
@@ -135,13 +182,14 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           </div>
         </div>
       )}
+
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-        {profile.isApproved === "approved" ? (
+        {profile?.isApproved === "approved" ? (
           <button
             className="w-full sm:w-auto px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1 flex items-center justify-center"
-            onClick={()=>updateApprovalStatus("rejected")}
+            onClick={() => updateApprovalStatus("rejected")}
           >
-            <FaUserXmark  size={18} className="mr-2" fill="currentColor" />
+            <FaUserXmark size={18} className="mr-2" fill="currentColor" />
             Reject
           </button>
         ) : (
@@ -150,8 +198,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               className="w-full flex items-center gap-x-3 sm:w-auto px-8 py-3 bg-[#663399] text-white font-semibold rounded-lg shadow-lg hover:bg-[#5a2d8a] transition duration-300 ease-in-out transform hover:-translate-y-1"
               onClick={() => updateApprovalStatus("approved")}
             >
-            <FaUserCheck />
-            Accept
+              <FaUserCheck />
+              Accept
             </button>
             <button
               className="w-full flex items-center gap-x-3 sm:w-auto px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
@@ -162,6 +210,26 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </button>
           </>
         )}
+      </div>
+
+      <div className="mt-8 sm:mt-10">
+        <h3 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-[#663399]">
+          <FaUserFriends size={24} className="mr-2" fill="currentColor" />
+          Changes History
+        </h3>
+        {history.map((historyItem, index) => {
+          const changes = getChanges(profile, historyItem);
+          return (
+            <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
+              <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
+                {new Date(historyItem.updatedAt).toLocaleString()}
+              </h4>
+              {changes.map((change, idx) => (
+                <ChangeHistoryItem key={idx} change={change} />
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

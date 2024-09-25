@@ -126,6 +126,28 @@ function Posts() {
         }
       }
     }
+
+    setFilteredPosts((prevPosts) =>
+      prevPosts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              likes: p.likes + likesChange,
+              dislikes: p.dislikes + dislikesChange,
+              userInteraction: newInteraction,
+              liked_by:
+                newInteraction === "like"
+                  ? [...(p.likedBy || []), { id: userId }]
+                  : (p.likedBy || []).filter((u) => u.id !== userId),
+              disliked_by:
+                newInteraction === "dislike"
+                  ? [...(p.dislikedBy || []), { id: userId }]
+                  : (p.dislikedBy || []).filter((u) => u.id !== userId),
+            }
+          : p
+      )
+    );
+
     try {
       const response = await fetch(endpoint1, {
         method: "POST",
@@ -148,47 +170,6 @@ function Posts() {
       }
     }
 
-    setFilteredPosts((prevPosts) =>
-      prevPosts.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              likes: p.likes + likesChange,
-              dislikes: p.dislikes + dislikesChange,
-              userInteraction: newInteraction,
-              liked_by:
-                newInteraction === "like"
-                  ? [...(p.likedBy || []), { id: userId }]
-                  : (p.likedBy || []).filter((u) => u.id !== userId),
-              disliked_by:
-                newInteraction === "dislike"
-                  ? [...(p.dislikedBy || []), { id: userId }]
-                  : (p.dislikedBy || []).filter((u) => u.id !== userId),
-            }
-          : p
-      )
-    );
-    
-    setPosts((prevPosts) =>
-      prevPosts.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              likes: p.likes + likesChange,
-              dislikes: p.dislikes + dislikesChange,
-              userInteraction: newInteraction,
-              liked_by:
-                newInteraction === "like"
-                  ? [...(p.likedBy || []), { id: userId }]
-                  : (p.likedBy || []).filter((u) => u.id !== userId),
-              disliked_by:
-                newInteraction === "dislike"
-                  ? [...(p.dislikedBy || []), { id: userId }]
-                  : (p.dislikedBy || []).filter((u) => u.id !== userId),
-            }
-          : p
-      )
-    );
   };
 
   const handleReadmore = (postId: string) => {
