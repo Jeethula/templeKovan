@@ -2,16 +2,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { User, MapPin, Phone, Mail, FileText, ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
+import { User, MapPin, Phone, Mail, FileText, ThumbsUp, ThumbsDown, MessageSquare, Trash2 } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
-
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-  const adminEmail:string=sessionData.email
+  const adminEmail: string = sessionData.email;
   const router = useRouter();
 
   const fetchData = async () => {
@@ -39,9 +38,10 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const res = await fetch('/api/userDetails', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email:profile.email, isApproved:status,adminEmail:adminEmail }),
+        body: JSON.stringify({ email: profile.email, isApproved: status, adminEmail: adminEmail }),
       });
       const result = await res.json();
+      console.log(result)
       if (result.success) {
         router.push('/userManagement');
       }
@@ -54,17 +54,17 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center mt-10"><LoadingPageUi/></div>;
+  if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-8 bg-[#f4f4f4] rounded-xl shadow-2xl">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
+    <div className="max-w-5xl mx-auto p-8 bg-white rounded-xl">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
       {profile && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1 flex flex-col items-center">
-            <div className="relative w-40 h-40 mb-6">
-              <Image 
+            <div className="relative w-24 h-24 mb-6">
+              <Image
                 src={profile.avatarUrl || '/api/placeholder/160/160'}
                 alt="User profile picture"
                 layout="fill"
@@ -81,7 +81,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               {profile.phoneNumber || "N/A"}
             </p>
           </div>
-          
+
           <div className="md:col-span-2">
             <div className="bg-gray-100 p-6 rounded-lg mb-6">
               <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -93,7 +93,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               <p className="text-gray-700">{`${profile.city}, ${profile.state}`}</p>
               <p className="text-gray-700">{`${profile.country}, ${profile.pincode}`}</p>
             </div>
-            
+
             <div className="bg-blue-50 p-6 rounded-lg">
               <h3 className="text-xl font-semibold mb-4 flex items-center">
                 <User size={24} className="mr-2 text-blue-500" />
@@ -122,18 +122,30 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         </div>
       )}
       <div className="mt-10 flex justify-center space-x-6">
-        <button
-          className="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
-          onClick={() => updateApprovalStatus("approved")}
-        >
-          Accept
-        </button>
-        <button
-          className="px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
-          onClick={() => updateApprovalStatus("rejected")}
-        >
-          Reject
-        </button>
+        {profile.isApproved === "approved" ? (
+          <button
+            className="px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1 flex items-center"
+            onClick={()=>updateApprovalStatus("rejected")}
+          >
+            <Trash2 size={18} className="mr-2" />
+            Reject
+          </button>
+        ) : (
+          <>
+            <button
+              className="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
+              onClick={() => updateApprovalStatus("approved")}
+            >
+              Accept
+            </button>
+            <button
+              className="px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
+              onClick={() => updateApprovalStatus("rejected")}
+            >
+              Reject
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

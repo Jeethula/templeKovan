@@ -132,7 +132,6 @@ export async function DELETE(req: Request) {
 export async function PATCH(req: Request) {
     try {
         const body = await req.json();
-        console.log(body);
         console.log(body.email, body.adminEmail, body.isApproved);
 
         if (!body.email || !body.adminEmail || !body.isApproved ) {
@@ -157,6 +156,7 @@ export async function PATCH(req: Request) {
                 isApproved: body.isApproved
             }
         });
+        
 
         return NextResponse.json({ userDetails, status: 200, success: "User profile updated" });
 
