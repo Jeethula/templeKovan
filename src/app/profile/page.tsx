@@ -1,28 +1,30 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { UserDetails }from '../../utils/type'
-import {initialUserDetails} from '../../utils/type'
+import { UserDetails } from '../../utils/type';
+import { initialUserDetails } from '../../utils/type';
 import { useAuth } from '../context/AuthContext';
 import { FaUserEdit } from 'react-icons/fa';
-
+import { CgDetailsMore } from 'react-icons/cg';
+import toast from 'react-hot-toast';
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
-  const [isupdate, setIsupdate] = useState<boolean>(false);
-  const {user} = useAuth();
+  const [isEditable, setIsEditable] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { user } = useAuth();
 
-  const getadata = async () => {
-    const data = await fetch(`/api/userDetails?email=${user?.email}`,{
-      method:'GET',
-      headers:{
-        'Content-Type':'application/json'
+  const getData = async () => {
+    const data = await fetch(`/api/userDetails?email=${user?.email}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
       },
-    })
+    });
     const res = await data.json();
-    console.log(res.userDetails,"response113333");
-    if(res.userDetails){
-    setUserDetails({ 
+    console.log(res.userDetails, "response113333");
+    if (res.userDetails) {
+      setUserDetails({
         salutation: res.userDetails.salutation,
         first_name: res.userDetails.firstName,
         last_name: res.userDetails.lastName,
@@ -34,15 +36,16 @@ const UserDetailsForm: React.FC = () => {
         country: res.userDetails.country,
         pincode: res.userDetails.pincode,
         comments: res.userDetails.comments
-    });
-    setIsupdate(true);
+      });
+      setIsEditable(false); // Initially, the form should be non-editable
+    } else {
+      setIsEditable(true); // If no data, the form should be editable
     }
-  }
+  };
 
   useEffect(() => {
-    getadata();
+    getData();
   }, []);
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -75,66 +78,85 @@ const UserDetailsForm: React.FC = () => {
     setErrors(newErrors);
     return isValid;
   };
+
   const handleUpdate = async () => {
     if (validateForm()) {
-      console.log('Form updated:', userDetails);
-      const userDetailsToSend = {
-        firstName: userDetails.first_name,
-        lastName: userDetails.last_name,
-        phoneNumber: userDetails.phone_number,
-        address1: userDetails.address_line_1,
-        address2: userDetails.address_line_2,
-        city: userDetails.city,
-        state: userDetails.state,
-        pincode: userDetails.pincode,
-        country: userDetails.country,
-        comments: userDetails.comments,
-        salutation: userDetails.salutation,
-        email: user?.email,
-        avatarUrl:user?.photoURL
-      };
-        const res = await  fetch('/api/userDetails',{
-            method:'PUT',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify(userDetailsToSend)
-        })
-        console.log(res,"response");
+      setLoading(true);
+      try {
+        const userDetailsToSend = {
+          firstName: userDetails.first_name,
+          lastName: userDetails.last_name,
+          phoneNumber: userDetails.phone_number,
+          address1: userDetails.address_line_1,
+          address2: userDetails.address_line_2,
+          city: userDetails.city,
+          state: userDetails.state,
+          pincode: userDetails.pincode,
+          country: userDetails.country,
+          comments: userDetails.comments,
+          salutation: userDetails.salutation,
+          email: user?.email,
+          avatarUrl: user?.photoURL
+        };
+        const res = await fetch('/api/userDetails', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userDetailsToSend)
+        });
+        if (res.status === 200) {
+          toast.success('Details updated successfully!');
+        } else {
+          toast.error('Failed to update details.');
+        }
+      } catch (error) {
+        toast.error('Error: ' + error);
+      } finally {
+        setLoading(false);
+        setIsEditable(false); // After updating, set the form to non-editable
+      }
     }
-  }
+  };
 
-  const handleSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Form submitted:', userDetails);
-      const userDetailsToSend = {
-        firstName: userDetails.first_name,
-        lastName: userDetails.last_name,
-        phoneNumber: userDetails.phone_number,
-        address1: userDetails.address_line_1,
-        address2: userDetails.address_line_2,
-        city: userDetails.city,
-        state: userDetails.state,
-        pincode: userDetails.pincode,
-        country: userDetails.country,
-        comments: userDetails.comments,
-        email: user?.email,
-        avatarUrl:user?.photoURL
-      };
-        const res = await  fetch('/api/userDetails',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify(userDetailsToSend)
-        })
-        console.log(res,"response");
-        if(res.status === 200){
-          setIsupdate(true);
-        }else{
-          setIsupdate(false);
+      setLoading(true);
+      try {
+        const userDetailsToSend = {
+          firstName: userDetails.first_name,
+          lastName: userDetails.last_name,
+          phoneNumber: userDetails.phone_number,
+          address1: userDetails.address_line_1,
+          address2: userDetails.address_line_2,
+          city: userDetails.city,
+          state: userDetails.state,
+          pincode: userDetails.pincode,
+          country: userDetails.country,
+          comments: userDetails.comments,
+          email: user?.email,
+          avatarUrl: user?.photoURL,
+          salutation: userDetails.salutation
+        };
+        const res = await fetch('/api/userDetails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userDetailsToSend)
+        });
+        if (res.status === 200) {
+          toast.success('Details submitted successfully!');
+          setIsEditable(false); // After submitting, set the form to non-editable
+        } else {
+          toast.error('Failed to submit details.');
         }
+      } catch (error) {
+        toast.error('Error: ' + error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -146,6 +168,7 @@ const UserDetailsForm: React.FC = () => {
           name={name}
           value={userDetails[name]}
           onChange={handleChange}
+          disabled={!isEditable}
           className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
         >
           <option value="">Select</option>
@@ -159,6 +182,7 @@ const UserDetailsForm: React.FC = () => {
           placeholder={`Enter ${label}`}
           value={userDetails[name]}
           onChange={handleChange}
+          disabled={!isEditable}
           className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
         />
       ) : (
@@ -168,6 +192,7 @@ const UserDetailsForm: React.FC = () => {
           placeholder={`Enter ${label === "Address Line 1" ? "Door No" : label === "Address Line 2" ? "Street Name" : label}`}
           value={userDetails[name]}
           onChange={handleChange}
+          disabled={!isEditable}
           maxLength={name === 'phone_number' ? 10 : name === 'pincode' ? 6 : undefined}
           className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
         />
@@ -177,9 +202,20 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]"> 
+    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
-        <h1 className="text-2xl font-bold mb-8 text-orange-600 flex gap-x-3 items-center"><FaUserEdit /> Your Details </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-orange-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
+          {Object.keys(userDetails).some(key => userDetails[key as keyof UserDetails]) && (
+            <button
+              type="button"
+              onClick={() => setIsEditable(!isEditable)}
+              className="font-semibold p-2 w-fit h-fit px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-md flex items-center gap-x-3"
+            >
+              {!isEditable ? ' Edit' : 'Cancel'} <FaUserEdit />
+            </button>
+          )}
+        </div>
         <form onSubmit={handleSubmit}>
           {renderField('salutation', 'Salutation', 'select', ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.', 'Mx.'])}
           {renderField('first_name', 'First Name')}
@@ -193,8 +229,54 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-           { !isupdate && <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-800  text-white rounded-md">Submit</button>}
-           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-violet-600 hover:bg-violet-800   text-white rounded-md">Update Details</div>}
+            {isEditable ? (
+              <button
+                type="button"
+                onClick={handleUpdate}
+                disabled={loading}
+                className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${loading ? 'cursor-not-allowed' : ''}`}
+              >
+                {loading ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Updating...
+                  </div>
+                ) : (
+                  'Update Details'
+                )}
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={loading}
+                className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${loading ? 'cursor-not-allowed' : ''}`}
+              >
+                {loading ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </div>
+                ) :  (
+                  'Submit'
+                )}
+              </button>
+            )}
           </div>
         </form>
       </div>

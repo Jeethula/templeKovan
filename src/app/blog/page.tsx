@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Post } from "../../utils/type";
 import LoadingUI from "../../components/LoadingUI";
 import { useRouter } from "next/navigation";
+import { IoMdAdd } from "react-icons/io";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -238,28 +239,34 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
   };
 
   return (
-    <div className="bg-[#f4f4f4]">
-      <div className="mx-[20%] w-[50%]">
+    <div className="bg-[#fdf0f4] h-full min-h-screen">
+      <div className=" lg:mx-[20%] lg:w-[60%] w-full h-full sm:p-10 p-5">
         <div className="flex justify-between items-center pt-5 mb-6 gap-x-5">
           <input
             type="text"
             onChange={handleChange}
             value={search}
             placeholder="Search Posts"
-            className="w-[80%] h-10 px-3 py-2 border border-gray-400 rounded-md placeholder:text-gray-400"
+            className=" w-full  h-10 px-3 py-2 border border-gray-400 rounded-md placeholder:text-gray-400"
           />
           <Link
             href="/blog/write"
-            className="bg-black rounded-lg text-white font-semibold items-center flex justify-center w-fit h-fit p-2"
+            className="bg-orange-500 hover:bg-orange-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
           >
+            <IoMdAdd />
             Create Post
           </Link>
         </div>
         {loading && <LoadingUI />}
+        {filteredPosts.length === 0 && !loading && (
+          <div className="text-center  text-gray-600 text-2xl mt-10">
+            No posts found
+            </div>
+            )}
         {filteredPosts.map((post) => (
           <div
             key={post.id}
-            className="bg-white p-4 border border-gray-300 shadow-lg rounded-xl mb-5"
+            className="bg-white p-4 border border-violet-100 shadow-xl rounded-xl mb-5"
           >
             <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
               <div className="flex items-center w-36 justify-start gap-3">
@@ -347,13 +354,13 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                 onChange={(e) => handleCommentChange(e, post.id)} 
                 value={comments[post.id] || ""}
                 placeholder="Add a Comment"
-                className="w-full px-3 py-2 border border-gray-400 rounded-md bg-gray-100 placeholder:text-gray-400"
+                className="w-full px-3 py-2 border border-gray-400 rounded-md  placeholder:text-gray-400"
               />
             </div>
             <div className="flex justify-start mt-4">
               {comments[post.id]?.length > 0 && (
                 <button
-                  className="text-white bg-orange-500 rounded-md px-2 py-1"
+                  className="text-white bg-violet-500 hover:bg-violet-600 rounded-md px-2 py-1"
                   onClick={async () => await handleCommentSubmit(post.id)}
                 >
                   Add Comment

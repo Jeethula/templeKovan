@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { UserDetails, initialUserDetails } from '../../utils/type';
 import { useAuth } from '../context/AuthContext';
 import { MdGroupAdd } from 'react-icons/md';
+import toast from 'react-hot-toast';
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails & { email: string }>>({});
   const { user } = useAuth();
   const [email, setEmail] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -48,7 +50,7 @@ const UserDetailsForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
-      window.alert('Please fill all the required fields correctly');
+      toast.error('Please fill all the required fields correctly');
       return;
     }
     
@@ -67,6 +69,7 @@ const UserDetailsForm: React.FC = () => {
       salutation: userDetails.salutation,
     };
 
+    setLoading(true);
     try {
       const res = await fetch('/api/addprofile', {
         method: 'POST',
@@ -82,17 +85,24 @@ const UserDetailsForm: React.FC = () => {
 
       if (res.ok) {
         const data = await res.json();
-        window.alert('Profile added successfully');
+        console.log(data);
+        if(data.error){
+          toast.error(data.error);
+          return;
+        }
+        toast.success('Profile added successfully');
         setUserDetails(initialUserDetails);
         setEmail('');
       } else {
         const errorData = await res.json();
         console.error('Error:', errorData);
-        window.alert('Failed to add profile. Please try again.');
+        toast.error('Failed to add profile. Please try again.');
       }
     } catch (error) {
       console.error('Network error:', error);
-      window.alert('Network error. Please check your connection and try again.');
+      toast.error('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,7 +151,7 @@ const UserDetailsForm: React.FC = () => {
         <p className='text-gray-500 text-wrap mb-5'>Fill in the details of the new user in the form below, who will be your referral.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block font-semibold text-sm text-[#233543] mb-1">EmaiL</label>
+            <label className="block font-semibold text-sm text-[#233543] mb-1">Email</label>
             <input
               type="email"
               value={email}
@@ -164,8 +174,27 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-800  text-white rounded-md">
-              Create Profile
+            <button
+              type="submit"
+              disabled={loading}
+              className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${loading ? 'cursor-not-allowed' : ''}`}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Profile...
+                </div>
+              ) : (
+                'Create Profile'
+              )}
             </button>
           </div>
         </form>

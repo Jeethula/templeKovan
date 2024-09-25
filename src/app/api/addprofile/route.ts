@@ -2,24 +2,31 @@ import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
 export async function POST(req: Request) {
-  console.log("fwrfrfwrfwf")
   try {
     const body = await req.json();
     console.log(body,"2ednoe2dned");
     const { referrerEmail, newUserEmail, personalInfo } = body;
 
-    // Validate input
+  
     if (!referrerEmail || !newUserEmail || !personalInfo) {
       return NextResponse.json({ error: "Missing required information", status: 400 });
     }
 
-    // Check if the referrer exists
     const referrer = await prisma.user.findUnique({
       where: { email: referrerEmail }
     });
 
     if (!referrer) {
       return NextResponse.json({ error: "Referrer not found", status: 404 });
+    }
+
+    // Check if the new user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: newUserEmail }
+    });
+
+    if (existingUser) {
+      return NextResponse.json({ error: "User already exists", status: 400 });
     }
 
     // Start a transaction
