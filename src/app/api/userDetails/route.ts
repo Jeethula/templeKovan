@@ -44,6 +44,7 @@ export async function PUT(req:Request){
         });
 
         if (!oldUserDetails) {
+            console.log("User not found");
             return NextResponse.json({ error: "User not found", status: 404 });
         }
 
@@ -61,7 +62,7 @@ export async function PUT(req:Request){
                 pincode: oldUserDetails?.pincode,
                 city: oldUserDetails?.city,
                 isApproved: oldUserDetails?.isApproved,
-                salutation: oldUserDetails?.salutation||null,
+                salutation: oldUserDetails?.salutation,
                 comments: oldUserDetails?.comments
             }
         })
@@ -71,6 +72,7 @@ export async function PUT(req:Request){
                 email:body?.email
             },
             data:{
+                salutation: body?.salutation,
                 email: body?.email,
                 address1: body?.address1,
                 address2: body?.address2,
@@ -84,10 +86,11 @@ export async function PUT(req:Request){
                 city: body?.city,
                 isApproved: body?.isApproved || "null"
         }})
-        
+        console.log("completed")
         return NextResponse.json({userDetails,status:200,success:"user profile updated"});
 
     }catch(e){
+        console.log(e);
         return NextResponse.json({error:"error in updating user profile",status:404});
     }
 }
