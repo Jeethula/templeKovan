@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "../../../utils/prisma";
-import { Auth } from "firebase/auth";
-
 
 
 export async function POST(req:Request){
@@ -38,7 +36,36 @@ export async function POST(req:Request){
 export async function PUT(req:Request){
     try{
         const body = await req.json();
-        console.log(body);
+
+        const oldUserDetails = await prisma.personalInfo.findUnique({
+            where:{
+                email:body?.email
+            }
+        });
+
+        if (!oldUserDetails) {
+            return NextResponse.json({ error: "User not found", status: 404 });
+        }
+
+            await prisma.personalInfoHistory.create({
+            data:{
+                email: oldUserDetails?.email,
+                address1: oldUserDetails?.address1,
+                address2: oldUserDetails?.address2,
+                state: oldUserDetails?.state,
+                phoneNumber: oldUserDetails?.phoneNumber,
+                country: oldUserDetails?.country,
+                firstName: oldUserDetails?.firstName,
+                lastName : oldUserDetails?.lastName,
+                avatarUrl: oldUserDetails?.avatarUrl ,
+                pincode: oldUserDetails?.pincode,
+                city: oldUserDetails?.city,
+                isApproved: oldUserDetails?.isApproved,
+                salutation: oldUserDetails?.salutation||null,
+                comments: oldUserDetails?.comments
+            }
+        })
+
         const userDetails = await prisma.personalInfo.update({
             where:{
                 email:body?.email
@@ -57,6 +84,7 @@ export async function PUT(req:Request){
                 city: body?.city,
                 isApproved: body?.isApproved || "null"
         }})
+        
         return NextResponse.json({userDetails,status:200,success:"user profile updated"});
 
     }catch(e){

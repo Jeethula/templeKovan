@@ -50,6 +50,29 @@ model PersonalInfo {
   updatedAt   DateTime  @updatedAt
   isApproved  String?     @default("null")
   user        User      @relation(fields: [email], references: [email])
+  History     PersonalInfoHistory[]
+}
+
+model PersonalInfoHistory{
+  id          String   @id @default(cuid())
+  email       String
+  address1    String?
+  address2    String?
+  state       String?
+  phoneNumber String?
+  country     String?
+  firstName   String
+  lastName    String
+  pincode     String?
+  city        String?
+  avatarUrl   String?
+  oldRecord   Json?   
+  salutation  String?
+  comments    String?  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isApproved  String?     @default("null")
+  PeronalInfo PersonalInfo      @relation(fields: [email], references: [email])
 }
 
 model Post {
