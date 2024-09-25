@@ -8,6 +8,7 @@ import { Post } from "../../utils/type";
 import LoadingUI from "../../components/LoadingUI";
 import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
+import toast from "react-hot-toast";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -227,14 +228,18 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
       console.log(result);
 
       if (result.status === 200) {
+        toast.success("Comment added successfully!");
         setComments((prevComments) => ({
           ...prevComments,
           [postId]: "",
         }));
         fetchData();
+      } else {
+        toast.error("Failed to add comment. Please try again.");
       }
     } catch (error) {
       console.error(`Error adding comment:`, error);
+      toast.error("Network error. Please check your connection and try again.");
     }
   };
 
