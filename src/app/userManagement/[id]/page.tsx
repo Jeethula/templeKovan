@@ -11,16 +11,37 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
+
+  interface Profile {
+    email: string;
+    [key: string]: string  ;
+  }
+interface Post {
+  posts: Post[];
+}
+
+  interface HistoryItem {
+    updatedAt: string;
+    [key: string]: string  ;
+  }
+interface User {
+  // other properties...
+  posts: Post[];
+  likedPosts: Post[];
+  dislikedPosts: Post[];
+  // other properties...
+}
+
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   interface Profile {
     email: string;
-    [key: string]: any; 
+    user: User;
+    [key: string]: string | User;
   }
-
   const [profile, setProfile] = useState<Profile | null>(null);
   interface HistoryItem {
     updatedAt: string;
-    [key: string]: any;
+    [key: string]: string  ;
   }
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -100,20 +121,20 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const getChanges = (current: Profile, previous: HistoryItem): Change[] => {
     const changes: Change[] = [];
     const personalInfoFields = ['salutation', 'firstName', 'lastName', 'email', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments', 'isApproved'];
-  
+
     personalInfoFields.forEach(field => {
       if (current[field] !== previous[field]) {
         changes.push({ field, from: previous[field], to: current[field] });
       }
     });
-  
+
     return changes;
   };
 
   interface Change {
     field: string;
-    from: any;
-    to: any;
+    from: string | User;
+    to: string | User;
   }
 
   const ChangeHistoryItem = ({ change }: { change: Change }) => (
@@ -139,7 +160,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <div className="lg:col-span-1 flex flex-col items-center bg-white p-6 rounded-xl shadow-lg">
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={profile.avatarUrl || '/api/placeholder/160/160'}
+                src={typeof profile?.avatarUrl === 'string' ? profile.avatarUrl : '/api/placeholder/160/160'}
                 alt="User profile picture"
                 layout="fill"
                 className="rounded-full object-cover shadow-lg border-4 border-[#663399]"
@@ -152,7 +173,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </p>
             <p className="text-gray-600 flex items-center">
               <BsPhoneFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
-              {profile.phoneNumber || "N/A"}
+              {typeof profile?.phoneNumber === 'string' ? profile.phoneNumber : "N/A"}
             </p>
           </div>
 
@@ -162,8 +183,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 <PiMapPinFill size={24} className="mr-2" fill="currentColor" />
                 Address Information
               </h3>
-              <p className="text-gray-700">{profile.address1}</p>
-              {profile.address2 && <p className="text-gray-700">{profile.address2}</p>}
+              <p className="text-gray-700">{typeof profile.address1 === 'string' ? profile.address1 : ''}</p>
+              {typeof profile.address2 === 'string' && <p className="text-gray-700">{profile.address2}</p>}
               <p className="text-gray-700">{`${profile.city}, ${profile.state}`}</p>
               <p className="text-gray-700">{`${profile.country}, ${profile.pincode}`}</p>
             </div>
@@ -188,7 +209,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 </div>
                 <div className="flex items-center">
                   <MessageSquare size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Comments:</span> {profile.comments?.length || 0}</p>
+                  <p className="text-gray-700"><span className="font-medium">Comments:</span> {typeof profile.comments === 'string' ? profile.comments.length : 0}</p>
                 </div>
               </div>
             </div>
@@ -247,3 +268,5 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     </div>
   );
 }
+
+
