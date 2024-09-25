@@ -129,7 +129,6 @@ const UserDetailsForm: React.FC = () => {
             },
             body:JSON.stringify(userDetailsToSend)
         })
-        console.log(res,"response");
         if(res.status === 200){
           setIsupdate(true);
         }else{
