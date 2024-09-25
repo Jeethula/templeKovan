@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { UserDetails, initialUserDetails } from '../../utils/type';
 import { useAuth } from '../context/AuthContext';
+import { MdGroupAdd } from 'react-icons/md';
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
@@ -134,9 +135,9 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#f4f4f4]  ">
-      <div className="bg-white h-fit w-[75%] rounded-xl shadow-xl p-4 px-9 mt-5 mb-10">
-        <h1 className="text-2xl text-wrap font-bold mb-2">Add Profile </h1>
+    <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]">
+      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
+        <h1 className="text-2xl font-bold mb-8 text-orange-600 flex gap-x-3 items-center"><MdGroupAdd />Add User </h1>
         <p className='text-gray-500 text-wrap mb-5'>Fill in the details of the new user in the form below, who will be your referral.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -163,7 +164,7 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            <button type="submit" className="font-semibold p-2 bg-orange-500 hover:bg-orange-600   text-white rounded-md">
+            <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-800  text-white rounded-md">
               Create Profile
             </button>
           </div>

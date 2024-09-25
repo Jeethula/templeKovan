@@ -142,11 +142,11 @@ const PersonalInfoGrid = () => {
     const selectedId = event.data.id;
     router.push(`userManagement/${selectedId}`);
   };
-
+//eee7f1
   return (
-  <div className='bg-[#f4f4f4] h-full w-full min-h-screen min-w-screen'>
+  <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen'>
     <div className=" pt-5 flex flex-col items-center gap-y-5 justify-center ">
-        <div className="ag-theme-alpine" style={{ height: '70%', width: '90%' }}>
+        <div className="ag-theme-alpine" style={{ height: '80%', width: '100%' }}>
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}

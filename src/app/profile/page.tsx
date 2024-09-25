@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { UserDetails }from '../../utils/type'
 import {initialUserDetails} from '../../utils/type'
 import { useAuth } from '../context/AuthContext';
+import { FaUserEdit } from 'react-icons/fa';
 
 
 const UserDetailsForm: React.FC = () => {
@@ -176,9 +177,9 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#f4f4f4]">
-      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 w-[75%] p-4 px-9 mt-5">
-        <h1 className="text-2xl font-bold mb-8">Your Details</h1>
+    <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]"> 
+      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
+        <h1 className="text-2xl font-bold mb-8 text-orange-600 flex gap-x-3 items-center"><FaUserEdit /> Your Details </h1>
         <form onSubmit={handleSubmit}>
           {renderField('salutation', 'Salutation', 'select', ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.', 'Mx.'])}
           {renderField('first_name', 'First Name')}
@@ -192,8 +193,8 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-           { !isupdate && <button type="submit" className="font-semibold p-2 bg-orange-300 hover:bg-orange-600   text-white rounded-md">Submit</button>}
-           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-orange-500 hover:bg-orange-600  text-white rounded-md">Update Details</div>}
+           { !isupdate && <button type="submit" className="font-semibold p-2 bg-violet-600 hover:bg-violet-800  text-white rounded-md">Submit</button>}
+           { isupdate && <div onClick={handleUpdate} className="cursor-pointer font-semibold p-2 bg-violet-600 hover:bg-violet-800   text-white rounded-md">Update Details</div>}
           </div>
         </form>
       </div>
