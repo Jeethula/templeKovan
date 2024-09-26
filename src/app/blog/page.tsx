@@ -354,7 +354,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
             <div className="flex justify-start mt-4">
               {comments[post.id]?.length > 0 && !commentLoading &&  (
                 <button
-                  className="text-white bg-violet-500 hover:bg-violet-600 rounded-md px-2 py-1"
+                  className="text-white bg-violet-500 hover:bg-violet-600 font-semibold rounded-md px-2 py-1"
                   onClick={async () => await handleCommentSubmit(post.id)}
                 >
                   Add Comment

@@ -3,6 +3,8 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { Input } from "@/components/ui/input"
+import { FaPen } from "react-icons/fa";
 
 interface PostData {
   title: string;
@@ -102,8 +104,8 @@ function WritePost() {
     <div className="bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen">
       <div className="pt-10 p-6">
         <div className="max-w-2xl lg:mx-60  bg-white p-4 rounded-xl shadow-md">
-          <h1 className="font-semibold text-xl text-orange-500">
-            Write a new post
+          <h1 className="font-semibold text-xl text-red-500 flex items-center gap-x-2">
+          <FaPen /> Write a new post 
           </h1>
           <form className="mt-5" onSubmit={handleSubmit}>
             <div className="mb-5">
@@ -147,7 +149,7 @@ function WritePost() {
               <label htmlFor="image" className="block text-xl font-semibold">
                 Image (Optional)
               </label>
-              <input
+              <Input
                 type="file"
                 name="image"
                 accept="image/*"
@@ -166,7 +168,7 @@ function WritePost() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-violet-500 hover:bg-violet-600 text-white px-3 py-2 rounded-md ${
+                className={`bg-violet-500 hover:bg-violet-600 text-white px-4 py-1 font-semibold rounded-md ${
                   loading ? "cursor-not-allowed" : ""
                 }`}
               >

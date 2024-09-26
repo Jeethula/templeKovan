@@ -6,6 +6,18 @@ import { useAuth } from '../context/AuthContext';
 import { FaUserEdit } from 'react-icons/fa';
 import { CgDetailsMore } from 'react-icons/cg';
 import toast from 'react-hot-toast';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+
+
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
@@ -67,7 +79,6 @@ const UserDetailsForm: React.FC = () => {
 
 
     if (userDetails.pincode.length !== 6) {
-        // if pincode contains any character other than digits
       if (isNaN(Number(userDetails.pincode))) {
         newErrors.pincode = 'Pincode invalid';
         isValid = false;
@@ -174,18 +185,23 @@ const UserDetailsForm: React.FC = () => {
     <div className="mb-4">
       <label className="block font-semibold text-md text-[#233543] mb-1">{label}</label>
       {type === 'select' ? (
-        <select
-          name={name}
+          <Select
           value={userDetails[name]}
-          onChange={handleChange}
+          onValueChange={(value) => handleChange({ target: { name, value } } as React.ChangeEvent<HTMLSelectElement>)}
           disabled={!isEditable}
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
         >
-          <option value="">Select</option>
-          {options?.map(option => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
+          <SelectTrigger className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}>
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>{label}</SelectLabel>
+              {options?.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       ) : type === 'textarea' ? (
         <textarea
           name={name}
