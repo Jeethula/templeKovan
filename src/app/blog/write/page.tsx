@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input"
 import { FaPen } from "react-icons/fa";
+import withProfileCheck from '../../../components/withProfileCheck';
 
 interface PostData {
   title: string;
@@ -197,4 +198,8 @@ function WritePost() {
   );
 };
 
-export default WritePost;
+const WritePostPage = () => {
+  return <WritePost />;
+};
+
+export default withProfileCheck(WritePostPage);

@@ -9,6 +9,7 @@ import LoadingUI from "../../components/LoadingUI";
 import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
 import toast from "react-hot-toast";
+import withProfileCheck from "@/components/withProfileCheck";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -265,14 +266,14 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
             <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
               <div className="flex items-center w-36 justify-start gap-3">
                 <Image
-                  src={post.author.personalInfo.avatarUrl || "/user.svg"}
+                  src={post?.author?.personalInfo?.avatarUrl || "/user.svg"}
                   alt="User profile picture"
                   width={30}
                   height={30}
                   className="rounded-full"
                 />
                 <h2 className="text-lg font-semibold text-gray-500">
-                  {post.author.personalInfo.firstName}
+                  {post?.author?.personalInfo?.firstName}
                 </h2>
               </div>
               <div className="flex items-center gap-x-4">
@@ -368,4 +369,10 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
   );
 };
 
-export default Posts;
+// export default Posts;
+
+const posts = () => {
+  return <Posts />;
+};
+
+export default withProfileCheck(posts);

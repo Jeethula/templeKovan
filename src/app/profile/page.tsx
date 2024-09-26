@@ -16,10 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+interface UserDetailsFormProps {
+  onProfileCompletion?: () => void;
+}
 
-
-
-const UserDetailsForm: React.FC = () => {
+const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
   const [isEditable, setIsEditable] = useState<boolean>(false);
@@ -49,9 +50,9 @@ const UserDetailsForm: React.FC = () => {
         pincode: res.userDetails.pincode,
         comments: res.userDetails.comments
       });
-      setIsEditable(false); // Initially, the form should be non-editable
+      setIsEditable(false); 
     } else {
-      setIsEditable(true); // If no data, the form should be editable
+      setIsEditable(true);
     }
   };
 
@@ -77,12 +78,7 @@ const UserDetailsForm: React.FC = () => {
       }
     });
 
-
     if (userDetails.pincode.length !== 6) {
-      if (isNaN(Number(userDetails.pincode))) {
-        newErrors.pincode = 'Pincode invalid';
-        isValid = false;
-      }
       newErrors.pincode = 'Pincode should be 6 digits';
       isValid = false;
     }
@@ -124,6 +120,7 @@ const UserDetailsForm: React.FC = () => {
         });
         if (res.status === 200) {
           toast.success('Details updated successfully!');
+          onProfileCompletion && onProfileCompletion();
         } else {
           toast.error('Failed to update details.');
         }
@@ -168,8 +165,10 @@ const UserDetailsForm: React.FC = () => {
           body: JSON.stringify(userDetailsToSend)
         });
         if (res.status === 200) {
+          console.log(res)
           toast.success('Details submitted successfully!');
           setIsEditable(false); // After submitting, set the form to non-editable
+          onProfileCompletion && onProfileCompletion();
         } else {
           toast.error('Failed to submit details.');
         }
@@ -255,7 +254,7 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            {isEditable ? (
+            {!isEditable ? (
               <button
                 type="button"
                 onClick={handleUpdate}

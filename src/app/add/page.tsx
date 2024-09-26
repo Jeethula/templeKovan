@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import withProfileCheck from '@/components/withProfileCheck';
 
 
 const UserDetailsForm: React.FC = () => {
@@ -221,4 +222,8 @@ const UserDetailsForm: React.FC = () => {
   );
 };
 
-export default UserDetailsForm;
+const userDetailsForm = () => {
+  return <UserDetailsForm />;
+};
+
+export default withProfileCheck(userDetailsForm);
