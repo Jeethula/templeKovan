@@ -33,14 +33,15 @@ export default function HomePage() {
   return (
     <div className='bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center'>
       {/* {sessionStorage.getItem('user') !== null && <Home />} */}
-      <h1 className='text-2xl font-semibold text-red-600 flex items-center gap-x-3 mt-2 text-center'><FaOm />Om Namo Narayanaya</h1>
+      <h1 className='text-2xl font-semibold text-red-600 flex items-center gap-x-3  text-center'><FaOm />Om Namo Narayanaya</h1>
       <Image
       src="https://i.pinimg.com/564x/7b/1b/a2/7b1ba2acc23dad08b6a3e793b95e1482.jpg"
     alt="image"
     width={500}
     height={400}
     className=' aspect-auto mb-5 p-5 rounded-xl'
-  />    </div>
+  />    
+  </div>
 
   );
 }

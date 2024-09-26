@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../Firebase/Firebase';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaSignOutAlt, FaTimes } from 'react-icons/fa';
 import TranslateComponent from './TranslateComponent';
 
 const Navbar = () => {
@@ -88,9 +88,9 @@ const Navbar = () => {
   </div>
   <button
     onClick={handleSignOut}
-    className="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"
+    className="px-3 py-1 flex items-center gap-x-2 text-white bg-red-500 rounded hover:bg-red-600"
   >
-    Sign Out
+    Sign Out <FaSignOutAlt />
   </button>
 </nav>
     )

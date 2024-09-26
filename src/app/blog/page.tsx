@@ -215,12 +215,12 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
       console.log(result);
 
       if (result.status === 200) {
-        toast.success("Comment added successfully!");
         setComments((prevComments) => ({
           ...prevComments,
           [postId]: "",
         }));
         setCommentLoading(false);
+        toast.success("Comment added successfully!");
         fetchData();
       } else {
         setCommentLoading(false);

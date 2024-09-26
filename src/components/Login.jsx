@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../Firebase/Firebase';
 import Image from 'next/image';
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -68,16 +69,17 @@ const Login = () => {
             className="rounded-lg opacity-50"
           />
         </div> 
-        <div className="relative z-10 flex flex-col items-center justify-center h-full">
+        <div className="relative z-10 flex h-full w p-4 flex-col items-center justify-end  gap-y-3">
           {/* <h1 className="mb-4 text-2xl text-center text-yellow-400 font-semibold bg-red-500 w-fit h-fit p-2 rounded-md">Welcome</h1> */}
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full px-4 py-2 text-white bg-[#663399] rounded hover:bg-[#522a7a] disabled:bg-[#9f86c0]"
+            className="w-full px-4 py-2 font-semibold text-white bg-[#663399] flex items-center gap-x-2 justify-center rounded hover:bg-[#522a7a] disabled:bg-[#9f86c0]"
           >
-            {loading ? 'Signing in...' : 'Sign in with Google'}
+            {loading ? 'Signing in...' : 'Sign in with Google'}  <FcGoogle size={20} /> 
           </button>
         </div>
+
       </div>
     </div>
   );
