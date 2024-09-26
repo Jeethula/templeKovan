@@ -245,7 +245,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
           />
           <Link
             href="/blog/write"
-            className="bg-orange-500 hover:bg-orange-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
+            className="bg-red-500 hover:bg-red-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
           >
             <IoMdAdd />
             Create Post

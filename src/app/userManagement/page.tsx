@@ -10,6 +10,7 @@ import { Clock } from 'lucide-react';
 import './style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
+import { FaUsersGear } from 'react-icons/fa6';
 
 const PersonalInfoGrid = () => {
   const router = useRouter();
@@ -225,7 +226,7 @@ const onRowClicked = (event: { data: { id: string } }) => {
     <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen'>
       <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
         <div className='flex w-full items-center justify-between gap-y-5 px-3'>
-          <h1 className='text-3xl font-semibold text-orange-500'>Manage Users</h1>
+          <h1 className='text-3xl font-medium text-red-500 flex items-center gap-x-3'><FaUsersGear />Manage Users </h1>
         <button
           className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-4 py-2 rounded-md mb-4"
           onClick={() => setShowAllData(!showAllData)}

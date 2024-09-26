@@ -147,7 +147,7 @@ const UserDetailsForm: React.FC = () => {
   return (
     <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
-        <h1 className="text-2xl font-bold mb-8 text-orange-600 flex gap-x-3 items-center"><MdGroupAdd />Add User </h1>
+        <h1 className="text-2xl font-bold mb-8 text-red-500 flex gap-x-3 items-center"><MdGroupAdd />Add User </h1>
         <p className='text-gray-500 text-wrap mb-5'>Fill in the details of the new user in the form below, who will be your referral.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

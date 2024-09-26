@@ -1,7 +1,7 @@
 "use client";
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../Firebase/Firebase';
 import { FaBars, FaTimes } from 'react-icons/fa';
@@ -46,15 +46,15 @@ const Navbar = () => {
     return (
 <nav className="flex flex-wrap items-center justify-between text-white bg-[#663399] sticky top-0 z-10 h-fit lg:p-3 w-screen xl:px-56 md:px-24 sm:px-8 px-3 py-1">
   <div className="flex items-center space-x-4">
-    <div className="relative md:hidden">
+    <div className="relative">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="text-lg transition-colors duration-100 hover:text-orange-400 font-semibold"
+        className="text-xl transition-colors duration-100 hover:text-orange-400 font-semibold"
       >
         {isDropdownOpen ? <FaTimes /> : <FaBars />}
       </button>
       {isDropdownOpen && (
-        <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+        <div className="absolute left-0 mt-3 w-48 bg-white rounded-md shadow-lg z-12">
           {dropdownItems.map((item, index) => (
             <Link
               key={index}
@@ -85,25 +85,7 @@ const Navbar = () => {
         {navItem.name}
       </Link>
     ))}
-    <div className="hidden md:flex items-center space-x-4">
-      {dropdownItems.map((item, index) => (
-        <Link
-          key={index}
-          href={item.path}
-          className={`text-lg transition-colors duration-100 ${
-            pathname === item.path || pathname.startsWith(item.path + '/')
-              ? 'text-orange-400 font-semibold'
-              : 'hover:text-orange-400 font-semibold'
-          }`}
-        >
-          {item.name}
-        </Link>
-      ))}
-    </div>
   </div>
-  <div className='hidden md:block'>
-  <TranslateComponent />
-</div>
   <button
     onClick={handleSignOut}
     className="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"

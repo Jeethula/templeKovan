@@ -8,7 +8,7 @@ import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
 import { BsFileTextFill, BsPhoneFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaUserXmark } from "react-icons/fa6";
+import { FaCircleUser, FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
 interface Post {
@@ -86,6 +86,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   };
 
   const updateApprovalStatus = async (status: string) => {
+    if(status === "rejected"){
+      window.alert ("Are you sure you want to reject this user?");
+    }
     try {
       const res = await fetch('/api/userDetails', {
         method: 'PATCH',
@@ -144,7 +147,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <IoMdArrowRoundBack size={20} className="mr-2" fill="currentColor" />
           Back
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[#663399] flex items-center gap-x-2">User Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
       </div>
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -242,6 +245,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <FaUserFriends size={24} className="mr-2" fill="currentColor" />
           Changes History
         </h3>
+        {history.length === 0 &&  <p className="text-gray-700">No changes found</p>}
         {history.map((historyItem, index) => {
           const changes = profile ? getChanges(profile, historyItem) : [];
           return (

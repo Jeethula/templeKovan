@@ -100,8 +100,8 @@ function WritePost() {
 
   return (
     <div className="bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen">
-      <div className="pt-10">
-        <div className="max-w-2xl mx-60 bg-white p-4 rounded-xl shadow-md">
+      <div className="pt-10 p-6">
+        <div className="max-w-2xl lg:mx-60  bg-white p-4 rounded-xl shadow-md">
           <h1 className="font-semibold text-xl text-orange-500">
             Write a new post
           </h1>

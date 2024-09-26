@@ -65,7 +65,13 @@ const UserDetailsForm: React.FC = () => {
       }
     });
 
+
     if (userDetails.pincode.length !== 6) {
+        // if pincode contains any character other than digits
+      if (isNaN(Number(userDetails.pincode))) {
+        newErrors.pincode = 'Pincode invalid';
+        isValid = false;
+      }
       newErrors.pincode = 'Pincode should be 6 digits';
       isValid = false;
     }
@@ -121,6 +127,10 @@ const UserDetailsForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isEditable) {
+      toast.error('Please click the "Edit" button to edit your details.');
+      return;
+    }
     if (validateForm()) {
       setLoading(true);
       try {
@@ -205,12 +215,12 @@ const UserDetailsForm: React.FC = () => {
     <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-orange-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
+          <h1 className="text-2xl font-bold text-red-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
           {Object.keys(userDetails).some(key => userDetails[key as keyof UserDetails]) && (
             <button
               type="button"
               onClick={() => setIsEditable(!isEditable)}
-              className="font-semibold p-2 w-fit h-fit px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-md flex items-center gap-x-3"
+              className="font-medium p-2 w-fit h-fit px-4 bg-red-500 hover:bg-red-700 text-white rounded-md flex items-center gap-x-3"
             >
               {!isEditable ? ' Edit' : 'Cancel'} <FaUserEdit />
             </button>
