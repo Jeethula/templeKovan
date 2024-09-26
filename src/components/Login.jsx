@@ -1,56 +1,9 @@
-// "use client"
-// import { useState, useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
-// import { signInWithPopup } from 'firebase/auth';
-// import { auth, provider } from '../Firebase/Firebase';
-// const Login = () => {
-//   const [loading, setLoading] = useState(false);
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     const unsubscribe = auth.onAuthStateChanged((user) => {
-//       if (user) {
-//         router.push('/');
-//       }
-//     });
-
-//     return () => unsubscribe();
-//   }, [router]);
-
-//   const handleGoogleSignIn = async () => {
-//     setLoading(true);
-//     try {
-//       await signInWithPopup(auth, provider);
-//       // Redirect is handled by the useEffect hook
-//     } catch (error) {
-//       console.error('Error signing in with Google', error);
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-//       <div className="p-6 bg-white rounded shadow-md">
-//         <h1 className="mb-4 text-2xl font-bold text-center">Welcome</h1>
-//         <button
-//           onClick={handleGoogleSignIn}
-//           disabled={loading}
-//           className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-blue-300"
-//         >
-//           {loading ? 'Signing in...' : 'Sign in with Google'}
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
 "use client"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../Firebase/Firebase';
+import Image from 'next/image';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -83,7 +36,6 @@ const Login = () => {
       }
 
       const userData = await response.json();
-      // Here you can store user data in your app's state or context
       console.log('User data:', userData);
 
       router.push('/');
@@ -105,16 +57,27 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-6 bg-white rounded shadow-md">
-        <h1 className="mb-4 text-2xl font-bold text-center">Welcome</h1>
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-blue-300"
-        >
-          {loading ? 'Signing in...' : 'Sign in with Google'}
-        </button>
+    <div className="flex items-center justify-center min-h-screen bg-[#fdf0f4] p-4">
+      <div className="relative w-full max-w-md p-6 h-[500px] bg-white rounded-lg shadow-lg">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://thumbs.dreamstime.com/b/indian-temple-3396438.jpg?w=768"
+            alt="Indian Temple"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg opacity-50"
+          />
+        </div> 
+        <div className="relative z-10 flex flex-col items-center justify-center h-full">
+          {/* <h1 className="mb-4 text-2xl text-center text-yellow-400 font-semibold bg-red-500 w-fit h-fit p-2 rounded-md">Welcome</h1> */}
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full px-4 py-2 text-white bg-[#663399] rounded hover:bg-[#522a7a] disabled:bg-[#9f86c0]"
+          >
+            {loading ? 'Signing in...' : 'Sign in with Google'}
+          </button>
+        </div>
       </div>
     </div>
   );
