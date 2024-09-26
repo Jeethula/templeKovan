@@ -120,7 +120,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         });
         if (res.status === 200) {
           toast.success('Details updated successfully!');
-          onProfileCompletion && onProfileCompletion();
+          if (onProfileCompletion) {
+            onProfileCompletion?.();
+          }
         } else {
           toast.error('Failed to update details.');
         }
@@ -128,7 +130,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         toast.error('Error: ' + error);
       } finally {
         setLoading(false);
-        setIsEditable(false); // After updating, set the form to non-editable
+        setIsEditable(false); 
       }
     }
   };
@@ -168,7 +170,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           console.log(res)
           toast.success('Details submitted successfully!');
           setIsEditable(false); // After submitting, set the form to non-editable
-          onProfileCompletion && onProfileCompletion();
+          if (onProfileCompletion) {
+            onProfileCompletion?.();
+          }
         } else {
           toast.error('Failed to submit details.');
         }
