@@ -2,18 +2,40 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Backpack, MessageSquare, MessageSquareOff, UserCircle2 } from 'lucide-react';
+import {  MessageSquare, UserCircle2 } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
-import { BsFileTextFill, BsPhoneFill, BsTrash2Fill } from "react-icons/bs";
+import { BsFileTextFill, BsPhoneFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaUserXmark } from "react-icons/fa6";
+import { FaCircleUser, FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
+interface Post {
+  posts: Post[];
+}
+
+interface User {
+  // other properties...
+  posts: Post[];
+  likedPosts: Post[];
+  dislikedPosts: Post[];
+  // other properties...
+}
+
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
-  const [profile, setProfile] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  interface Profile {
+    email: string;
+    user: User;
+    [key: string]: string | User;
+  }
+  const [profile, setProfile] = useState<Profile | null>(null);
+  interface HistoryItem {
+    updatedAt: string;
+    [key: string]: string  ;
+  }
+
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -36,6 +58,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         setLoading(false);
       }
     } catch (e) {
+      console.log(e)
       setError("An error occurred while fetching the profile");
       setLoading(false);
     }
@@ -56,23 +79,28 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       }
       setLoading(false);
     } catch (e) {
+      console.log(e)
       setError("An error occurred while fetching the history");
       setLoading(false);
     }
   };
 
   const updateApprovalStatus = async (status: string) => {
+    if(status === "rejected"){
+      window.alert ("Are you sure you want to reject this user?");
+    }
     try {
       const res = await fetch('/api/userDetails', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: profile.email, isApproved: status, adminEmail: adminEmail }),
+        body: JSON.stringify({ email: profile?.email, isApproved: status, adminEmail: adminEmail }),
       });
       const result = await res.json();
       if (result.success) {
         router.push('/userManagement');
       }
     } catch (e) {
+      console.log(e)
       setError("An error occurred while updating the status");
     }
   };
@@ -84,8 +112,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
-  const getChanges = (current: any, previous: any) => {
-    const changes: any[] = [];
+  const getChanges = (current: Profile, previous: HistoryItem): Change[] => {
+    const changes: Change[] = [];
     const personalInfoFields = ['salutation', 'firstName', 'lastName', 'email', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments', 'isApproved'];
 
     personalInfoFields.forEach(field => {
@@ -99,8 +127,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
   interface Change {
     field: string;
-    from: any;
-    to: any;
+    from: string | User;
+    to: string | User;
   }
 
   const ChangeHistoryItem = ({ change }: { change: Change }) => (
@@ -119,14 +147,14 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <IoMdArrowRoundBack size={20} className="mr-2" fill="currentColor" />
           Back
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[#663399] flex items-center gap-x-2">User Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
       </div>
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="lg:col-span-1 flex flex-col items-center bg-white p-6 rounded-xl shadow-lg">
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={profile.avatarUrl || '/api/placeholder/160/160'}
+                src={typeof profile?.avatarUrl === 'string' ? profile.avatarUrl : '/api/placeholder/160/160'}
                 alt="User profile picture"
                 layout="fill"
                 className="rounded-full object-cover shadow-lg border-4 border-[#663399]"
@@ -139,7 +167,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </p>
             <p className="text-gray-600 flex items-center">
               <BsPhoneFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
-              {profile.phoneNumber || "N/A"}
+              {typeof profile?.phoneNumber === 'string' ? profile.phoneNumber : "N/A"}
             </p>
           </div>
 
@@ -149,8 +177,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 <PiMapPinFill size={24} className="mr-2" fill="currentColor" />
                 Address Information
               </h3>
-              <p className="text-gray-700">{profile.address1}</p>
-              {profile.address2 && <p className="text-gray-700">{profile.address2}</p>}
+              <p className="text-gray-700">{typeof profile.address1 === 'string' ? profile.address1 : ''}</p>
+              {typeof profile.address2 === 'string' && <p className="text-gray-700">{profile.address2}</p>}
               <p className="text-gray-700">{`${profile.city}, ${profile.state}`}</p>
               <p className="text-gray-700">{`${profile.country}, ${profile.pincode}`}</p>
             </div>
@@ -175,7 +203,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 </div>
                 <div className="flex items-center">
                   <MessageSquare size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Comments:</span> {profile.comments?.length || 0}</p>
+                  <p className="text-gray-700"><span className="font-medium">Comments:</span> {typeof profile.comments === 'string' ? profile.comments.length : 0}</p>
                 </div>
               </div>
             </div>
@@ -217,8 +245,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <FaUserFriends size={24} className="mr-2" fill="currentColor" />
           Changes History
         </h3>
+        {history.length === 0 &&  <p className="text-gray-700">No changes found</p>}
         {history.map((historyItem, index) => {
-          const changes = getChanges(profile, historyItem);
+          const changes = profile ? getChanges(profile, historyItem) : [];
           return (
             <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
               <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
@@ -234,3 +263,5 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     </div>
   );
 }
+
+

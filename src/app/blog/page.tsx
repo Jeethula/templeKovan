@@ -9,6 +9,7 @@ import LoadingUI from "../../components/LoadingUI";
 import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
 import toast from "react-hot-toast";
+import withProfileCheck from "@/components/withProfileCheck";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -155,6 +156,8 @@ function Posts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post_id: postId, user_id: userId }),
       });
+      const result = await response.json();
+      console.log(result);
     } catch (error) {
       console.error(`Error ${interactionType}ing post:`, error);
     }
@@ -166,6 +169,8 @@ function Posts() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ post_id: postId, user_id: userId }),
         });
+        const result = await response.json();
+        console.log(result);
       } catch (error) {
         console.error(`Error updating opposite interaction:`, error);
       }
@@ -211,12 +216,12 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
       console.log(result);
 
       if (result.status === 200) {
-        toast.success("Comment added successfully!");
         setComments((prevComments) => ({
           ...prevComments,
           [postId]: "",
         }));
         setCommentLoading(false);
+        toast.success("Comment added successfully!");
         fetchData();
       } else {
         setCommentLoading(false);
@@ -241,7 +246,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
           />
           <Link
             href="/blog/write"
-            className="bg-orange-500 hover:bg-orange-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
+            className="bg-red-500 hover:bg-red-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
           >
             <IoMdAdd />
             Create Post
@@ -261,14 +266,14 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
             <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
               <div className="flex items-center w-36 justify-start gap-3">
                 <Image
-                  src={post.author.personalInfo.avatarUrl || "/user.svg"}
+                  src={post?.author?.personalInfo?.avatarUrl || "/user.svg"}
                   alt="User profile picture"
                   width={30}
                   height={30}
                   className="rounded-full"
                 />
                 <h2 className="text-lg font-semibold text-gray-500">
-                  {post.author.personalInfo.firstName}
+                  {post?.author?.personalInfo?.firstName}
                 </h2>
               </div>
               <div className="flex items-center gap-x-4">
@@ -350,7 +355,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
             <div className="flex justify-start mt-4">
               {comments[post.id]?.length > 0 && !commentLoading &&  (
                 <button
-                  className="text-white bg-violet-500 hover:bg-violet-600 rounded-md px-2 py-1"
+                  className="text-white bg-violet-500 hover:bg-violet-600 font-semibold rounded-md px-2 py-1"
                   onClick={async () => await handleCommentSubmit(post.id)}
                 >
                   Add Comment
@@ -364,4 +369,10 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
   );
 };
 
-export default Posts;
+// export default Posts;
+
+const posts = () => {
+  return <Posts />;
+};
+
+export default withProfileCheck(posts);

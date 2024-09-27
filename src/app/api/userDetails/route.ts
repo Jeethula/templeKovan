@@ -29,6 +29,7 @@ export async function POST(req:Request){
 
 
     }catch(e){
+        console.log(e);
         return NextResponse.json({error:"error in posting user profile",status:404});
     }
 }

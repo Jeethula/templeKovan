@@ -47,7 +47,7 @@ export const initialUserDetails: UserDetails = {
     likes: number;
     dislikes: number;
     createdAt: string;
-    comments: any[];
+    comments: Comment[];
     image: string | null;
     author: {
       id:string;

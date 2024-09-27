@@ -4,6 +4,17 @@ import { UserDetails, initialUserDetails } from '../../utils/type';
 import { useAuth } from '../context/AuthContext';
 import { MdGroupAdd } from 'react-icons/md';
 import toast from 'react-hot-toast';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import withProfileCheck from '@/components/withProfileCheck';
+
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
@@ -32,7 +43,10 @@ const UserDetailsForm: React.FC = () => {
     });
   
     if (userDetails.pincode.length !== 6) {
-      console.log("Pincode validation failed");
+      if (isNaN(Number(userDetails.pincode))) {
+        newErrors.pincode = 'Pincode invalid';
+        isValid = false;
+      }
       newErrors.pincode = 'Pincode should be 6 digits';
       isValid = false;
     }
@@ -119,17 +133,22 @@ const UserDetailsForm: React.FC = () => {
     <div className="mb-4">
       <label className="block font-semibold text-sm text-black mb-1">{label}</label>
       {type === 'select' ? (
-        <select
-          name={name}
-          value={userDetails[name]}
-          onChange={handleChange}
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
-        >
-          <option value="">Select</option>
-          {options?.map(option => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
+         <Select
+         value={userDetails[name]}
+         onValueChange={(value) => handleChange({ target: { name, value } } as React.ChangeEvent<HTMLSelectElement>)}
+       >
+         <SelectTrigger className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}>
+           <SelectValue placeholder="Select" />
+         </SelectTrigger>
+         <SelectContent>
+           <SelectGroup>
+             <SelectLabel>{label}</SelectLabel>
+             {options?.map(option => (
+               <SelectItem key={option} value={option}>{option}</SelectItem>
+             ))}
+           </SelectGroup>
+         </SelectContent>
+       </Select>
       ) : type === 'textarea' ? (
         <textarea
           name={name}
@@ -156,7 +175,7 @@ const UserDetailsForm: React.FC = () => {
   return (
     <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
-        <h1 className="text-2xl font-bold mb-8 text-orange-600 flex gap-x-3 items-center"><MdGroupAdd />Add User </h1>
+        <h1 className="text-2xl font-bold mb-8 text-red-500 flex gap-x-3 items-center"><MdGroupAdd />Add User </h1>
         <p className='text-gray-500 text-wrap mb-5'>Fill in the details of the new user in the form below, who will be your referral.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -212,4 +231,8 @@ const UserDetailsForm: React.FC = () => {
   );
 };
 
-export default UserDetailsForm;
+const userDetailsForm = () => {
+  return <UserDetailsForm />;
+};
+
+export default withProfileCheck(userDetailsForm);

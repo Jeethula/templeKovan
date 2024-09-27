@@ -6,8 +6,21 @@ import { useAuth } from '../context/AuthContext';
 import { FaUserEdit } from 'react-icons/fa';
 import { CgDetailsMore } from 'react-icons/cg';
 import toast from 'react-hot-toast';
- 
-const UserDetailsForm: React.FC = () => {
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+interface UserDetailsFormProps {
+  onProfileCompletion?: () => void;
+}
+
+const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
   const [isEditable, setIsEditable] = useState<boolean>(false);
@@ -36,7 +49,7 @@ const UserDetailsForm: React.FC = () => {
         pincode: res.userDetails.pincode,
         comments: res.userDetails.comments
       });
-      setIsEditable(false);
+      setIsEditable(false); 
     } else {
       setIsEditable(true);
     }
@@ -107,6 +120,9 @@ const UserDetailsForm: React.FC = () => {
         });
         if (res.status === 200) {
           toast.success('Details updated successfully!');
+          if (onProfileCompletion) {
+            onProfileCompletion?.();
+          }
           await fetch('/api/googlesheets/updaterow', {
             method: 'POST',
             headers: {
@@ -122,13 +138,17 @@ const UserDetailsForm: React.FC = () => {
         toast.error('Error: ' + error);
       } finally {
         setLoading(false);
-        setIsEditable(false);
+        setIsEditable(false); 
       }
     }
   };
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isEditable) {
+      toast.error('Please click the "Edit" button to edit your details.');
+      return;
+    }
     if (validateForm()) {
       setLoading(true);
       try {
@@ -156,6 +176,7 @@ const UserDetailsForm: React.FC = () => {
           body: JSON.stringify(userDetailsToSend)
         });
         if (res.status === 200) {
+          console.log(res)
           toast.success('Details submitted successfully!');
           setIsEditable(false);
 
@@ -167,6 +188,9 @@ const UserDetailsForm: React.FC = () => {
             body: JSON.stringify(userDetailsToSend),
           });
 
+          if (onProfileCompletion) {
+            onProfileCompletion?.();
+          }
         } else {
           toast.error('Failed to submit details.');
         }
@@ -183,18 +207,23 @@ const UserDetailsForm: React.FC = () => {
     <div className="mb-4">
       <label className="block font-semibold text-md text-[#233543] mb-1">{label}</label>
       {type === 'select' ? (
-        <select
-          name={name}
+          <Select
           value={userDetails[name]}
-          onChange={handleChange}
+          onValueChange={(value) => handleChange({ target: { name, value } } as React.ChangeEvent<HTMLSelectElement>)}
           disabled={!isEditable}
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}
         >
-          <option value="">Select</option>
-          {options?.map(option => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
+          <SelectTrigger className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${errors[name] ? 'ring-2 ring-red-500' : 'focus:ring-blue-500'}`}>
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>{label}</SelectLabel>
+              {options?.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       ) : type === 'textarea' ? (
         <textarea
           name={name}
@@ -224,12 +253,12 @@ const UserDetailsForm: React.FC = () => {
     <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-orange-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
+          <h1 className="text-2xl font-bold text-red-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
           {Object.keys(userDetails).some(key => userDetails[key as keyof UserDetails]) && (
             <button
               type="button"
               onClick={() => setIsEditable(!isEditable)}
-              className="font-semibold p-2 w-fit h-fit px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-md flex items-center gap-x-3"
+              className="font-medium p-2 w-fit h-fit px-4 bg-red-500 hover:bg-red-700 text-white rounded-md flex items-center gap-x-3"
             >
               {!isEditable ? ' Edit' : 'Cancel'} <FaUserEdit />
             </button>
@@ -248,7 +277,7 @@ const UserDetailsForm: React.FC = () => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            {isEditable ? (
+            {!isEditable ? (
               <button
                 type="button"
                 onClick={handleUpdate}
