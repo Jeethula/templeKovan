@@ -6,14 +6,14 @@ import { useAuth } from '../context/AuthContext';
 import { FaUserEdit } from 'react-icons/fa';
 import { CgDetailsMore } from 'react-icons/cg';
 import toast from 'react-hot-toast';
-
+ 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
-
+ 
   const getData = async () => {
     const data = await fetch(`/api/userDetails?email=${user?.email}`, {
       method: 'GET',
@@ -22,7 +22,6 @@ const UserDetailsForm: React.FC = () => {
       },
     });
     const res = await data.json();
-    console.log(res.userDetails, "response113333");
     if (res.userDetails) {
       setUserDetails({
         salutation: res.userDetails.salutation,
@@ -37,48 +36,48 @@ const UserDetailsForm: React.FC = () => {
         pincode: res.userDetails.pincode,
         comments: res.userDetails.comments
       });
-      setIsEditable(false); // Initially, the form should be non-editable
+      setIsEditable(false);
     } else {
-      setIsEditable(true); // If no data, the form should be editable
+      setIsEditable(true);
     }
   };
-
+ 
   useEffect(() => {
     getData();
   }, []);
-
+ 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === 'phone_number' && isNaN(Number(value))) return;
     setUserDetails(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
-
+ 
   const validateForm = (): boolean => {
     const newErrors: Partial<UserDetails> = {};
     let isValid = true;
-
+ 
     Object.entries(userDetails).forEach(([key, value]) => {
       if (value === '') {
         newErrors[key as keyof UserDetails] = `${key.replace('_', ' ')} is required`;
         isValid = false;
       }
     });
-
+ 
     if (userDetails.pincode.length !== 6) {
       newErrors.pincode = 'Pincode should be 6 digits';
       isValid = false;
     }
-
+ 
     if (userDetails.phone_number.length !== 10) {
       newErrors.phone_number = 'Phone number should be 10 digits';
       isValid = false;
     }
-
+ 
     setErrors(newErrors);
     return isValid;
   };
-
+ 
   const handleUpdate = async () => {
     if (validateForm()) {
       setLoading(true);
@@ -98,6 +97,7 @@ const UserDetailsForm: React.FC = () => {
           email: user?.email,
           avatarUrl: user?.photoURL
         };
+
         const res = await fetch('/api/userDetails', {
           method: 'PUT',
           headers: {
@@ -107,6 +107,14 @@ const UserDetailsForm: React.FC = () => {
         });
         if (res.status === 200) {
           toast.success('Details updated successfully!');
+          await fetch('/api/googlesheets/updaterow', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userDetailsToSend),
+          });
+
         } else {
           toast.error('Failed to update details.');
         }
@@ -114,11 +122,11 @@ const UserDetailsForm: React.FC = () => {
         toast.error('Error: ' + error);
       } finally {
         setLoading(false);
-        setIsEditable(false); // After updating, set the form to non-editable
+        setIsEditable(false);
       }
     }
   };
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
@@ -139,6 +147,7 @@ const UserDetailsForm: React.FC = () => {
           avatarUrl: user?.photoURL,
           salutation: userDetails.salutation
         };
+
         const res = await fetch('/api/userDetails', {
           method: 'POST',
           headers: {
@@ -148,18 +157,28 @@ const UserDetailsForm: React.FC = () => {
         });
         if (res.status === 200) {
           toast.success('Details submitted successfully!');
-          setIsEditable(false); // After submitting, set the form to non-editable
+          setIsEditable(false);
+
+          await fetch('/api/googlesheets/addrow', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userDetailsToSend),
+          });
+
         } else {
           toast.error('Failed to submit details.');
         }
       } catch (error) {
+        console.log(error, "error");
         toast.error('Error: ' + error);
       } finally {
         setLoading(false);
       }
     }
   };
-
+ 
   const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
     <div className="mb-4">
       <label className="block font-semibold text-md text-[#233543] mb-1">{label}</label>
@@ -200,7 +219,7 @@ const UserDetailsForm: React.FC = () => {
       {errors[name] && <p className="text-red-500">{errors[name]}</p>}
     </div>
   );
-
+ 
   return (
     <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
@@ -283,5 +302,5 @@ const UserDetailsForm: React.FC = () => {
     </div>
   );
 };
-
+ 
 export default UserDetailsForm;

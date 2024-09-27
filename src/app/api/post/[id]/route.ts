@@ -56,8 +56,11 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                                 }
                             }
                         },
+                        },
+                        orderBy:{
+                            createdAt:"desc"
                         }
-                }
+                },
             }
         })
         return NextResponse.json({post:post,status:200})

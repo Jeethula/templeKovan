@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-enterprise';
+// import 'ag-grid-enterprise';
+import CustomFilter from './CustomFilter';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useRouter } from 'next/navigation';
@@ -47,21 +48,10 @@ const PersonalInfoGrid = () => {
   const paginationPageSizeSelector = [10, 20, 50, 100];
 
   const statusCellRenderer = (params: { value: string }) => {
-    const statusStyle = {
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 'fit-content',
-      margin: '0 auto',
-    };
 
     if (params.value === 'pending') {
       return (
-        <div className='flex justify-center items-center text-yellow-500 font-bold'>
+        <div className='flex justify-left items-center text-yellow-500 font-bold'>
           <Clock size={16} style={{ marginRight: '4px' }} />
           Pending
         </div>
@@ -69,7 +59,7 @@ const PersonalInfoGrid = () => {
     }
     if (params.value === 'rejected') {
       return (
-        <div className='flex justify-center items-center text-red-500 font-bold'>
+        <div className='flex justify-left items-center text-red-500 font-bold'>
           <RxCross1 size={16} style={{ marginRight: '4px' }} />
           Rejected
         </div>
@@ -77,7 +67,7 @@ const PersonalInfoGrid = () => {
     }
     if (params.value === 'approved') {
       return (
-        <div className='flex justify-center items-center text-green-500 font-bold'>
+        <div className='flex justify-left items-center text-green-500 font-bold'>
           <IoCheckmarkDone size={20} style={{ marginRight: '4px' }} />
           Approved
         </div>
@@ -91,49 +81,59 @@ const PersonalInfoGrid = () => {
       headerName: "Full Name",
       valueGetter: (params) => `${params.data.firstName} ${params.data.lastName}`,
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { fontWeight: '500', textAlign: 'center' }
+      cellStyle: { fontWeight: '500', textAlign: 'left' }
     },
     {
       headerName: "Email",
       field: "email",
+      sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Phone",
       field: "phoneNumber",
       sortable: true,
       filter: 'agTextColumnFilter',
+      floatingFilter: true,
       flex: 1,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "City",
       field: "city",
       sortable: true,
-      filter: 'agSetColumnFilter',
+      filter: 'agTextColumnFilter',
+      floatingFilter: true,
       flex: 1,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Created At",
       field: "createdAt",
       sortable: true,
       filter: 'agDateColumnFilter',
+      floatingFilter: true,
       valueFormatter: (params) => {
         return new Date(params.value).toLocaleDateString()
       },
       flex: 2,
-      cellStyle: { textAlign: 'center' }
+      cellStyle: { textAlign: 'left' }
     },
     {
       headerName: "Status",
       field: "isApproved",
       sortable: true,
-      filter: 'agSetColumnFilter',
+      filter:CustomFilter,
+      filterParams:{
+        values:['approved','rejected','pending']
+      },
+      floatingFilter: true,
       cellRenderer: statusCellRenderer,
       flex: 1,
     },
@@ -141,67 +141,72 @@ const PersonalInfoGrid = () => {
       headerName: "Address 1",
       field: "address1",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Address 2",
       field: "address2",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Pincode",
       field: "pincode",
       sortable: true,
-      filter: 'agTextColumnFilter',
+      floatingFilter: true,
+      filter: 'agNumberColumnFilter',
       flex: 1,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "State",
       field: "state",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 1,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Country",
       field: "country",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 1,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Comments",
       field: "comments",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Avatar URL",
       field: "avatarUrl",
       sortable: true,
+      floatingFilter: true,
       filter: 'agTextColumnFilter',
       flex: 2,
-      cellStyle: { textAlign: 'center', fontWeight: 'normal' }
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
   ];
-  console.log(showAllData, isSmallDevice, 'showAllData, isSmallDevice');
   
   const defaultColDef = useMemo(() => ({
     flex:2,
     minWidth:200,
     sortable: true,
     filter: true,
-    floatingFilter: true,
     resizable: true,
   }), []);
 

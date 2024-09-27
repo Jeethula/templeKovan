@@ -90,6 +90,15 @@ const UserDetailsForm: React.FC = () => {
           toast.error(data.error);
           return;
         }
+        
+        await fetch('/api/googlesheets/addrow', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userDetailsToSend),
+        });
+
         toast.success('Profile added successfully');
         setUserDetails(initialUserDetails);
         setEmail('');
