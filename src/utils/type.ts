@@ -10,6 +10,7 @@ export interface UserDetails{
     country:string;
     pincode:string;
     comments:string;
+    unique_id:string;
 }
  
 export interface Error{
@@ -38,6 +39,7 @@ export const initialUserDetails: UserDetails = {
     country: '',
     pincode: '',
     comments: '',
+    unique_id:''
   };
 
  export interface Post {

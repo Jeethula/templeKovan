@@ -1,13 +1,12 @@
+// pages/api/addprofile.ts
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log(body,"2ednoe2dned");
     const { referrerEmail, newUserEmail, personalInfo } = body;
 
-  
     if (!referrerEmail || !newUserEmail || !personalInfo) {
       return NextResponse.json({ error: "Missing required information", status: 400 });
     }
@@ -27,6 +26,15 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       return NextResponse.json({ error: "User already exists", status: 400 });
+    }
+
+    // Check if the unique_id already exists
+    const existingUniqueId = await prisma.personalInfo.findUnique({
+      where: { uniqueId: personalInfo.uniqueId }
+    });
+
+    if (existingUniqueId) {
+      return NextResponse.json({ error: "Unique ID already exists", status: 400 });
     }
 
     // Start a transaction
@@ -57,7 +65,8 @@ export async function POST(req: Request) {
           avatarUrl: personalInfo.avatarUrl,
           salutation: personalInfo.salutation,
           comments: personalInfo.comments || "",
-          isApproved: "pending"
+          isApproved: "pending",
+          uniqueId: personalInfo.uniqueId
         }
       });
 

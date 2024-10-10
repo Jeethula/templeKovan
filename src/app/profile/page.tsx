@@ -26,6 +26,44 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
+  const validateUniqueId = (uniqueId: string): boolean => {
+    const regex = /^\d{4}[A-Za-z]{4}\d{2}$/;
+    return regex.test(uniqueId);
+  };
+  
+  const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
+  const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>('');
+  
+  const handleUniqueIdCheck = async () => {
+    if (!validateUniqueId(userDetails.unique_id)) {
+      setUniqueIdCheckMessage('Invalid Unique ID format');
+      setIsUniqueIdVerified(false);
+      return;
+    }
+  
+    try {
+      const res = await fetch('/api/checkuniqueid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uniqueId: userDetails.unique_id }),
+      });
+  
+      const data = await res.json();
+      if (data.exists) {
+        setUniqueIdCheckMessage('Unique ID already exists');
+        setIsUniqueIdVerified(false);
+      } else {
+        setUniqueIdCheckMessage('Unique ID is available');
+        setIsUniqueIdVerified(true);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setUniqueIdCheckMessage('Network error. Please try again.');
+      setIsUniqueIdVerified(false);
+    }
+  };
  
   const getData = async () => {
     const data = await fetch(`/api/userDetails?email=${user?.email}`, {
@@ -47,7 +85,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         state: res.userDetails.state,
         country: res.userDetails.country,
         pincode: res.userDetails.pincode,
-        comments: res.userDetails.comments
+        comments: res.userDetails.comments,
+        unique_id:res.userDetails.uniqueID
       });
       setIsEditable(false); 
     } else {
@@ -108,7 +147,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           comments: userDetails.comments,
           salutation: userDetails.salutation,
           email: user?.email,
-          avatarUrl: user?.photoURL
+          avatarUrl: user?.photoURL,
+          uniqueId:userDetails?.unique_id
         };
 
         const res = await fetch('/api/userDetails', {
@@ -147,6 +187,10 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     e.preventDefault();
     if (!isEditable) {
       toast.error('Please click the "Edit" button to edit your details.');
+      return;
+    }
+    if (!isUniqueIdVerified) {
+      toast.error('Please verify the Unique ID');
       return;
     }
     if (validateForm()) {
@@ -268,6 +312,21 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           {renderField('salutation', 'Salutation', 'select', ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.', 'Mx.'])}
           {renderField('first_name', 'First Name')}
           {renderField('last_name', 'Last Name')}
+          {renderField('unique_id', 'Unique ID')}
+          <div className="flex items-center gap-x-2 ">
+          <button
+            type="button"
+            onClick={handleUniqueIdCheck}
+            disabled={!isEditable}
+            className={`ml-2 px-3 py-1 mb-3 ${ !isEditable ? "bg-gray-300 text-black ":"bg-blue-500 hover:bg-blue-700 text-white" }  font-semibold rounded-md `}          >
+            Check
+          </button> <h1 className={`font-medium ${!isEditable?"hidden":""}`}>
+            Check Availablity!</h1> </div>
+          {uniqueIdCheckMessage && (
+            <p className={` mb-4 px-2 text-${isUniqueIdVerified ? "green" : "red"}-600`}>
+             {isUniqueIdVerified ? '✅' : '❌'} {uniqueIdCheckMessage} 
+            </p>
+          )}
           {renderField('phone_number', 'Phone Number')}
           {renderField('address_line_1', 'Address Line 1')}
           {renderField('address_line_2', 'Address Line 2')}
