@@ -26,7 +26,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
- 
+  const [isDataFetched, setIsDataFetched] = useState<boolean>(false);
+
   const getData = async () => {
     const data = await fetch(`/api/userDetails?email=${user?.email}`, {
       method: 'GET',
@@ -49,48 +50,50 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         pincode: res.userDetails.pincode,
         comments: res.userDetails.comments
       });
-      setIsEditable(false); 
+      setIsEditable(false);
+      setIsDataFetched(true);
     } else {
       setIsEditable(true);
+      setIsDataFetched(false);
     }
   };
- 
+
   useEffect(() => {
     getData();
   }, []);
- 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === 'phone_number' && isNaN(Number(value))) return;
     setUserDetails(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
- 
+
   const validateForm = (): boolean => {
     const newErrors: Partial<UserDetails> = {};
     let isValid = true;
- 
+
     Object.entries(userDetails).forEach(([key, value]) => {
       if (value === '') {
         newErrors[key as keyof UserDetails] = `${key.replace('_', ' ')} is required`;
         isValid = false;
       }
     });
- 
+
     if (userDetails.pincode.length !== 6) {
       newErrors.pincode = 'Pincode should be 6 digits';
       isValid = false;
     }
- 
+
     if (userDetails.phone_number.length !== 10) {
       newErrors.phone_number = 'Phone number should be 10 digits';
       isValid = false;
     }
- 
+
     setErrors(newErrors);
     return isValid;
   };
- 
+
   const handleUpdate = async () => {
     if (validateForm()) {
       setLoading(true);
@@ -130,7 +133,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
             },
             body: JSON.stringify(userDetailsToSend),
           });
-
+          console.log("updated")
         } else {
           toast.error('Failed to update details.');
         }
@@ -138,11 +141,11 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         toast.error('Error: ' + error);
       } finally {
         setLoading(false);
-        setIsEditable(false); 
+        setIsEditable(false);
       }
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isEditable) {
@@ -179,6 +182,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           console.log(res)
           toast.success('Details submitted successfully!');
           setIsEditable(false);
+          setIsDataFetched(true);
 
           await fetch('/api/googlesheets/addrow', {
             method: 'POST',
@@ -202,12 +206,12 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
       }
     }
   };
- 
+
   const renderField = (name: keyof UserDetails, label: string, type: string = 'text', options?: string[]) => (
     <div className="mb-4">
       <label className="block font-semibold text-md text-[#233543] mb-1">{label}</label>
       {type === 'select' ? (
-          <Select
+        <Select
           value={userDetails[name]}
           onValueChange={(value) => handleChange({ target: { name, value } } as React.ChangeEvent<HTMLSelectElement>)}
           disabled={!isEditable}
@@ -248,13 +252,13 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
       {errors[name] && <p className="text-red-500">{errors[name]}</p>}
     </div>
   );
- 
+
   return (
     <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
       <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-red-600 flex gap-x-2 items-center"> Your Details <CgDetailsMore /> </h1>
-          {Object.keys(userDetails).some(key => userDetails[key as keyof UserDetails]) && (
+          {isDataFetched && (
             <button
               type="button"
               onClick={() => setIsEditable(!isEditable)}
@@ -277,7 +281,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            {!isEditable ? (
+            {isEditable ? (
               <button
                 type="button"
                 onClick={handleUpdate}
@@ -331,5 +335,5 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     </div>
   );
 };
- 
+
 export default UserDetailsForm;
