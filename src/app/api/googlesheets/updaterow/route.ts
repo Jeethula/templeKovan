@@ -2,7 +2,7 @@
 
 
 
-  import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { google } from "googleapis";
 
 const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
