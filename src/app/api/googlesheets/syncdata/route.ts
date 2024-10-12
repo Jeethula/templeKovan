@@ -36,7 +36,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     // Fetch all data from A to M
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'Sheet1!A2:M',
+      range: 'Sheet1!A2:N',
     });
 
     const rows = response.data.values;
@@ -64,6 +64,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
         email: row[10],
         avatarUrl: row[11],
         salutation: row[12],
+        uniqueId: row[13],
       }
     }));
 
@@ -78,7 +79,8 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
         await prisma.user.create({
             data: {
             email: newObj.email,
-            role: 'user'
+            role: 'user',
+            uniqueId: parseInt(newObj.fullData.uniqueId)
             }
         });
 

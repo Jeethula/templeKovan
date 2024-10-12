@@ -16,6 +16,7 @@ datasource db {
 model User {
   id          String      @id @default(cuid())  // You can use email as id if needed
   email       String      @unique
+  uniqueId    Int      @unique 
   role        String
   posts       Post[]
   comments    Comment[]
@@ -33,14 +34,13 @@ model User {
 model PersonalInfo {
   id          String   @id @default(cuid())
   email       String   @unique
-  uniqueId    String   @unique
   address1    String?
   address2    String?
   state       String?
   phoneNumber String?
   country     String?
   firstName   String
-  lastName    String
+  lastName    String?
   pincode     String?
   city        String?
   avatarUrl   String?

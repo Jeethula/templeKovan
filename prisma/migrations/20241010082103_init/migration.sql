@@ -2,6 +2,7 @@
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "uniqueId" INTEGER NOT NULL,
     "role" TEXT NOT NULL,
     "referral" TEXT,
     "parentId" TEXT,
@@ -21,9 +22,13 @@ CREATE TABLE "PersonalInfo" (
     "phoneNumber" TEXT,
     "country" TEXT,
     "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
+    "lastName" TEXT,
+    "pincode" TEXT,
+    "city" TEXT,
     "avatarUrl" TEXT,
     "oldRecord" JSONB,
+    "salutation" TEXT,
+    "comments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "isApproved" TEXT DEFAULT 'null',
@@ -32,10 +37,38 @@ CREATE TABLE "PersonalInfo" (
 );
 
 -- CreateTable
+CREATE TABLE "PersonalInfoHistory" (
+    "id" TEXT NOT NULL,
+    "uniqueId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "address1" TEXT,
+    "address2" TEXT,
+    "state" TEXT,
+    "phoneNumber" TEXT,
+    "country" TEXT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "pincode" TEXT,
+    "city" TEXT,
+    "avatarUrl" TEXT,
+    "oldRecord" JSONB,
+    "salutation" TEXT,
+    "comments" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isApproved" TEXT DEFAULT 'null',
+
+    CONSTRAINT "PersonalInfoHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Post" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "image" TEXT,
+    "likes" INTEGER NOT NULL,
+    "dislikes" INTEGER NOT NULL,
     "authorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -71,7 +104,13 @@ CREATE TABLE "_DislikedPosts" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_uniqueId_key" ON "User"("uniqueId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "PersonalInfo_email_key" ON "PersonalInfo"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PersonalInfoHistory_uniqueId_key" ON "PersonalInfoHistory"("uniqueId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_LikedPosts_AB_unique" ON "_LikedPosts"("A", "B");
@@ -90,6 +129,9 @@ ALTER TABLE "User" ADD CONSTRAINT "User_parentId_fkey" FOREIGN KEY ("parentId") 
 
 -- AddForeignKey
 ALTER TABLE "PersonalInfo" ADD CONSTRAINT "PersonalInfo_email_fkey" FOREIGN KEY ("email") REFERENCES "User"("email") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PersonalInfoHistory" ADD CONSTRAINT "PersonalInfoHistory_email_fkey" FOREIGN KEY ("email") REFERENCES "PersonalInfo"("email") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
