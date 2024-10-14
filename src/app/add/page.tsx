@@ -22,6 +22,7 @@ const UserDetailsForm: React.FC = () => {
     Partial<UserDetails & { email: string }>
   >({});
   const { user } = useAuth();
+  console.log(user,"user")
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const validateUniqueId = (uniqueId: string): boolean => {
