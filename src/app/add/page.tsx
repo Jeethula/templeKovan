@@ -22,6 +22,10 @@ const UserDetailsForm: React.FC = () => {
     Partial<UserDetails & { email: string }>
   >({});
   const { user } = useAuth();
+  const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const userId: string = sessionData.id;
+  console.log(userId);
+  
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const validateUniqueId = (uniqueId: string): boolean => {
@@ -144,8 +148,9 @@ const UserDetailsForm: React.FC = () => {
         },
         body: JSON.stringify({
           personalInfo: userDetailsToSend,
-          referrerEmail: user?.email,
+          userId,
           newUserEmail: email,
+          newUserPhone: userDetails.phone_number,
         }),
       });
 

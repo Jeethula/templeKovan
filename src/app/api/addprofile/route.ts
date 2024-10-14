@@ -5,14 +5,14 @@ import prisma from "@/utils/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { referrerEmail, newUserEmail, personalInfo ,newUserPhone } = body;
+    const { userId, newUserEmail, personalInfo ,newUserPhone } = body;
 
-    if (!referrerEmail || !newUserEmail || !personalInfo) {
+    if (!userId || !newUserEmail || !personalInfo) {
       return NextResponse.json({ error: "Missing required information", status: 400 });
     }
 
     const referrer = await prisma.user.findUnique({
-      where: { email: referrerEmail }
+      where: { id: userId }
     });
 
     if (!referrer) {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     // Check if the new user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: newUserEmail }
+      where: {id: userId}
     });
 
     if (existingUser) {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         data: {
           email: newUserEmail,
           phone: newUserPhone,
-          referral: referrerEmail,
+          referral:userId,
           parent: { connect: { id: referrer.id } }
         }
       });
