@@ -5,7 +5,7 @@ import prisma from "@/utils/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { referrerEmail, newUserEmail, personalInfo } = body;
+    const { referrerEmail, newUserEmail, personalInfo ,newUserPhone } = body;
 
     if (!referrerEmail || !newUserEmail || !personalInfo) {
       return NextResponse.json({ error: "Missing required information", status: 400 });
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       const newUser = await prisma.user.create({
         data: {
           email: newUserEmail,
-          role: 'user',
+          phone: newUserPhone,
           referral: referrerEmail,
           parent: { connect: { id: referrer.id } }
         }
@@ -52,7 +52,6 @@ export async function POST(req: Request) {
       // Create personal info for the new user
       const newPersonalInfo = await prisma.personalInfo.create({
         data: {
-          email: newUserEmail,
           firstName: personalInfo.firstName,
           lastName: personalInfo.lastName,
           address1: personalInfo.address1,
@@ -66,7 +65,8 @@ export async function POST(req: Request) {
           salutation: personalInfo.salutation,
           comments: personalInfo.comments || "",
           isApproved: "pending",
-          uniqueId: personalInfo.uniqueId
+          uniqueId: personalInfo.uniqueId,
+          user: { connect: { id: newUser.id } }
         }
       });
 

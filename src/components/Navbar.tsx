@@ -44,7 +44,7 @@ const Navbar = () => {
   ];
   
     return (
-<nav className="flex flex-wrap items-center justify-between text-white bg-[#663399] sticky top-0 z-10 h-fit lg:p-3 w-screen xl:px-56 md:px-24 sm:px-8 px-3 py-1">
+<nav className="flex flex-wrap items-center justify-between text-white bg-[#663399] sticky top-0 z-10 h-fit lg:p-3 max-w-screen xl:px-56 md:px-24 sm:px-8 px-3 py-1">
   <div className="flex items-center space-x-4">
     <div className="relative">
       <button

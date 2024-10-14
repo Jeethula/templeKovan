@@ -50,6 +50,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         body: JSON.stringify({ id: params.id }),
       });
       const data = await res.json();
+      console.log(data,"from fetch data");
       if (data.status === 200) {
         setProfile(data.details);
         fetchHistory(data.details.email);
@@ -73,6 +74,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       });
       const data = await res.json();
       if (data.status === 200) {
+        console.log(data,"from fetch history");
         setHistory(data.details);
       } else {
         setError("User history not found");

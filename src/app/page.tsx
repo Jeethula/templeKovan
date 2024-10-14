@@ -19,12 +19,13 @@ export default function HomePage() {
     })
     })
     const res = await data.json();
+    console.log(res,"from page");
     sessionStorage.setItem('user',JSON.stringify(res.user));
   }
 
   useEffect(() => {
     UserDetails().then(()=>{
-      if(sessionStorage.getItem('user') === null){
+      if(sessionStorage.getItem('user') === null || undefined){
         window.location.href = '/';
       }
     });

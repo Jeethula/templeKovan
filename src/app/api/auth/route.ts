@@ -18,7 +18,7 @@ export async function POST(req:Request){
                 const newUser = await prisma.user.create({
                     data:{
                         email: body?.email,
-                        role: 'user'
+                        phone: "8903933999",
                     }
                 })
                 return NextResponse.json({user:newUser,status:200,success:"user created"});

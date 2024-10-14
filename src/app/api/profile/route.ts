@@ -37,6 +37,7 @@ export async function GET(){
 export async function POST(req:Request){
     try{
         const body = await req.json();
+        console.log(body, "body");
         const details = await prisma.personalInfo.findUnique({
             where:{
                 id:body?.id
@@ -72,14 +73,11 @@ export async function POST(req:Request){
                 }
             }
         })
-        console.log(details,"2d2ef3rf3rf3rf");
-    
-        
+
         if(!details){
             return NextResponse.json({details:details,status:401,success:"user profile not found"});
         }
          return NextResponse.json({details:details,status:200,success:"user profile found"});
-
 
     }catch(e){
         return NextResponse.json({error:e,status:500})

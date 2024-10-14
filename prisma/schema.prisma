@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -14,10 +9,10 @@ datasource db {
 }
 
 model User {
-  id          String      @id @default(cuid())  // You can use email as id if needed
+  id          String      @id @default(cuid())  
   email       String      @unique
-  uniqueId    Int      @unique 
-  role        String
+  phone       String      @unique
+  role        String      @default("user")
   posts       Post[]
   comments    Comment[]
   likedPosts   Post[]      @relation("LikedPosts")
@@ -33,7 +28,7 @@ model User {
 
 model PersonalInfo {
   id          String   @id @default(cuid())
-  email       String   @unique
+  uniqueId    Int      @unique 
   address1    String?
   address2    String?
   state       String?
@@ -49,8 +44,9 @@ model PersonalInfo {
   comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  isApproved  String?     @default("null")
-  user        User      @relation(fields: [email], references: [email])
+  isApproved  String?     @default("pending")
+  user        User      @relation(fields: [userid], references: [id])
+  userid      String    @unique
   History     PersonalInfoHistory[]
 }
 
@@ -73,8 +69,9 @@ model PersonalInfoHistory{
   comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  isApproved  String?     @default("null")
-  PeronalInfo PersonalInfo      @relation(fields: [email], references: [email])
+  isApproved  String?     @default("pending")
+  PeronalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
+  personalInfoId      String
 }
 
 model Post {
@@ -103,5 +100,4 @@ model Comment {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
-
 

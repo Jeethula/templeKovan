@@ -9,7 +9,6 @@ export async function POST(req:Request){
         console.log(body, "body");
         const userDetails = await prisma.personalInfo.create({
             data:{
-                email: body?.email,
                 address1: body?.address1,
                 address2: body?.address2,
                 state: body?.state,
@@ -22,7 +21,9 @@ export async function POST(req:Request){
                 city: body?.city,
                 isApproved:"null",
                 salutation: body?.salutation,
-                comments: body?.comments
+                comments: body?.comments,
+                uniqueId: body?.uniqueId,
+                user: body?.user
         }})
         console.log("completed")
         return NextResponse.json({userDetails,status:200,success:"user profile created"});
@@ -64,7 +65,8 @@ export async function PUT(req:Request){
                 city: oldUserDetails?.city,
                 isApproved: oldUserDetails?.isApproved,
                 salutation: oldUserDetails?.salutation,
-                comments: oldUserDetails?.comments
+                comments: oldUserDetails?.comments,
+                uniqueId: oldUserDetails?.uniqueId
             }
         })
 
