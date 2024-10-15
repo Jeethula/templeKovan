@@ -11,6 +11,7 @@ interface PostData {
   title: string;
   content: string;
   image: string;
+  postType: string;
 }
 
 interface ErrorState {
@@ -23,6 +24,7 @@ function WritePost() {
     title: "",
     content: "",
     image: "",
+    postType: "public",
   });
   const [error, setError] = useState<ErrorState>({ title: "", content: "" });
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -156,6 +158,8 @@ function WritePost() {
                     type="radio"
                     name="postType"
                     value="public"
+                    checked={data.postType === "public"}
+                    onChange={handleChange}
                     className="form-radio"
                   />
                   <span className="ml-2">Public</span>
@@ -165,6 +169,8 @@ function WritePost() {
                     type="radio"
                     name="postType"
                     value="private"
+                    checked={data.postType === "private"}
+                    onChange={handleChange}
                     className="form-radio"
                   />
                   <span className="ml-2">Private</span>

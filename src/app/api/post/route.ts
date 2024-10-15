@@ -53,22 +53,21 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-    const { title, content, authorId,image } = await req.json();
-    console.log(title, content, authorId,image);
+    const { title, content, authorId, image, postType } = await req.json();
     
-    try{
+    try {
         await prisma.post.create({
-            data:{
+            data: {
                 title,
                 content,
-                image:image || null,
+                image: image || null,
                 authorId,
-                likes:0,
-                dislikes:0
-
+                likes: 0,
+                dislikes: 0,
+                type: postType
             }
-        })
-        return NextResponse.json({status:200})
+        });
+        return NextResponse.json({ status: 200 });
     }
     catch(e){
         return NextResponse.json({error:e,status:500})

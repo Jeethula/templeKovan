@@ -8,13 +8,14 @@ import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { BsFileTextFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaCircleUser } from "react-icons/fa6";
-import { FaCity, FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
+import { FaCity, FaUserFriends } from "react-icons/fa";
 
 interface Post {
   posts: Post[];
 }
 
 interface User {
+  id: string; // Add this line
   email: string;
   phone: string;
   posts: Post[];
@@ -22,9 +23,16 @@ interface User {
   dislikedPosts: Post[];
 }
 
+interface PersonalInfo {
+  uniqueId?: string;
+  isApproved?: string;
+  // Add other properties as needed
+}
+
 interface Profile {
   user: User;
-  [key: string]: string | User;
+  personalInfo: PersonalInfo;
+  [key: string]: string | User | PersonalInfo;
 }
 
 interface HistoryItem {
@@ -34,8 +42,8 @@ interface HistoryItem {
 
 interface Change {
   field: string;
-  from: string | User;
-  to: string | User;
+  from: string | User | PersonalInfo | undefined;
+  to: string | User | PersonalInfo | undefined;
 }
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
@@ -43,8 +51,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-  const adminEmail: string = sessionData.email;
+  // const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+  // const adminEmail: string = sessionData.email;
   const router = useRouter();
 
   const fetchData = async () => {
@@ -90,46 +98,66 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  const updateApprovalStatus = async (status: string) => {
-    if(status === "rejected"){
-      if (!window.confirm("Are you sure you want to reject this user?")) {
-        return;
-      }
-    }
-    try {
-      const res = await fetch('/api/userDetails', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: profile?.email, isApproved: status, adminEmail: adminEmail }),
-      });
-      const result = await res.json();
-      if (result.success) {
-        setProfile(prev => prev ? {...prev, isApproved: status} : null);
-      }
-    } catch (e) {
-      console.error(e);
-      setError("An error occurred while updating the status");
-    }
-  };
+  // const updateApprovalStatus = async (status: string) => {
+  //   if(status === "rejected"){
+  //     if (!window.confirm("Are you sure you want to reject this user?")) {
+  //       return;
+  //     }
+  //   }
+  //   try {
+  //     const res = await fetch('/api/userDetails', {
+  //       method: 'PATCH',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ email: profile?.email, isApproved: status, adminEmail: adminEmail }),
+  //     });
+  //     const result = await res.json();
+  //     if (result.success) {
+  //       setProfile(prev => prev ? {...prev, isApproved: status} : null);
+  //     }
+  //   } catch (e) {
+  //     console.error(e);
+  //     setError("An error occurred while updating the status");
+  //   }
+  // };
 
-  const handleEditSubmit = async (section: string, values: {[key: string]: string}) => {
+  const handleEditSubmit = async (section: string, updatedData: Partial<Profile>) => {
     if (!profile) return;
+
     try {
-      const res = await fetch('/api/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: params.id, ...values }),
+      const response = await fetch('/api/userDetails', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: profile.user?.id,
+          ...(profile.personalInfo && typeof profile.personalInfo === 'object' ? profile.personalInfo : {}),
+          ...(profile.user && typeof profile.user === 'object' ? profile.user : {}),
+          ...updatedData,
+          phone: updatedData.phone ?? profile.user?.phone,
+          email: updatedData.email ?? profile.user?.email,
+          uniqueId: profile.personalInfo?.uniqueId ?? 0, // Ensure uniqueId is included
+          isApproved: profile.personalInfo?.isApproved ?? "pending",
+        }),
       });
-      const result = await res.json();
-      if (result.success) {
-        setProfile(prev => prev ? {...prev, ...values} : null);
-        fetchData();
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log(result.success);
+        // Update local state
+        setProfile(prevProfile => ({
+          ...(prevProfile ?? {}),
+          personalInfo: { ...(prevProfile?.personalInfo ?? {}), ...result.userDetails },
+          user: { ...(prevProfile?.user ?? {}), ...result.user },
+        }));
       } else {
-        setError("Failed to update profile");
+        console.error(result.error);
+        // Handle error (e.g., show error message to user)
       }
-    } catch (e) {
-      console.error(e);
-      setError("An error occurred while updating the profile");
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Handle error (e.g., show error message to user)
     }
   };
 
@@ -140,7 +168,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
-  const getChanges = (current: Profile, previous: HistoryItem): Change[] => {
+  const getChanges = (current: Profile | HistoryItem, previous: Profile | HistoryItem): Change[] => {
     const changes: Change[] = [];
     const personalInfoFields = ['salutation', 'firstName', 'lastName', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments'];
 
@@ -196,6 +224,13 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       }
     };
 
+    const getValue = (field: string) => {
+      if (field === 'email' || field === 'phone') {
+        return profile.user?.[field] || '';
+      }
+      return profile[field]?.toString() || '';
+    };
+
     return (
       <div className="bg-white p-6 rounded-xl shadow-lg mb-6 relative">
         <div className="flex justify-between items-center mb-4">
@@ -215,7 +250,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           {Object.keys(editedValues).length === 0 && (
             <button 
               onClick={() => setEditedValues(Object.fromEntries(
-                Object.entries(profile).filter(([_, v]) => typeof v === 'string') as [string, string][]
+                fields.map(field => [field, getValue(field)])
               ))} 
               className="text-blue-500 hover:text-blue-600 flex-shrink-0"
             >
@@ -231,7 +266,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                   type="text"
                   id={field}
                   ref={(el: HTMLInputElement | null) => { inputRefs.current[field] = el; }}
-                  value={editedValues[field] || profile[field]?.toString() || ''}
+                  value={editedValues[field] || getValue(field)}
                   onChange={(e) => handleInputChange(field, e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -251,7 +286,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             {fields.map(field => (
               <p key={field} className="text-gray-700 mb-2 flex items-center">
                 {getIcon(field)}
-                {profile[field]?.toString() || ''}
+                {getValue(field)}
               </p>
             ))}
           </>
@@ -274,21 +309,25 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       </div>
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-1 flex flex-col items-center">
-            <div className="relative w-32 h-32 mb-6">
-              <Image
-                src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='
-                alt="User avatar"
-                layout="fill"
-                className="rounded-full object-cover shadow-lg bg-none"
-              />
+          <div className="lg:col-span-1">
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <div className="flex flex-col items-center">
+                <div className="relative w-32 h-32 mb-6">
+                  <Image
+                    src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='
+                    alt="User avatar"
+                    layout="fill"
+                    className="rounded-full object-cover shadow-lg bg-none"
+                  />
+                </div>
+                <EditableSection 
+                  section="personalInfo" 
+                  fields={['firstName', 'lastName', 'email', 'phone']} 
+                  profile={profile}
+                  onSave={handleEditSubmit}
+                />
+              </div>
             </div>
-            <EditableSection 
-              section="personalInfo" 
-              fields={['firstName', 'lastName', 'email', 'phone']} 
-              profile={profile}
-              onSave={handleEditSubmit}
-            />
           </div>
 
           <div className="lg:col-span-2">
@@ -327,7 +366,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         </div>
       )}
 
-      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+      {/* <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
         {profile?.isApproved === "approved" ? (
           <div className="text-green-500 font-semibold">User Accepted</div>
         ) : profile?.isApproved === "rejected" ? (
@@ -350,7 +389,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </button>
           </>
         )}
-      </div>
+      </div> */}
 
       <div className="mt-8 sm:mt-10">
         <h3 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-[#663399]">
@@ -360,7 +399,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         {history.length === 0 &&  <p className="text-gray-700">No changes found</p>}
         {history.map((historyItem, index) => {
           const previousProfile = index > 0 ? history[index - 1] : profile;
-          const changes = getChanges(historyItem, previousProfile);
+          const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
           return (
             <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
               <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
