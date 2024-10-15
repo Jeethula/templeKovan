@@ -23,7 +23,6 @@ interface User {
 }
 
 interface Profile {
-  email: string;
   user: User;
   [key: string]: string | User;
 }
@@ -58,7 +57,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const data = await res.json();
       if (data.status === 200) {
         setProfile(data.details);
-        fetchHistory(data.details.email);
+        fetchHistory(data.details.id);
       } else {
         setError("User profile not found");
         setLoading(false);
@@ -70,12 +69,12 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  const fetchHistory = async (email: string) => {
+  const fetchHistory = async (personalInfoId: string) => {
     try {
       const res = await fetch('/api/profilehistory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ personalInfoId }),
       });
       const data = await res.json();
       if (data.status === 200) {
@@ -143,7 +142,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
   const getChanges = (current: Profile, previous: HistoryItem): Change[] => {
     const changes: Change[] = [];
-    const personalInfoFields = ['salutation', 'firstName', 'lastName', 'email', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments', 'isApproved'];
+    const personalInfoFields = ['salutation', 'firstName', 'lastName', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments'];
 
     personalInfoFields.forEach(field => {
       if (current[field] !== previous[field]) {
@@ -360,7 +359,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         </h3>
         {history.length === 0 &&  <p className="text-gray-700">No changes found</p>}
         {history.map((historyItem, index) => {
-          const changes = profile ? getChanges(profile, historyItem) : [];
+          const previousProfile = index > 0 ? history[index - 1] : profile;
+          const changes = getChanges(historyItem, previousProfile);
           return (
             <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
               <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">

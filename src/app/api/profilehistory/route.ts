@@ -4,10 +4,10 @@ import prisma from "@/utils/prisma";
 export async function POST(req:NextRequest) {
     try {
         const body = await req.json();
-        const { email } = body;
+        const { personalInfoId } = body;
         const history = await prisma.personalInfoHistory.findMany({
             where: {
-                email: email,
+                personalInfoId
             },
             orderBy: {
                 updatedAt: 'desc',

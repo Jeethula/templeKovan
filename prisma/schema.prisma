@@ -51,7 +51,7 @@ model PersonalInfo {
 
 model PersonalInfoHistory{
   id          String   @id @default(cuid())
-  uniqueId    String   @unique
+  uniqueId    String
   email       String?
   address1    String?
   address2    String?
