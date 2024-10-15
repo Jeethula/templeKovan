@@ -22,7 +22,7 @@ export async function POST(req: Request) {
                 isApproved: "null",
                 salutation: body?.salutation,
                 comments: body?.comments,
-                uniqueId: body?.uniqueId,
+                uniqueId: parseInt(body?.uniqueId),
                 userid: body?.userId, 
             }
         });
@@ -46,75 +46,126 @@ export async function POST(req: Request) {
     }
 }
 
+// export async function PUT(req: Request) {
+//     try {
+//         const body = await req.json();
+//         // const oldUserDetails = await prisma.personalInfo.findUnique({
+//         //     where: {
+//         //         userid: body?.id
+//         //     }
+//         // });
+
+//         // if (!oldUserDetails) {
+//         //     console.log("User not found");
+//         //     return NextResponse.json({ error: "User not found", status: 404 });
+//         // }
+//         // await prisma.personalInfoHistory.create({
+//         //     data: {
+//         //         address1: oldUserDetails?.address1,
+//         //         address2: oldUserDetails?.address2 ,
+//         //         state: oldUserDetails?.state,
+//         //         phoneNumber: oldUserDetails?.phoneNumber ,
+//         //         country: oldUserDetails.country,
+//         //         firstName: oldUserDetails.firstName,
+//         //         lastName: oldUserDetails.lastName??'',
+//         //         avatarUrl: oldUserDetails.avatarUrl,
+//         //         pincode: oldUserDetails.pincode,
+//         //         city: oldUserDetails.city,
+//         //         isApproved: oldUserDetails.isApproved,
+//         //         salutation: oldUserDetails?.salutation,
+//         //         comments: oldUserDetails?.comments,
+//         //         uniqueId: oldUserDetails?.uniqueId.toString(),
+//         //         personalInfoId: oldUserDetails?.id,
+//         //     }
+//         // });
+//         try {
+//             const userDetails = await prisma.personalInfo.update({
+//                 where: {
+//                     userid: body?.userId, 
+//                 },
+//                 data: {
+//                     salutation: body?.salutation,
+//                     address1: body?.address_line_1,
+//                     address2: body?.address_line_2,
+//                     state: body?.state,
+//                     phoneNumber: body?.phone_number,
+//                     uniqueId: body?.unique_id,
+//                     country: body?.country,
+//                     firstName: body?.first_name,
+//                     lastName: body?.last_name,
+//                     avatarUrl: body?.avatarUrl,
+//                     pincode: body?.pincode,
+//                     city: body?.city,
+//                     isApproved: body?.isApproved || "pending",
+//                     comments: body?.comments
+//                 }
+//             });
+
+//             const user = await prisma.user.update({
+//                 where: {
+//                     id: body?.userId
+//                 },
+//                 data: {
+//                     email: body?.email,
+//                     phone: body?.phone_number,
+//                 }
+//             });
+
+//             console.log("Update completed:", userDetails, user);
+//             return NextResponse.json({ userDetails, user, status: 200, success: "User profile updated successfully" });
+//         } catch (error) {
+//             console.error("Error updating user profile:", error);4
+//             return NextResponse.json({ error: "Error updating user profile", status: 500 });
+//         }
+//     } catch (e) {
+//         console.error("Outer error:", e);
+//         return NextResponse.json({ error: "Error processing request", e, status: 500 });
+//     }
+// }
+
 export async function PUT(req: Request) {
     try {
         const body = await req.json();
-        const oldUserDetails = await prisma.personalInfo.findUnique({
-            where: {
-                id: body?.id
-            }
-        });
-
-        if (!oldUserDetails) {
-            console.log("User not found");
-            return NextResponse.json({ error: "User not found", status: 404 });
-        }
-        // await prisma.personalInfoHistory.create({
-        //     data: {
-        //         address1: oldUserDetails?.address1,
-        //         address2: oldUserDetails?.address2 ,
-        //         state: oldUserDetails?.state,
-        //         phoneNumber: oldUserDetails?.phoneNumber ,
-        //         country: oldUserDetails.country,
-        //         firstName: oldUserDetails.firstName,
-        //         lastName: oldUserDetails.lastName??'',
-        //         avatarUrl: oldUserDetails.avatarUrl,
-        //         pincode: oldUserDetails.pincode,
-        //         city: oldUserDetails.city,
-        //         isApproved: oldUserDetails.isApproved,
-        //         salutation: oldUserDetails?.salutation,
-        //         comments: oldUserDetails?.comments,
-        //         uniqueId: oldUserDetails?.uniqueId.toString(),
-        //         personalInfoId: oldUserDetails?.id,
-        //     }
-        // });
+        console.log(body);
 
         const userDetails = await prisma.personalInfo.update({
             where: {
-                userid: body?.userId, 
+                userid: body.userId, 
             },
             data: {
-                salutation: body?.salutation,
-                address1: body?.address1,
-                address2: body?.address2,
-                state: body?.state,
-                phoneNumber: body?.phoneNumber,
-                country: body?.country,
-                firstName: body?.firstName,
-                lastName: body?.lastName,
-                avatarUrl: body?.avatarUrl,
-                pincode: body?.pincode,
-                city: body?.city,
-                isApproved: body?.isApproved || "pending"
+                salutation: body.salutation,
+                address1: body.address_line_1,
+                address2: body.address_line_2,
+                state: body.state,
+                phoneNumber: body.phone,
+                uniqueId: parseInt(body.uniqueId),
+                country: body.country,
+                firstName: body.first_name,
+                lastName: body.last_name,
+                avatarUrl: body.avatarUrl,
+                pincode: body.pincode,
+                city: body.city,
+                isApproved: body.isApproved || "pending",
+                comments: body.comments
             }
         });
 
+        // Update user
         const user = await prisma.user.update({
-            where:{
-                id:body?.userId
+            where: {
+                id: body.userId
             },
             data: {
-                email: body?.email,
-                phone: body?.phoneNumber,
+                email: body.email,
+                phone: body.phone,
             }
         });
 
-        console.log("completed");
-        return NextResponse.json({ userDetails, status: 200, success: "user profile updated" });
-
-    } catch (e) {
-        console.log(e);
-        return NextResponse.json({ error: "error in updating user profile", status: 404 });
+        console.log("Update completed:", userDetails, user);
+        return NextResponse.json({ userDetails, user, status: 200, success: "User profile updated successfully" });
+    } catch (error) {
+        console.error("Error updating user profile:", error);
+        return NextResponse.json({ error: "Error updating user profile", status: 500 });
     }
 }
 
@@ -136,13 +187,23 @@ export async function GET(req: Request) {
                 userid: userId
             }});
 
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: userId
+                }
+            });
+
             console.log(userDetails,"userDetails"); 
 
             if (!userDetails) {
                 return NextResponse.json({ error: "User not found", status: 404 });
             }
+
+            if(!user){
+                return NextResponse.json({ error: "User not found", status: 404 });
+            }   
     
-            return NextResponse.json({ userDetails, status: 200, success: "User profile found" });
+            return NextResponse.json({ userDetails, user, status: 200, success: "User profile found" });
 
             
         }catch(e){

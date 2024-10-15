@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useRouter } from 'next/navigation';
 
 interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
@@ -26,20 +27,21 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
-  // const validateUniqueId = (uniqueId: string): boolean => {
-  //   const regex = /^\d{4}[A-Za-z]{4}\d{2}$/;
-  //   return regex.test(uniqueId);
-  // };
+  const router = useRouter();
+  const validateUniqueId = (uniqueId: string): boolean => {
+    const regex = /^\d{4,5}$/;
+    return regex.test(uniqueId);
+  };
   
   const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
   const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>('');
   
   const handleUniqueIdCheck = async () => {
-    // if (!validateUniqueId(userDetails.unique_id)) {
-    //   setUniqueIdCheckMessage('Invalid Unique ID format');
-    //   setIsUniqueIdVerified(false);
-    //   return;
-    // }
+    if (!validateUniqueId(userDetails.unique_id)) {
+      setUniqueIdCheckMessage('Invalid Unique ID format');
+      setIsUniqueIdVerified(false);
+      return;
+    }
   
     try {
       const res = await fetch('/api/checkuniqueid', {
@@ -96,7 +98,17 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
 };
 
   useEffect(() => {
-    getData();
+    try{
+    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+    }catch(error){
+      toast.error("Plz refresh the page")
+    }
+    if(user){
+      getData();
+    }else{
+      router.push("/");
+    }
+
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -215,7 +227,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               email: user?.email,
               avatarUrl: user?.photoURL,
               salutation: userDetails.salutation,
-              userId: userID // Use userId instead of id
+              userId: userID 
           };
 
           const res = await fetch('/api/userDetails', {
@@ -342,7 +354,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           {renderField('country', 'Country')}
           {renderField('comments', 'Comments', 'textarea')}
           <div className="flex justify-start items-center mt-7 mb-4">
-            {!isEditable ? (
+            {isEditable ? (
               <button
                 type="button"
                 onClick={handleUpdate}

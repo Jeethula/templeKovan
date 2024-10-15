@@ -6,13 +6,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { uniqueId } = body;
+    console.log(uniqueId);
 
     if (!uniqueId) {
       return NextResponse.json({ error: "Missing unique ID", status: 400 });
     }
 
     const existingUser = await prisma.personalInfo.findUnique({
-      where: { uniqueId },
+      where: { 
+        uniqueId :parseInt(uniqueId) },
     });
 
     return NextResponse.json({ exists: !!existingUser, status: 200 });

@@ -24,13 +24,22 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    UserDetails().then(()=>{
-      if(sessionStorage.getItem('user') === null || undefined){
-        console.log("from page");
+    const fetchUserDetails = async () => {
+      try {
+        await UserDetails();
+        const userFromStorage = sessionStorage.getItem('user');
+        if (!userFromStorage) {
+          console.log("User not found in session storage");
+          window.location.href = '/';
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
         window.location.href = '/';
       }
-    });
-  })
+    };
+
+    fetchUserDetails();
+  }, []);
 
   return (
     <div className='bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center'>
