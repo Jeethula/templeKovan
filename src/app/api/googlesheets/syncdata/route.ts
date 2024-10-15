@@ -73,17 +73,19 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     );
 
 
-    console.log("New objects:", newObjects);
 
     newObjects.forEach(async (newObj) => {
-        await prisma.user.create({
+        console.log(typeof newObj.fullData.phoneNumber);
+        
+        const user=await prisma.user.create({
             data: {
             email: newObj.email,
             role: 'user',
-            uniqueId: parseInt(newObj.fullData.uniqueId)
+            phone:newObj.fullData.phoneNumber
             }
         });
-
+        console.log(user);
+        
         await prisma.personalInfo.create({
             data: {
                 firstName: newObj.fullData.firstName,
@@ -96,9 +98,12 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
                 pincode: newObj.fullData.pincode,
                 country: newObj.fullData.country,
                 comments: newObj.fullData.comments,
-                email: newObj.fullData.email,
+                uniqueId: parseInt(newObj.fullData.uniqueId),
                 avatarUrl: newObj.fullData.avatarUrl,
                 salutation: newObj.fullData.salutation,
+                user: {
+                    connect: { id: user.id }
+                }
             }
         });
     });
