@@ -1,7 +1,3 @@
-
-
-
-
 import { NextResponse, NextRequest } from "next/server";
 import { google } from "googleapis";
 
@@ -46,15 +42,15 @@ export async function POST(req: NextRequest) {
     }
 
     const headers = rows[0];
-    const emailIndex = headers.findIndex((header: string) => header.toLowerCase() === 'email');
+    const phoneNumberIndex = headers.findIndex((header: string) => header.toLowerCase() === 'phoneNumber');
 
-    if (emailIndex === -1) {
+    if (phoneNumberIndex === -1) {
       throw new Error("Email column not found in the sheet");
     }
 
     let rowIndex = -1;
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][emailIndex]?.trim() === body.email.trim()) {
+      if (rows[i][phoneNumberIndex]?.trim() === body.phone.trim()) {
         rowIndex = i;
         break;
       }
