@@ -79,8 +79,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-    const { post_id, title, content,authorId} = await req.json();
-
+    const { post_id, title, content,authorId,role} = await req.json();
     try{
 
         const user=await prisma.post.findUnique({
@@ -89,12 +88,14 @@ export async function PUT(req: NextRequest) {
 
             },
             select:{
-                authorId:true
+                authorId:true,
             }
         })
+        
         if(user)
         {
-            if(user.authorId!==authorId){
+            if(user.authorId!==authorId&&role=='user'){
+                console.log("not authorized");
                 return NextResponse.json({error:"You are not authorized to update this post",status:403})
             }
             else
@@ -108,12 +109,15 @@ export async function PUT(req: NextRequest) {
                         content
                     }
                 })
+                console.log(post);
+                
                 return NextResponse.json({post:post,status:200})
           
             }
         }
         else
         {
+            console.log("post not found");
             return NextResponse.json({error:"Post not found",status
             :404})
         }

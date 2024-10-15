@@ -615,7 +615,7 @@ function Post({ params }: { params: { id: string } }) {
   };
 
   const handleDelete = async (postId: string) => {
-    setLoading(true);
+
     try {
       const response = await fetch("/api/post", {
         method: "DELETE",
@@ -644,13 +644,15 @@ function Post({ params }: { params: { id: string } }) {
   const handleSaveEdit = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/post/${post?.id}`, {
+      const response = await fetch('/api/post', {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: editedTitle,
           content: editedContent,
-          user_id: userId,
+          authorId: userId,
+          post_id: post?.id,
+          role: role
         }),
       });
 
@@ -673,8 +675,7 @@ function Post({ params }: { params: { id: string } }) {
     setEditMode(false);
     setEditedTitle(post?.title || "");
     setEditedContent(post?.content || "");
-  };
-
+  };  
   return post === null ? (
     <p>
       <LoadingPageUi />
@@ -689,8 +690,8 @@ function Post({ params }: { params: { id: string } }) {
           <FaArrowLeft className="size-4" /> Back to Posts
         </Link>
         <div className="flex gap-2">
-          {post.author.id === userId ||
-            (role == "Admin" && (
+          {(post?.author.id == userId ||
+            role == "Admin") && (
               <>
                 <button
                   onClick={handleEdit}
@@ -705,20 +706,20 @@ function Post({ params }: { params: { id: string } }) {
                   Delete
                 </button>
               </>
-            ))}
+            )}
         </div>
       </div>
       <div>
         <div className="bg-white rounded-xl p-4 lg:mx-60 md:mx-40 mb-5 pt-5">
           <div className="flex justify-between items-center border-b border-gray-400 pb-4 mb-4">
             <div className="flex items-center w-36 justify-start gap-3">
-              <Image
-                src={post.author.personalInfo.avatarUrl || "/user.svg"}
-                alt="image"
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
+            <Image
+            src={post?.author.personalInfo.avatarUrl}
+            alt="avatar image"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
               <h2 className="text-xl font-semibold">
                 {post.author.personalInfo.firstName}
               </h2>
