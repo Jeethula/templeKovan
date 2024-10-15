@@ -130,50 +130,52 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    console.log(body,"put");
+    console.log(body, "put");
+    console.log(body.userId, "body.userId");
 
     const existingUserByPhone = await prisma.user.findUnique({
       where: { phone: body.phone },
     });
 
-    if (existingUserByPhone) {
-        console.log("Phone number already exists");
-        
+    if (existingUserByPhone && existingUserByPhone.id !== body.userId) {
+      console.log("Phone number already exists");
+
       return NextResponse.json({
         error: "Phone number already exists",
         status: 400,
       });
     }
 
-    // const oldUserDetails = await prisma.personalInfo.findUnique({
-    //   where: {
-    //     userid: body?.id,
-    //   },
-    // });
+    const oldUserDetails = await prisma.personalInfo.findUnique({
+      where: {
+        userid: body?.userId,
+      },
+    });
 
-    // if (!oldUserDetails) {
-    //   console.log("User not found");
-    //   return NextResponse.json({ error: "User not found", status: 404 });
-    // }
-    // console.log(oldUserDetails, "oldUserDetails");
-    // await prisma.personalInfoHistory.create({
-    //   data: {
-    //     address1: oldUserDetails?.address1,
-    //     address2: oldUserDetails?.address2,
-    //     state: oldUserDetails?.state,
-    //     phoneNumber: oldUserDetails?.phoneNumber,
-    //     country: oldUserDetails.country,
-    //     firstName: oldUserDetails.firstName,
-    //     lastName: oldUserDetails.lastName ?? "",
-    //     avatarUrl: oldUserDetails.avatarUrl,
-    //     pincode: oldUserDetails.pincode,
-    //     city: oldUserDetails.city,
-    //     salutation: oldUserDetails?.salutation,
-    //     comments: oldUserDetails?.comments,
-    //     uniqueId: oldUserDetails?.uniqueId.toString(),
-    //     personalInfoId: oldUserDetails?.id,
-    //   },
-    // });
+    if (!oldUserDetails) {
+      console.log("User not found");
+      return NextResponse.json({ error: "User not found", status: 404 });
+    }
+
+    await prisma.personalInfoHistory.create({
+      data: {
+        address1: oldUserDetails?.address1,
+        address2: oldUserDetails?.address2,
+        state: oldUserDetails?.state,
+        phoneNumber: oldUserDetails?.phoneNumber,
+        country: oldUserDetails.country,
+        firstName: oldUserDetails.firstName,
+        email:body.email,
+        lastName: oldUserDetails.lastName ?? "",
+        avatarUrl: oldUserDetails.avatarUrl,
+        pincode: oldUserDetails.pincode,
+        city: oldUserDetails.city,
+        salutation: oldUserDetails?.salutation,
+        comments: oldUserDetails?.comments,
+        uniqueId: oldUserDetails?.uniqueId.toString(),
+        personalInfoId: oldUserDetails?.id,
+      },
+    });
 
     const userDetails = await prisma.personalInfo.update({
       where: {
@@ -181,14 +183,14 @@ export async function PUT(req: Request) {
       },
       data: {
         salutation: body.salutation,
-        address1: body.address_line_1,
-        address2: body.address_line_2,
+        address1: body.address1,
+        address2: body.address2,
         state: body.state,
         phoneNumber: body.phone,
         uniqueId: parseInt(body.uniqueId),
         country: body.country,
-        firstName: body.first_name,
-        lastName: body.last_name,
+        firstName: body.firstName,
+        lastName: body.lastName,
         avatarUrl: body.avatarUrl,
         pincode: body.pincode,
         city: body.city,

@@ -51,6 +51,7 @@ export async function POST(req:Request){
                 userid:body?.id
             },
             select:{
+                id:true,
                 salutation:true,
                 firstName:true,
                 lastName:true,
@@ -59,6 +60,7 @@ export async function POST(req:Request){
                 address2:true,
                 city:true,
                 pincode:true,
+                phoneNumber:true,
                 state:true,
                 country:true,
                 comments:true,
