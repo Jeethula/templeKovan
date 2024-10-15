@@ -3,12 +3,11 @@ import prisma from "@/utils/prisma";
 
 export async function GET(){
     try{
-        const details = await prisma.personalInfo.findMany({
+        const personalInfodetails = await prisma.personalInfo.findMany({
             select:{
                 salutation:true,
                 firstName:true,
                 lastName:true,
-                email:true,
                 phoneNumber:true,
                 id:true,
                 address1:true,
@@ -27,7 +26,16 @@ export async function GET(){
             }
         }
     )
-    return NextResponse.json({details,status:200})
+
+    const userDetails = await prisma.user.findMany({
+        select:{
+            id:true,
+            email:true,
+            role:true,
+        }
+        
+    })
+    return NextResponse.json({personalInfodetails,userDetails,status:200})
 
     }catch(e){
         return NextResponse.json({error:e,status:500})
@@ -46,7 +54,6 @@ export async function POST(req:Request){
                 salutation:true,
                 firstName:true,
                 lastName:true,
-                email:true,
                 phoneNumber:true,
                 id:true,
                 address1:true,
