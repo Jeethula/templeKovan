@@ -12,31 +12,59 @@ import './style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { FaUsersGear } from 'react-icons/fa6';
+import {  RowClickedEvent } from 'ag-grid-community';
 
-const PersonalInfoGrid = () => {
+type PersonalInfo = {
+  userid: string;
+  firstName: string;
+  lastName: string;
+  city: string;
+  createdAt: string;
+  isApproved: string;
+  address1: string;
+  address2: string;
+  pincode: string;
+  state: string;
+  country: string;
+  comments: string;
+  avatarUrl: string;
+  [key: string]: string;
+};
+
+type UserDetail = {
+  id: string;
+  email?: string;
+  role?: string;
+  phone?: string;
+};
+
+const PersonalInfoGrid: React.FC = () => {
   const router = useRouter();
   const [rowData, setRowData] = useState([]);
   const [showAllData, setShowAllData] = useState(false);
   const [isSmallDevice, setIsSmallDevice] = useState(false);
 
   const fetchData = async () => {
-    const res = await fetch('/api/profile', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    const data = await res.json();
-    console.log(data,'data');
-    const combinedData = data.personalInfodetails.map((personal: any) => {
-      const userDetail = data.userDetails.find((user: any) => user.id === personal.userid);
-      return {
-        ...personal,
-        email: userDetail?.email,
-        role: userDetail?.role,
-        Phone: userDetail?.phone
-      };
-    });
-    console.log(combinedData,'combinedData');
-    setRowData(combinedData);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      
+      const combinedData = data.personalInfodetails.map((personal: PersonalInfo) => {
+        const userDetail = data.userDetails.find((user: UserDetail) => user.id === personal.userid);
+        return {
+          ...personal,
+          email: userDetail?.email,
+          role: userDetail?.role,
+          Phone: userDetail?.phone
+        };
+      });
+      setRowData(combinedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   useEffect(() => {
@@ -222,11 +250,10 @@ const PersonalInfoGrid = () => {
     resizable: true,
   }), []);
 
-const onRowClicked = (event: { data: { userid: string } }) => {
-  const selectedId = event.data.userid;
-  router.push(`userManagement/${selectedId}`);
-}
-
+  const onRowClicked = (event: RowClickedEvent) => {
+    const selectedId = event.data.userid;
+    router.push(`userManagement/${selectedId}`);
+  }
 
   const getColumnDefs = () => {
     if (showAllData) {

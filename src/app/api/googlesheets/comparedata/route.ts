@@ -1,9 +1,8 @@
 import prisma from '@/utils/prisma';
 import { google } from 'googleapis';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
   const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
 
     const CREDENTIALS = {
@@ -68,7 +67,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
       if (existingInfo) {
         // User exists, check for updates in personalInfo
-        const personalInfoUpdates: { [key: string]: any } = {};
+        const personalInfoUpdates: { [key: string]: string } = {};
         let hasUpdates = false;
 
         for (const [key, value] of Object.entries(sheetData)) {

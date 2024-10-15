@@ -8,7 +8,7 @@ interface FilterModel {
 interface CustomFilterProps {
     model: FilterModel;
     onModelChange: (model: FilterModel) => void;
-    getValue: (node: any) => string;
+    getValue: (node: { data: { isApproved: string } }) => string;
 }
 
 const CustomFilter: React.FC<CustomFilterProps> = ({ model, onModelChange, getValue }) => {
@@ -22,7 +22,7 @@ const CustomFilter: React.FC<CustomFilterProps> = ({ model, onModelChange, getVa
         onModelChange({ values: Object.keys(checkboxState).filter((key) => checkboxState[key as keyof typeof checkboxState]) });
     }, [checkboxState, onModelChange]);
 
-    const doesFilterPass = useCallback(({ node }: { node: any }) => {
+    const doesFilterPass = useCallback(({ node }: { node: { data: { isApproved: string } } }) => {
         const selectedStatuses = model?.values || [];
         if (selectedStatuses.length === 0) {
             return true;

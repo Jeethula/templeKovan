@@ -128,6 +128,14 @@ export async function PUT(req: Request) {
         const body = await req.json();
         console.log(body);
 
+        const existingUserByPhone = await prisma.user.findUnique({
+            where: { phone: body.phone }
+          });
+
+          if(existingUserByPhone){
+            return NextResponse.json({ error: "Phone number already exists", status: 400 });
+          }
+
         const userDetails = await prisma.personalInfo.update({
             where: {
                 userid: body.userId, 

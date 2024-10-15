@@ -8,7 +8,7 @@ import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
 import { BsFileTextFill, BsPhoneFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaCircleUser, FaUserXmark } from "react-icons/fa6";
+import { FaCircleUser } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
 interface Post {
@@ -191,10 +191,10 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <div className="lg:col-span-1 flex flex-col items-center bg-white p-6 rounded-xl shadow-lg">
             <div className="relative w-32 h-32 mb-6">
               <Image
-                src={typeof profile?.avatarUrl === 'string' ? profile.avatarUrl : '/api/placeholder/160/160'}
-                alt="User profile picture"
+                src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='
+                alt="https://c8.alamy.com/comp/W2R755/avatar-line-flat-style-vector-icon-user-sign-icon-human-avatar-black-icon-vector-illustration-W2R755.jpg"
                 layout="fill"
-                className="rounded-full object-cover shadow-lg border-4 border-[#663399]"
+                className="rounded-full object-cover shadow-lg bg-none "
               />
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold text-[#663399] mb-2">{`${profile.firstName} ${profile.lastName}`}</h2>
