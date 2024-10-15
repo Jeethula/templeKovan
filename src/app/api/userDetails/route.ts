@@ -168,7 +168,6 @@ export async function PUT(req: Request) {
         avatarUrl: oldUserDetails.avatarUrl,
         pincode: oldUserDetails.pincode,
         city: oldUserDetails.city,
-        isApproved: oldUserDetails.isApproved,
         salutation: oldUserDetails?.salutation,
         comments: oldUserDetails?.comments,
         uniqueId: oldUserDetails?.uniqueId.toString(),
