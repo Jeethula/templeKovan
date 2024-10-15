@@ -1,5 +1,3 @@
-
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { UserDetails } from "../../utils/type";
@@ -31,6 +29,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const { user } = useAuth();
   const router = useRouter();
   const validateUniqueId = (uniqueId: string): boolean => {
@@ -97,6 +96,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         unique_id: res.userDetails.uniqueId,
       });
       setIsEditable(false);
+      setIsSubmitted(true);
     } else {
       setIsEditable(true);
     }
@@ -194,6 +194,11 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           //     body: JSON.stringify(userDetailsToSend),
           // });
         } else {
+            const resBody = await res.json();
+            if(resBody.error === "Phone number already exists"){
+                toast.error("Phone number already exists");
+                return;
+            }
           toast.error("Failed to update details.");
         }
       } catch (error) {
@@ -245,9 +250,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           body: JSON.stringify(userDetailsToSend),
         });
         if (res.status === 200) {
-          console.log(res);
-          toast.success("Details submitted successfully!");
           setIsEditable(false);
+          toast.success("Details submitted successfully!");
 
           await fetch("/api/googlesheets/addrow", {
             method: "POST",
@@ -414,7 +418,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           {renderField("country", "Country")}
           {renderField("comments", "Comments", "textarea")}
           <div className="flex justify-start items-center mt-7 mb-4">
-            {isEditable ? (
+            {isEditable  && isSubmitted && (
               <button
                 type="button"
                 onClick={handleUpdate}
@@ -451,7 +455,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
                   "Update Details"
                 )}
               </button>
-            ) : (
+            )}
+            {isEditable && !isSubmitted && (
               <button
                 type="submit"
                 disabled={loading}
