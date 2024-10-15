@@ -28,10 +28,10 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
     const sheets = google.sheets({ version: 'v4', auth });
 
-    // Fetch all data from A to M
+    // Fetch all data from A to N
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'Sheet1!A2:M',
+      range: 'Sheet1!A2:N',
     });
 
     const rows = response.data.values;
@@ -55,6 +55,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
       email: row[10],
       avatarUrl: row[11],
       salutation: row[12],
+      uniqueId: row[13],
     }));
 
     // Fetch existing personal info data
@@ -63,7 +64,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     const updates = [];
 
     for (const sheetData of sheetsData) {
-      const existingInfo = existingPersonalInfo.find(info => info.email === sheetData.email);
+      const existingInfo = existingPersonalInfo.find(info => info.phoneNumber === sheetData.phoneNumber);
 
       if (existingInfo) {
         // User exists, check for updates in personalInfo
@@ -71,7 +72,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
         let hasUpdates = false;
 
         for (const [key, value] of Object.entries(sheetData)) {
-          if (key !== 'email' && existingInfo[key as keyof typeof existingInfo] !== value) {
+          if (key !== 'phoneNumber' && existingInfo[key as keyof typeof existingInfo] !== value) {
             personalInfoUpdates[key] = value;
             hasUpdates = true;
           }
