@@ -105,13 +105,12 @@ export async function PUT(req: Request) {
             },
             data: {
                 email: body?.email,
-                phone: body?.phone,
+                phone: body?.phoneNumber,
             }
         });
 
-
         console.log("completed");
-        return NextResponse.json({ userDetails, user, status: 200, success: "user profile updated" });
+        return NextResponse.json({ userDetails, status: 200, success: "user profile updated" });
 
     } catch (e) {
         console.log(e);
@@ -126,31 +125,31 @@ export async function GET(req: Request) {
         const userId = url.searchParams.get('userId'); 
 
         console.log(userId);
-
+        console.log(typeof userId);
         if (!userId) {
             return NextResponse.json({ error: "User ID is required", status: 400 });
         }
 
-        const userDetails = await prisma.personalInfo.findUnique({
-            where: {
+        try{
+            const userDetails = await prisma.personalInfo.findUnique({
+                where: {
                 userid: userId
-            }
-        });
-        const user = await prisma.user.findUnique({
-            where: {
-                id: userId
-            }
-        });
+            }});
 
-        if(!user){
-            return NextResponse.json({ error: "User not found", status: 404 });
+            console.log(userDetails,"userDetails"); 
+
+            if (!userDetails) {
+                return NextResponse.json({ error: "User not found", status: 404 });
+            }
+    
+            return NextResponse.json({ userDetails, status: 200, success: "User profile found" });
+
+            
+        }catch(e){
+            console.log(e);
         }
 
-        if (!userDetails) {
-            return NextResponse.json({ error: "User not found", status: 404 });
-        }
 
-        return NextResponse.json({ userDetails, user, status: 200, success: "User profile found" });
 
     } catch (e) {
         console.error(e);

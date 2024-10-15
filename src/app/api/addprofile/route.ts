@@ -19,13 +19,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Referrer not found", status: 404 });
     }
 
-    // Check if the new user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: {id: userId}
+    // Check if the new user's email or phone already exists
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email: newUserEmail }
     });
 
-    if (existingUser) {
-      return NextResponse.json({ error: "User already exists", status: 400 });
+    const existingUserByPhone = await prisma.user.findUnique({
+      where: { phone: newUserPhone }
+    });
+
+    if (existingUserByEmail) {
+      return NextResponse.json({ error: "Email already exists", status: 400 });
+    }
+
+    if (existingUserByPhone) {
+      return NextResponse.json({ error: "Phone number already exists", status: 400 });
     }
 
     // Check if the unique_id already exists

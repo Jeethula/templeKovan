@@ -79,7 +79,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
             salutation: res.userDetails.salutation,
             first_name: res.userDetails.firstName,
             last_name: res.userDetails.lastName,
-            phone_number: res.user.phone,
+            phone_number: res?.user?.phone,
             address_line_1: res.userDetails.address1,
             address_line_2: res.userDetails.address2,
             city: res.userDetails.city,

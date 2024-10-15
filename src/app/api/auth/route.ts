@@ -15,12 +15,13 @@ export async function POST(req:Request){
             if(user){
                 return NextResponse.json({user,status:200,success:"user found"});
             }else{
+                const randomPhone = `00${Math.floor(Math.random() * 9000000000) + 1000000000}`;
                 const newUser = await prisma.user.create({
-                    data:{
+                    data: {
                         email: body?.email,
-                        phone: "8903933999",
+                        phone: randomPhone,
                     }
-                })
+                });
                 return NextResponse.json({user:newUser,status:200,success:"user created"});
         }
     }

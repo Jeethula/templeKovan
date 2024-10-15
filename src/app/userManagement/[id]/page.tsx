@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {  MessageSquare, UserCircle2 } from 'lucide-react';
+import { MessageSquare, UserCircle2, Edit, X } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
@@ -16,28 +16,37 @@ interface Post {
 }
 
 interface User {
-  // other properties...
+  email: string;
+  phone: string;
   posts: Post[];
   likedPosts: Post[];
   dislikedPosts: Post[];
-  // other properties...
+}
+
+interface Profile {
+  email: string;
+  user: User;
+  [key: string]: string | User;
+}
+
+interface HistoryItem {
+  updatedAt: string;
+  [key: string]: string;
+}
+
+interface Change {
+  field: string;
+  from: string | User;
+  to: string | User;
 }
 
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
-  interface Profile {
-    email: string;
-    user: User;
-    [key: string]: string | User;
-  }
   const [profile, setProfile] = useState<Profile | null>(null);
-  interface HistoryItem {
-    updatedAt: string;
-    [key: string]: string  ;
-  }
-
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
   const adminEmail: string = sessionData.email;
   const router = useRouter();
@@ -50,16 +59,16 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         body: JSON.stringify({ id: params.id }),
       });
       const data = await res.json();
-      console.log(data,"from fetch data");
       if (data.status === 200) {
         setProfile(data.details);
+        setEditedProfile(data.details);
         fetchHistory(data.details.email);
       } else {
         setError("User profile not found");
         setLoading(false);
       }
     } catch (e) {
-      console.log(e)
+      console.error(e);
       setError("An error occurred while fetching the profile");
       setLoading(false);
     }
@@ -74,14 +83,13 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       });
       const data = await res.json();
       if (data.status === 200) {
-        console.log(data,"from fetch history");
         setHistory(data.details);
       } else {
         setError("User history not found");
       }
       setLoading(false);
     } catch (e) {
-      console.log(e)
+      console.error(e);
       setError("An error occurred while fetching the history");
       setLoading(false);
     }
@@ -89,7 +97,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
   const updateApprovalStatus = async (status: string) => {
     if(status === "rejected"){
-      window.alert ("Are you sure you want to reject this user?");
+      if (!window.confirm("Are you sure you want to reject this user?")) {
+        return;
+      }
     }
     try {
       const res = await fetch('/api/userDetails', {
@@ -99,11 +109,35 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       });
       const result = await res.json();
       if (result.success) {
-        router.push('/userManagement');
+        setProfile(prev => prev ? {...prev, isApproved: status} : null);
       }
     } catch (e) {
-      console.log(e)
+      console.error(e);
       setError("An error occurred while updating the status");
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...editedProfile, id: params.id }),
+      });
+      console.log(editedProfile,"editedProfile");
+      const result = await res.json();
+      console.log(result,"result");
+      if (result.success) {
+        setProfile(editedProfile);
+        setIsEditModalOpen(false);
+        fetchData(); 
+      } else {
+        setError("Failed to update profile");
+      }
+    } catch (e) {
+      console.error(e);
+      setError("An error occurred while updating the profile");
     }
   };
 
@@ -127,12 +161,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     return changes;
   };
 
-  interface Change {
-    field: string;
-    from: string | User;
-    to: string | User;
-  }
-
   const ChangeHistoryItem = ({ change }: { change: Change }) => (
     <p className="text-gray-700">
       <span className="font-medium">{change.field}:</span> {JSON.stringify(change.from)} → {JSON.stringify(change.to)}
@@ -150,6 +178,13 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           Back
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
+          onClick={() => setIsEditModalOpen(true)}
+        >
+          <Edit size={20} className="mr-2" />
+          Edit Profile
+        </button>
       </div>
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -165,11 +200,11 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             <h2 className="text-xl sm:text-2xl font-semibold text-[#663399] mb-2">{`${profile.firstName} ${profile.lastName}`}</h2>
             <p className="text-gray-600 mb-4 flex items-center">
               <RiMailFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
-              {profile.email}
+              {profile.user.email}
             </p>
             <p className="text-gray-600 flex items-center">
               <BsPhoneFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
-              {typeof profile?.phoneNumber === 'string' ? profile.phoneNumber : "N/A"}
+              {typeof profile?.user.phone === 'string' ? profile.user.phone : "N/A"}
             </p>
           </div>
 
@@ -215,13 +250,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
         {profile?.isApproved === "approved" ? (
-          <button
-            className="w-full sm:w-auto px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1 flex items-center justify-center"
-            onClick={() => updateApprovalStatus("rejected")}
-          >
-            <FaUserXmark size={18} className="mr-2" fill="currentColor" />
-            Reject
-          </button>
+          <div className="text-green-500 font-semibold">User Accepted</div>
+        ) : profile?.isApproved === "rejected" ? (
+          <div className="text-red-500 font-semibold">User Rejected</div>
         ) : (
           <>
             <button
@@ -262,6 +293,56 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           );
         })}
       </div>
+
+      {isEditModalOpen && editedProfile && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full m-4">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-2xl font-bold text-gray-900">Edit User Profile</h3>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <form onSubmit={handleEditSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-4">
+                {Object.entries(editedProfile).map(([key, value]) => {
+                  if (typeof value === 'string' && key !== 'email') {
+                    return (
+                      <div key={key} className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={key}>
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </label>
+                        <input 
+                          type="text"
+                          id={key}
+                          name={key}
+                          value={value}
+                          onChange={(e) => setEditedProfile(prev => {
+                            if (prev === null) return null;
+                            return { ...prev, [key]: e.target.value };
+                          })}
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
+                >
+                  <Edit size={20} className="mr-2" />
+                  Save Changes
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

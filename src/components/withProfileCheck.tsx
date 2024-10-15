@@ -8,6 +8,7 @@ const withProfileCheck = (WrappedComponent: React.ComponentType) => {
   const ProfileCheck = (props: any) => {
     const router = useRouter();
     const { user } = useAuth();
+    const userId = JSON.parse(sessionStorage.getItem('user') || '{}').id;
 
     useEffect(() => {
       const checkProfileCompletion = async () => {
@@ -16,7 +17,7 @@ const withProfileCheck = (WrappedComponent: React.ComponentType) => {
           return;
         }
 
-        const response = await fetch(`/api/userDetails?email=${user.email}`);
+        const response = await fetch(`/api/userDetails?userId=${userId}`);
         const data = await response.json();
 
         if (!data.userDetails) {

@@ -25,7 +25,18 @@ const PersonalInfoGrid = () => {
       headers: { 'Content-Type': 'application/json' },
     });
     const data = await res.json();
-    setRowData(data.details);
+    console.log(data,'data');
+    const combinedData = data.personalInfodetails.map((personal: any) => {
+      const userDetail = data.userDetails.find((user: any) => user.id === personal.userid);
+      return {
+        ...personal,
+        email: userDetail?.email,
+        role: userDetail?.role,
+        Phone: userDetail?.phone
+      };
+    });
+    console.log(combinedData,'combinedData');
+    setRowData(combinedData);
   };
 
   useEffect(() => {
@@ -98,7 +109,7 @@ const PersonalInfoGrid = () => {
     },
     {
       headerName: "Phone",
-      field: "phoneNumber",
+      field: "Phone",
       sortable: true,
       filter: 'agTextColumnFilter',
       floatingFilter: true,
@@ -211,8 +222,8 @@ const PersonalInfoGrid = () => {
     resizable: true,
   }), []);
 
-const onRowClicked = (event: { data: { id: string } }) => {
-  const selectedId = event.data.id;
+const onRowClicked = (event: { data: { userid: string } }) => {
+  const selectedId = event.data.userid;
   router.push(`userManagement/${selectedId}`);
 }
 

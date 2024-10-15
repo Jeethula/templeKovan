@@ -28,20 +28,20 @@ const UserDetailsForm: React.FC = () => {
   
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const validateUniqueId = (uniqueId: string): boolean => {
-    const regex = /^\d{4}[A-Za-z]{4}\d{2}$/;
-    return regex.test(uniqueId);
-  };
+  // const validateUniqueId = (uniqueId: string): boolean => {
+  //   const regex = /^\d{4}[A-Za-z]{4}\d{2}$/;
+  //   return regex.test(uniqueId);
+  // };
 
   const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
   const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>("");
 
   const handleUniqueIdCheck = async () => {
-    if (!validateUniqueId(userDetails.unique_id)) {
-      setUniqueIdCheckMessage("Invalid Unique ID format");
-      setIsUniqueIdVerified(false);
-      return;
-    }
+    // if (!validateUniqueId(userDetails.unique_id)) {
+    //   setUniqueIdCheckMessage("Invalid Unique ID format");
+    //   setIsUniqueIdVerified(false);
+    //   return;
+    // }
 
     try {
       const res = await fetch("/api/checkuniqueid", {
@@ -49,7 +49,7 @@ const UserDetailsForm: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ uniqueId: userDetails.unique_id }),
+        body: JSON.stringify({ uniqueId: parseInt(userDetails.unique_id) }),
       });
 
       const data = await res.json();
@@ -136,7 +136,7 @@ const UserDetailsForm: React.FC = () => {
       comments: userDetails.comments,
       avatarUrl: user?.photoURL || "",
       salutation: userDetails.salutation,
-      uniqueId: userDetails.unique_id,
+      uniqueId: parseInt(userDetails.unique_id)
     };
 
     setLoading(true);

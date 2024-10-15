@@ -26,10 +26,11 @@ export default function HomePage() {
   useEffect(() => {
     UserDetails().then(()=>{
       if(sessionStorage.getItem('user') === null || undefined){
+        console.log("from page");
         window.location.href = '/';
       }
     });
-  },[])
+  })
 
   return (
     <div className='bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center'>

@@ -15,6 +15,7 @@ const Navbar = () => {
     const handleSignOut = async () => {
       try {
         await signOut(auth);
+        sessionStorage.removeItem("user")
       } catch (error) {
         console.error('Error signing out', error);
       }

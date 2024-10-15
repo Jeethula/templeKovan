@@ -8,8 +8,7 @@ export async function GET(){
                 salutation:true,
                 firstName:true,
                 lastName:true,
-                phoneNumber:true,
-                id:true,
+                userid:true,
                 address1:true,
                 address2:true,
                 city:true,
@@ -32,6 +31,7 @@ export async function GET(){
             id:true,
             email:true,
             role:true,
+            phone:true,
         }
         
     })
@@ -45,17 +45,16 @@ export async function GET(){
 export async function POST(req:Request){
     try{
         const body = await req.json();
-        console.log(body, "body");
+        console.log(body.id, "body");
         const details = await prisma.personalInfo.findUnique({
             where:{
-                id:body?.id
+                userid:body?.id
             },
             select:{
                 salutation:true,
                 firstName:true,
                 lastName:true,
-                phoneNumber:true,
-                id:true,
+                userid:true,
                 address1:true,
                 address2:true,
                 city:true,
@@ -76,6 +75,7 @@ export async function POST(req:Request){
                         dislikedPosts:true,
                         referral:true,
                         parent:true,
+                        phone:true,
                     }
                 }
             }
@@ -91,4 +91,38 @@ export async function POST(req:Request){
     }
 }
 
-// delete operation
+export async function PATCH(req: Request) {
+    try {
+        const body = await req.json();
+        const { id } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: "User ID is required", status: 400 });
+        }
+
+        const updatedUser = await prisma.personalInfo.update({
+            where: { userid:id },
+            data: {
+                salutation: body.salutation,
+                firstName: body.firstName,
+                lastName: body.lastName,
+                address1: body.address1,
+                address2: body.address2,
+                city: body.city,
+                pincode: body.pincode,
+                state: body.state,
+                country: body.country,
+                comments: body.comments,
+                isApproved: body.isApproved,
+                avatarUrl: body.avatarUrl,
+            },
+        });
+
+        return NextResponse.json({ status: 200, success: "User profile updated successfully" });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: "Internal server error", status: 500 });
+    }
+}
+
+
