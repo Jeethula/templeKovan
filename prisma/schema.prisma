@@ -38,8 +38,7 @@ model PersonalInfo {
   lastName    String?
   pincode     String?
   city        String?
-  avatarUrl   String?
-  oldRecord   Json?   
+  avatarUrl   String?   
   salutation  String?
   comments    String?  
   createdAt   DateTime  @default(now())
@@ -53,7 +52,7 @@ model PersonalInfo {
 model PersonalInfoHistory{
   id          String   @id @default(cuid())
   uniqueId    String   @unique
-  email       String
+  email       String?
   address1    String?
   address2    String?
   state       String?
@@ -63,13 +62,11 @@ model PersonalInfoHistory{
   lastName    String
   pincode     String?
   city        String?
-  avatarUrl   String?
-  oldRecord   Json?   
+  avatarUrl   String?   
   salutation  String?
   comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  isApproved  String?     @default("pending")
   PeronalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
   personalInfoId      String
 }
@@ -79,6 +76,7 @@ model Post {
   title       String
   content     String
   image       String?
+  type       String  @default("public")
   likes       Int
   dislikes    Int
   author      User      @relation(fields: [authorId], references: [id])
