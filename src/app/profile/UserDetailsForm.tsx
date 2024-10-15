@@ -11,11 +11,90 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, ...props }, ref) => {
+    return <Input placeholder=" " className={cn('peer', className)} ref={ref} {...props} />;
+  },
+);
+FloatingInput.displayName = 'FloatingInput';
+
+const FloatingLabel = React.forwardRef<
+  React.ElementRef<typeof Label>,
+  React.ComponentPropsWithoutRef<typeof Label>
+>(({ className, ...props }, ref) => {
+  return (
+    <Label
+      className={cn(
+        'peer-focus:secondary peer-focus:dark:secondary absolute start-2 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform bg-background px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 dark:bg-background rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4',
+        className,
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+FloatingLabel.displayName = 'FloatingLabel';
+
+type FloatingLabelInputProps = InputProps & { label?: string };
+
+const FloatingLabelInput = React.forwardRef<
+  React.ElementRef<typeof FloatingInput>,
+  React.PropsWithoutRef<FloatingLabelInputProps>
+>(({ id, label, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <FloatingInput ref={ref} id={id} {...props} />
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingLabelInput.displayName = 'FloatingLabelInput';
+
+const FloatingSelect = React.forwardRef<
+  HTMLSelectElement,
+  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string }
+>(({ id, label, children, value, defaultValue, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <Select value={value?.toString()} defaultValue={defaultValue?.toString()}>
+        <SelectTrigger className="w-full peer">
+          <SelectValue placeholder=" " />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {children}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingSelect.displayName = 'FloatingSelect';
+
+const FloatingTextarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }
+>(({ id, label, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <Textarea placeholder=" " className="peer" ref={ref} {...props} />
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingTextarea.displayName = 'FloatingTextarea';
 
 interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
@@ -283,66 +362,46 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     options?: string[]
   ) => (
     <div className="mb-4">
-      <label className="block font-semibold text-md text-[#233543] mb-1">
-        {label}
-      </label>
       {type === "select" ? (
-        <Select
+        <FloatingSelect
+          id={name}
           value={userDetails[name]}
-          onValueChange={(value) =>
+          onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
             handleChange({
-              target: { name, value },
-            } as React.ChangeEvent<HTMLSelectElement>)
+              target: { name, value: event.target.value },
+            } as React.ChangeEvent<HTMLInputElement>)
           }
           disabled={!isEditable}
+          label={label}
         >
-          <SelectTrigger
-            className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
-              errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-            }`}
-          >
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>{label}</SelectLabel>
-              {options?.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          {options?.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </FloatingSelect>
       ) : type === "textarea" ? (
-        <textarea
+        <FloatingTextarea
+          id={name}
           name={name}
-          placeholder={`Enter ${label}`}
           value={userDetails[name]}
           onChange={handleChange}
           disabled={!isEditable}
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
-            errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-          }`}
+          label={label}
         />
       ) : (
-        <input
+        <FloatingLabelInput
           type={type}
+          id={name}
           name={name}
-          placeholder={`Enter ${
-            label === "Address Line 1"
-              ? "Door No"
-              : label === "Address Line 2"
-              ? "Street Name"
-              : label
-          }`}
+          label={label}
           value={userDetails[name]}
           onChange={handleChange}
           disabled={!isEditable}
           maxLength={
             name === "phone_number" ? 10 : name === "pincode" ? 6 : undefined
           }
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
+          className={`w-full ${
             errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
           }`}
         />
@@ -501,4 +560,3 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
 };
 
 export default UserDetailsForm;
-

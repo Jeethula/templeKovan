@@ -9,11 +9,90 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import withProfileCheck from "@/components/withProfileCheck";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, ...props }, ref) => {
+    return <Input placeholder=" " className={cn('peer', className)} ref={ref} {...props} />;
+  },
+);
+FloatingInput.displayName = 'FloatingInput';
+
+const FloatingLabel = React.forwardRef<
+  React.ElementRef<typeof Label>,
+  React.ComponentPropsWithoutRef<typeof Label>
+>(({ className, ...props }, ref) => {
+  return (
+    <Label
+      className={cn(
+        'peer-focus:secondary peer-focus:dark:secondary absolute start-2 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform bg-background px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 dark:bg-background rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4',
+        className,
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+FloatingLabel.displayName = 'FloatingLabel';
+
+type FloatingLabelInputProps = InputProps & { label?: string };
+
+const FloatingLabelInput = React.forwardRef<
+  React.ElementRef<typeof FloatingInput>,
+  React.PropsWithoutRef<FloatingLabelInputProps>
+>(({ id, label, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <FloatingInput ref={ref} id={id} {...props} />
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingLabelInput.displayName = 'FloatingLabelInput';
+
+const FloatingSelect = React.forwardRef<
+  HTMLSelectElement,
+  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; onChange: (value: string) => void }
+>(({ id, label, children, value, defaultValue, onChange, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <Select value={value?.toString()} onValueChange={onChange} defaultValue={defaultValue?.toString()}>
+        <SelectTrigger className="w-full peer text-black">
+          <SelectValue placeholder=" " />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {children}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingSelect.displayName = 'FloatingSelect';
+
+const FloatingTextarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }
+>(({ id, label, ...props }, ref) => {
+  return (
+    <div className="relative">
+      <Textarea placeholder=" " className="peer" ref={ref} {...props} />
+      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingTextarea.displayName = 'FloatingTextarea';
 
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] =
@@ -28,21 +107,11 @@ const UserDetailsForm: React.FC = () => {
   
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  // const validateUniqueId = (uniqueId: string): boolean => {
-  //   const regex = /^\d{4}[A-Za-z]{4}\d{2}$/;
-  //   return regex.test(uniqueId);
-  // };
 
   const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
   const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>("");
 
   const handleUniqueIdCheck = async () => {
-    // if (!validateUniqueId(userDetails.unique_id)) {
-    //   setUniqueIdCheckMessage("Invalid Unique ID format");
-    //   setIsUniqueIdVerified(false);
-    //   return;
-    // }
-
     try {
       const res = await fetch("/api/checkuniqueid", {
         method: "POST",
@@ -193,63 +262,41 @@ const UserDetailsForm: React.FC = () => {
     options?: string[]
   ) => (
     <div className="mb-4">
-      <label className="block font-semibold text-sm text-black mb-1">
-        {label}
-      </label>
       {type === "select" ? (
-        <Select
+        <FloatingSelect
+          id={name}
           value={userDetails[name]}
-          onValueChange={(value) =>
-            handleChange({
-              target: { name, value },
-            } as React.ChangeEvent<HTMLSelectElement>)
-          }
+          onChange={(value) => handleChange({
+            target: { name, value },
+          } as React.ChangeEvent<HTMLInputElement>)}
+          label={label}
         >
-          <SelectTrigger
-            className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
-              errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-            }`}
-          >
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>{label}</SelectLabel>
-              {options?.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          {options?.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </FloatingSelect>
       ) : type === "textarea" ? (
-        <textarea
+        <FloatingTextarea
+          id={name}
           name={name}
-          placeholder={`Enter ${label}`}
           value={userDetails[name]}
           onChange={handleChange}
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
-            errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-          }`}
+          label={label}
         />
       ) : (
-        <input
+        <FloatingLabelInput
           type={type}
+          id={name}
           name={name}
-          placeholder={`Enter ${
-            label === "Address Line 1"
-              ? "Door No"
-              : label === "Address Line 2"
-              ? "Street Name"
-              : label
-          }`}
+          label={label}
           value={userDetails[name]}
           onChange={handleChange}
           maxLength={
             name === "phone_number" ? 10 : name === "pincode" ? 6 : undefined
           }
-          className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
+          className={`w-full ${
             errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
           }`}
         />
@@ -271,16 +318,15 @@ const UserDetailsForm: React.FC = () => {
         </p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block font-semibold text-sm text-[#233543] mb-1">
-              Email
-            </label>
-            <input
+            <FloatingLabelInput
               type="email"
+              id="email"
+              name="email"
+              label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="New User Email"
-              className={`w-full px-3 py-2 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${
+              className={`w-full ${
                 errors.email ? "ring-2 ring-red-500" : "focus:ring-blue-500"
               }`}
             />

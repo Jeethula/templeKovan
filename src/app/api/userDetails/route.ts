@@ -19,7 +19,6 @@ export async function POST(req: Request) {
                 avatarUrl: body?.avatarUrl,
                 pincode: body?.pincode,
                 city: body?.city,
-                isApproved: "null",
                 salutation: body?.salutation,
                 comments: body?.comments,
                 uniqueId: parseInt(body?.uniqueId),
