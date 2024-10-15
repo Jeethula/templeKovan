@@ -178,13 +178,14 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
                 if (onProfileCompletion) {
                     onProfileCompletion?.();
                 }
-                await fetch('/api/googlesheets/updaterow', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(userDetailsToSend),
-                });
+                
+                // await fetch('/api/googlesheets/updaterow', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify(userDetailsToSend),
+                // });
 
             } else {
                 toast.error('Failed to update details.');
