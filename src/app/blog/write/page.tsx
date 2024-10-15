@@ -147,6 +147,31 @@ function WritePost() {
               {error.content && <p className="text-red-500">{error.content}</p>}
             </div>
             <div className="mb-5">
+              <label className="block text-xl font-semibold">
+                Post Type
+              </label>
+              <div className="flex items-center gap-x-4 mt-2">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="postType"
+                    value="public"
+                    className="form-radio"
+                  />
+                  <span className="ml-2">Public</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="postType"
+                    value="private"
+                    className="form-radio"
+                  />
+                  <span className="ml-2">Private</span>
+                </label>
+              </div>
+            </div>
+            <div className="mb-5">
               <label htmlFor="image" className="block text-xl font-semibold">
                 Image (Optional)
               </label>
@@ -165,6 +190,7 @@ function WritePost() {
                 />
               )}
             </div>
+            
             <div className="mb-5">
               <button
                 type="submit"

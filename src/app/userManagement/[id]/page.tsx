@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MessageSquare, UserCircle2, Edit, X } from 'lucide-react';
+import { MessageSquare, UserCircle2, Pencil, X, Save } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
@@ -45,8 +45,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editedValue, setEditedValue] = useState<string>("");
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
   const adminEmail: string = sessionData.email;
   const router = useRouter();
@@ -61,7 +61,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const data = await res.json();
       if (data.status === 200) {
         setProfile(data.details);
-        setEditedProfile(data.details);
         fetchHistory(data.details.email);
       } else {
         setError("User profile not found");
@@ -117,21 +116,19 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditSubmit = async (field: string) => {
+    if (!profile) return;
     try {
       const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editedProfile, id: params.id }),
+        body: JSON.stringify({ id: params.id, [field]: editedValue }),
       });
-      console.log(editedProfile,"editedProfile");
       const result = await res.json();
-      console.log(result,"result");
       if (result.success) {
-        setProfile(editedProfile);
-        setIsEditModalOpen(false);
-        fetchData(); 
+        setProfile(prev => prev ? {...prev, [field]: editedValue} : null);
+        setEditingField(null);
+        fetchData();
       } else {
         setError("Failed to update profile");
       }
@@ -167,6 +164,30 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     </p>
   );
 
+  const EditableField = ({ field, value }: { field: string, value: string }) => (
+    <div className="flex items-center justify-between">
+      <p className="text-gray-700">
+        {editingField === field ? (
+          <input
+            type="text"
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            className="border-b border-gray-300 focus:outline-none focus:border-blue-500"
+          />
+        ) : value}
+      </p>
+      {editingField === field ? (
+        <button onClick={() => handleEditSubmit(field)} className="text-green-500 hover:text-green-600">
+          <Save size={20} />
+        </button>
+      ) : (
+        <button onClick={() => {setEditingField(field); setEditedValue(value)}} className="text-blue-500 hover:text-blue-600">
+          <Pencil size={20} />
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="w-full min-w-screen h-full min-h-screen p-4 sm:p-8 bg-[#fdf0f4] rounded-xl">
       <div className="flex items-center justify-between mb-6 sm:mb-8">
@@ -178,13 +199,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           Back
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
-          onClick={() => setIsEditModalOpen(true)}
-        >
-          <Edit size={20} className="mr-2" />
-          Edit Profile
-        </button>
       </div>
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -197,15 +211,13 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 className="rounded-full object-cover shadow-lg bg-none "
               />
             </div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-[#663399] mb-2">{`${profile.firstName} ${profile.lastName}`}</h2>
+            <EditableField field="First Name" value={profile.firstName?.toString() || ''} />
+            <EditableField field="Last Name" value={profile.lastName?.toString() || ''} />
             <p className="text-gray-600 mb-4 flex items-center">
               <RiMailFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
               {profile.user.email}
             </p>
-            <p className="text-gray-600 flex items-center">
-              <BsPhoneFill size={18} className="mr-2 text-[#663399]" fill="currentColor" />
-              {typeof profile?.user.phone === 'string' ? profile.user.phone : "N/A"}
-            </p>
+            <EditableField field="Phone" value={profile.user.phone} />
           </div>
 
           <div className="lg:col-span-2">
@@ -214,10 +226,12 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 <PiMapPinFill size={24} className="mr-2" fill="currentColor" />
                 Address Information
               </h3>
-              <p className="text-gray-700">{typeof profile.address1 === 'string' ? profile.address1 : ''}</p>
-              {typeof profile.address2 === 'string' && <p className="text-gray-700">{profile.address2}</p>}
-              <p className="text-gray-700">{`${profile.city}, ${profile.state}`}</p>
-              <p className="text-gray-700">{`${profile.country}, ${profile.pincode}`}</p>
+              <EditableField field="Address 1" value={profile.address1?.toString() || ''} />
+              <EditableField field="Address 2" value={profile.address2?.toString() || ''} />
+              <EditableField field="City" value={profile.city?.toString() || ''} />
+              <EditableField field="State" value={profile.state?.toString() || ''} />
+              <EditableField field="Country" value={profile.country?.toString() || ''} />
+              <EditableField field="Pincode" value={profile.pincode?.toString() || ''} />
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -293,58 +307,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           );
         })}
       </div>
-
-      {isEditModalOpen && editedProfile && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full m-4">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">Edit User Profile</h3>
-                <button
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-              <form onSubmit={handleEditSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-4">
-                {Object.entries(editedProfile).map(([key, value]) => {
-                  if (typeof value === 'string' && key !== 'email') {
-                    return (
-                      <div key={key} className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={key}>
-                          {key.charAt(0).toUpperCase() + key.slice(1)}
-                        </label>
-                        <input 
-                          type="text"
-                          id={key}
-                          name={key}
-                          value={value}
-                          onChange={(e) => setEditedProfile(prev => {
-                            if (prev === null) return null;
-                            return { ...prev, [key]: e.target.value };
-                          })}
-                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        />
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
-                >
-                  <Edit size={20} className="mr-2" />
-                  Save Changes
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-
-
