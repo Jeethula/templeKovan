@@ -1,9 +1,8 @@
 import prisma from '@/utils/prisma';
 import { google } from 'googleapis';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
   const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
   const existingData = await prisma.user.findMany({
     select: {

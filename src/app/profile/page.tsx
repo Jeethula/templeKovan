@@ -98,11 +98,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
 };
 
   useEffect(() => {
-    try{
     const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-    }catch(error){
-      toast.error("Plz refresh the page")
-    }
     if(user){
       getData();
     }else{

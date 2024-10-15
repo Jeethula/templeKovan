@@ -8,7 +8,7 @@ import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { RiMailFill } from "react-icons/ri";
 import { BsFileTextFill, BsPhoneFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaCircleUser, FaUserXmark } from "react-icons/fa6";
+import { FaCircleUser } from "react-icons/fa6";
 import { FaUserCheck, FaUserFriends, FaUserTimes } from "react-icons/fa";
 
 interface Post {

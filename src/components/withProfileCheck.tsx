@@ -5,7 +5,7 @@ import { useAuth } from '../app/context/AuthContext';
 import toast from 'react-hot-toast';
 
 const withProfileCheck = (WrappedComponent: React.ComponentType) => {
-  const ProfileCheck = (props: any) => {
+  const ProfileCheck = (props: React.ComponentProps<typeof WrappedComponent>) => {
     const router = useRouter();
     const { user } = useAuth();
     const userId = JSON.parse(sessionStorage.getItem('user') || '{}').id;
