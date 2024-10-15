@@ -63,12 +63,12 @@ FloatingLabelInput.displayName = 'FloatingLabelInput';
 
 const FloatingSelect = React.forwardRef<
   HTMLSelectElement,
-  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string }
->(({ id, label, children, value, defaultValue, ...props }, ref) => {
+  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; onValueChange: (value: string) => void }
+>(({ id, label, children, value, defaultValue, onValueChange, ...props }, ref) => {
   return (
     <div className="relative">
-      <Select value={value?.toString()} defaultValue={defaultValue?.toString()}>
-        <SelectTrigger className="w-full peer">
+      <Select value={value?.toString()} onValueChange={onValueChange} defaultValue={defaultValue?.toString()}>
+        <SelectTrigger className="w-full peer text-black">
           <SelectValue placeholder=" " />
         </SelectTrigger>
         <SelectContent>
@@ -106,7 +106,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
   const [userDetails, setUserDetails] =
     useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
-  const [isEditable, setIsEditable] = useState<boolean>(false);
+  const [isEditable, setIsEditable] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const { user } = useAuth();
@@ -152,32 +152,37 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
 
   const getData = async () => {
     const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
-    const data = await fetch(`/api/userDetails?userId=${userID}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const res = await data.json();
-    if (res.userDetails) {
-      setUserDetails({
-        salutation: res.userDetails.salutation,
-        first_name: res.userDetails.firstName,
-        last_name: res.userDetails.lastName,
-        phone_number: res?.user?.phone,
-        address_line_1: res.userDetails.address1,
-        address_line_2: res.userDetails.address2,
-        city: res.userDetails.city,
-        state: res.userDetails.state,
-        country: res.userDetails.country,
-        pincode: res.userDetails.pincode,
-        comments: res.userDetails.comments,
-        unique_id: res.userDetails.uniqueId,
+    try {
+      const data = await fetch(`/api/userDetails?userId=${userID}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      setIsEditable(false);
-      setIsSubmitted(true);
-    } else {
-      setIsEditable(true);
+      const res = await data.json();
+      if (res.userDetails) {
+        setUserDetails({
+          salutation: res.userDetails.salutation,
+          first_name: res.userDetails.firstName,
+          last_name: res.userDetails.lastName,
+          phone_number: res?.user?.phone,
+          address_line_1: res.userDetails.address1,
+          address_line_2: res.userDetails.address2,
+          city: res.userDetails.city,
+          state: res.userDetails.state,
+          country: res.userDetails.country,
+          pincode: res.userDetails.pincode,
+          comments: res.userDetails.comments,
+          unique_id: res.userDetails.uniqueId,
+        });
+        setIsEditable(false);
+        setIsSubmitted(true);
+      } else {
+        setIsEditable(true);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      toast.error("Failed to fetch user details. Please try again.");
     }
   };
 
@@ -366,14 +371,13 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         <FloatingSelect
           id={name}
           value={userDetails[name]}
-          onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-            handleChange({
-              target: { name, value: event.target.value },
-            } as React.ChangeEvent<HTMLInputElement>)
-          }
+          onValueChange={(value: string) => handleChange({
+            target: { name, value },
+          } as React.ChangeEvent<HTMLInputElement>)}
           disabled={!isEditable}
           label={label}
         >
+          <SelectItem value="default">Select {label}</SelectItem>
           {options?.map((option) => (
             <SelectItem key={option} value={option}>
               {option}

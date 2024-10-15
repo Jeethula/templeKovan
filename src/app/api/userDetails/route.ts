@@ -145,35 +145,35 @@ export async function PUT(req: Request) {
       });
     }
 
-    const oldUserDetails = await prisma.personalInfo.findUnique({
-      where: {
-        userid: body?.id,
-      },
-    });
+    // const oldUserDetails = await prisma.personalInfo.findUnique({
+    //   where: {
+    //     userid: body?.id,
+    //   },
+    // });
 
-    if (!oldUserDetails) {
-      console.log("User not found");
-      return NextResponse.json({ error: "User not found", status: 404 });
-    }
-    console.log(oldUserDetails, "oldUserDetails");
-    await prisma.personalInfoHistory.create({
-      data: {
-        address1: oldUserDetails?.address1,
-        address2: oldUserDetails?.address2,
-        state: oldUserDetails?.state,
-        phoneNumber: oldUserDetails?.phoneNumber,
-        country: oldUserDetails.country,
-        firstName: oldUserDetails.firstName,
-        lastName: oldUserDetails.lastName ?? "",
-        avatarUrl: oldUserDetails.avatarUrl,
-        pincode: oldUserDetails.pincode,
-        city: oldUserDetails.city,
-        salutation: oldUserDetails?.salutation,
-        comments: oldUserDetails?.comments,
-        uniqueId: oldUserDetails?.uniqueId.toString(),
-        personalInfoId: oldUserDetails?.id,
-      },
-    });
+    // if (!oldUserDetails) {
+    //   console.log("User not found");
+    //   return NextResponse.json({ error: "User not found", status: 404 });
+    // }
+    // console.log(oldUserDetails, "oldUserDetails");
+    // await prisma.personalInfoHistory.create({
+    //   data: {
+    //     address1: oldUserDetails?.address1,
+    //     address2: oldUserDetails?.address2,
+    //     state: oldUserDetails?.state,
+    //     phoneNumber: oldUserDetails?.phoneNumber,
+    //     country: oldUserDetails.country,
+    //     firstName: oldUserDetails.firstName,
+    //     lastName: oldUserDetails.lastName ?? "",
+    //     avatarUrl: oldUserDetails.avatarUrl,
+    //     pincode: oldUserDetails.pincode,
+    //     city: oldUserDetails.city,
+    //     salutation: oldUserDetails?.salutation,
+    //     comments: oldUserDetails?.comments,
+    //     uniqueId: oldUserDetails?.uniqueId.toString(),
+    //     personalInfoId: oldUserDetails?.id,
+    //   },
+    // });
 
     const userDetails = await prisma.personalInfo.update({
       where: {
