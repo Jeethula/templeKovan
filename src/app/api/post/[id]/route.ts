@@ -63,6 +63,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                 },
             }
         })
+        console.log(post)
         return NextResponse.json({post:post,status:200})
     }
     catch(e){
@@ -73,5 +74,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
     }
         
 }
+
+
 
 

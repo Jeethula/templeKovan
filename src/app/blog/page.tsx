@@ -277,6 +277,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                 </h2>
               </div>
               <div className="flex items-center gap-x-4">
+                
                 <div className="text-gray-400">{getRelativeTime(post.createdAt)}</div>
               </div>
             </div>
