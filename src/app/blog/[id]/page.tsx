@@ -642,7 +642,6 @@ function Post({ params }: { params: { id: string } }) {
   };
 
   const handleSaveEdit = async () => {
-    setLoading(true);
     try {
       const response = await fetch('/api/post', {
         method: "PUT",

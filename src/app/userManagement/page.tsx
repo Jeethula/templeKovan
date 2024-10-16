@@ -82,7 +82,8 @@ const PersonalInfoGrid: React.FC = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
+  console.log(rowData);
+  
   const paginationPageSize = 10;
   const paginationPageSizeSelector = [10, 20, 50, 100];
 
@@ -126,6 +127,33 @@ const PersonalInfoGrid: React.FC = () => {
       cellStyle: { fontWeight: '500', textAlign: 'left' }
     },
     {
+      headerName: "Address 1",
+      field: "address1",
+      sortable: true,
+      floatingFilter: true,
+      filter: 'agTextColumnFilter',
+      flex: 2,
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
+    },
+    {
+      headerName: "Address 2",
+      field: "address2",
+      sortable: true,
+      floatingFilter: true,
+      filter: 'agTextColumnFilter',
+      flex: 2,
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
+    },
+    {
+      headerName: "City",
+      field: "city",
+      sortable: true,
+      filter: 'agTextColumnFilter',
+      floatingFilter: true,
+      flex: 1,
+      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
+    },
+    {
       headerName: "Email",
       field: "email",
       sortable: true,
@@ -137,15 +165,6 @@ const PersonalInfoGrid: React.FC = () => {
     {
       headerName: "Phone",
       field: "Phone",
-      sortable: true,
-      filter: 'agTextColumnFilter',
-      floatingFilter: true,
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "City",
-      field: "city",
       sortable: true,
       filter: 'agTextColumnFilter',
       floatingFilter: true,
@@ -175,24 +194,6 @@ const PersonalInfoGrid: React.FC = () => {
       floatingFilter: true,
       cellRenderer: statusCellRenderer,
       flex: 1,
-    },
-    {
-      headerName: "Address 1",
-      field: "address1",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Address 2",
-      field: "address2",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
     },
     {
       headerName: "Pincode",
@@ -260,7 +261,7 @@ const PersonalInfoGrid: React.FC = () => {
     } else if (isSmallDevice) {
       return allColumnDefs.filter(col => col.headerName && ['Full Name', 'Phone','Created At', 'Status'].includes(col.headerName));
     } else {
-      return allColumnDefs.filter(col => col.headerName && ['Full Name', 'Email', 'Phone', 'City', 'Created At', 'Status'].includes(col.headerName));
+      return allColumnDefs.filter(col => col.headerName && ['Full Name', 'Address 2', 'Address 1', 'City', 'Phone', 'Status'].includes(col.headerName));
     }
   };
 
