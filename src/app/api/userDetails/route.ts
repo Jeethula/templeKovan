@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       },
       data: {
         email: body?.email,
-        phone: body?.phoneNumber,
+        phone: body?.phone,
       },
     });
 
