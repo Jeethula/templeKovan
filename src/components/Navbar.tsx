@@ -31,7 +31,7 @@ const Navbar = () => {
         console.error("Error parsing user from session storage:", error);
       }
     }
-  }, []);
+  }, [role]);
 
   const nav = [
     { name: 'Home', path: '/' },

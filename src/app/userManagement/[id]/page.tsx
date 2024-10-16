@@ -145,19 +145,17 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
       if (response.ok) {
         console.log(result.success);
-        // Update local state
         setProfile(prevProfile => ({
           ...(prevProfile ?? {}),
           personalInfo: { ...(prevProfile?.personalInfo ?? {}), ...result.userDetails },
           user: { ...(prevProfile?.user ?? {}), ...result.user },
         }));
+        window.location.reload();
       } else {
         console.error(result.error);
-        // Handle error (e.g., show error message to user)
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      // Handle error (e.g., show error message to user)
     }
   };
 
