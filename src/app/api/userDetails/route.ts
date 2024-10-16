@@ -4,7 +4,6 @@ import prisma from "../../../utils/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log(body, "body");
 
     const userDetails = await prisma.personalInfo.create({
       data: {
@@ -16,6 +15,7 @@ export async function POST(req: Request) {
         lastName: body?.lastName,
         avatarUrl: body?.avatarUrl,
         pincode: body?.pincode,
+        phoneNumber: body?.phone,
         city: body?.city,
         salutation: body?.salutation,
         comments: body?.comments,
