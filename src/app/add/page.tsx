@@ -18,9 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
-
-const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(
+const FloatingInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => {
     return <Input placeholder=" " className={cn('peer', className)} ref={ref} {...props} />;
   },
@@ -44,7 +42,7 @@ const FloatingLabel = React.forwardRef<
 });
 FloatingLabel.displayName = 'FloatingLabel';
 
-type FloatingLabelInputProps = InputProps & { label?: string };
+type FloatingLabelInputProps = React.InputHTMLAttributes<HTMLInputElement> & { label?: string };
 
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
@@ -62,7 +60,7 @@ FloatingLabelInput.displayName = 'FloatingLabelInput';
 const FloatingSelect = React.forwardRef<
   HTMLSelectElement,
   React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; onChange: (value: string) => void }
->(({ id, label, children, value, defaultValue, onChange, ...props }, ref) => {
+>(({ id, label, children, value, defaultValue, onChange }) => {
   return (
     <div className="relative">
       <Select value={value?.toString()} onValueChange={onChange} defaultValue={defaultValue?.toString()}>

@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
 import toast from "react-hot-toast";
 import withProfileCheck from "@/components/withProfileCheck";
+import {  Share2 } from "lucide-react";
+import { handleShare } from "@/utils";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -334,6 +336,12 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                     )}
                   </button>
                   <p>{post.dislikes}</p>
+                </div>
+                
+                <div className="flex items-center gap-x-1">
+                  <button className="flex items-center gap-x-1" onClick={() => {handleShare(`${process.env.NEXT_PUBLIC_API_URL}/${post.id}`)}}>
+                    <Share2 />  share
+                  </button>
                 </div>
               </div>
               <div className="flex justify-between">

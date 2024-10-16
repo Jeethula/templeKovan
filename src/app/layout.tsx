@@ -10,8 +10,8 @@ import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "srirenukaakkammatemple",
-  description: "srirenukaakkammatemple",
+  title: "sri renuka akkamma temple",
+  description: "sri renuka akkammatemple",
 };
 
 const inter = Inter({
