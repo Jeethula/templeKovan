@@ -234,7 +234,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     let isValid = true;
 
     Object.entries(userDetails).forEach(([key, value]) => {
-      if (value === "") {
+      if (key !== 'comments' && value === "") {
         newErrors[key as keyof UserDetails] = `${key.replace(
           "_",
           " "
@@ -271,7 +271,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           state: userDetails.state,
           pincode: userDetails.pincode,
           country: userDetails.country,
-          comments: userDetails.comments,
+          comments: userDetails.comments || "",
           salutation: userDetails.salutation,
           avatarUrl: user?.photoURL,
           uniqueId: parseInt(userDetails?.unique_id),
@@ -342,7 +342,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           state: userDetails.state,
           pincode: userDetails.pincode,
           country: userDetails.country,
-          comments: userDetails.comments,
+          comments: userDetails.comments || "",
           email: user?.email,
           avatarUrl: user?.photoURL,
           salutation: userDetails.salutation,
@@ -468,7 +468,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           ])}
           {renderField("first_name", "First Name")}
           {renderField("last_name", "Last Name")}
-          {renderField("unique_id", "Unique ID")}
+          {renderField("unique_id", "Unique ID( 5 - 6 unique digits)")}
           <div className="flex items-center gap-x-2 ">
             <button
               type="button"
@@ -502,7 +502,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           {renderField("state", "State")}
           {renderField("pincode", "Pin Code")}
           {renderField("country", "Country")}
-          {renderField("comments", "Comments", "textarea")}
+          {renderField("comments", "Comments (Optional)", "textarea")}
           <div className="flex justify-start items-center mt-7 mb-4">
             {isEditable  && isSubmitted && (
               <button

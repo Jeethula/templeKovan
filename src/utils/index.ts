@@ -10,8 +10,8 @@ export const handleShare = async (url: string) => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'sece.live',
-          text: 'An open-source platform for sharing your thoughts and ideas in a anonymous way',
+          title: 'Sri Renuka Akkamma Temple',
+          text: 'Check out this link',
           url: url,
         });
       } catch (error) {
