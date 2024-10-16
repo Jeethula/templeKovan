@@ -177,6 +177,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         setIsSubmitted(true);
       } else {
         setIsEditable(true);
+        toast.success("Please fill the profile info to start");
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -184,13 +185,37 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     }
   };
 
+  const UserDetails = async () => {
+    const data = await fetch('/api/auth',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        email:user?.email
+    })
+    })
+    const res = await data.json();
+    console.log(res,"from page");
+    sessionStorage.setItem('user',JSON.stringify(res.user));
+  }
+
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-    if (user) {
-      getData();
-    } else {
-      router.push("/");
-    }
+    const fetchUserDetails = async () => {
+      try {
+        await UserDetails();
+        const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+        if (user) {
+          await getData();
+        } else {
+          router.push("/");
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        router.push("/");
+      }
+    };
+    fetchUserDetails();
   }, [router]);
 
   const handleChange = (

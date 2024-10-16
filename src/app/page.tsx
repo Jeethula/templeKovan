@@ -28,6 +28,12 @@ export default function HomePage() {
       try {
         await UserDetails();
         const userFromStorage = sessionStorage.getItem('user');
+        if (userFromStorage) {
+          const user = JSON.parse(userFromStorage);
+          if (user.role === "admin") {
+            window.location.reload();
+          }
+        }
         if (!userFromStorage) {
           console.log("User not found in session storage");
           window.location.href = '/';
