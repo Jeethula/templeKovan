@@ -11,7 +11,7 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "sri renuka akkamma temple",
-  description: "sri renuka akkammatemple",
+  description: "sri renuka akkammatemple", 
 };
 
 const inter = Inter({
