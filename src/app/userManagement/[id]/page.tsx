@@ -8,7 +8,7 @@ import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { BsFileTextFill } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaCircleUser } from "react-icons/fa6";
-import { FaCity, FaUserFriends } from "react-icons/fa";
+import {  FaUserFriends } from "react-icons/fa";
 
 interface Post {
   posts: Post[];
