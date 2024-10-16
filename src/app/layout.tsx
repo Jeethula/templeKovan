@@ -9,20 +9,25 @@ import AuthWrapper from "../app/context/AuthWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
-export const metadata: Metadata = {
-  title: "sri renuka akkamma temple",
-  description: "sri renuka akkammatemple",
-};
-
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-// const poppins = Poppins({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700"],
-// });
+export const metadata: Metadata = {
+  title: "Sri Renuka Akkamma Temple",
+  description: "Official website of Sri Renuka Akkamma Temple",
+  openGraph: {
+    images: [
+      {
+        url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgaPy9oE_VXsAXb-PTYlTZqPhOw6Ly5KOb5Q&s',
+        width: 1200,
+        height: 630,
+        alt: 'Sri Renuka Akkamma Temple',
+      },
+    ],
+  },
+};
 
 export default function RootLayout({
   children,
@@ -32,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="https://www.alackalbellmetals.com/cdn/shop/files/ALACKAL-BALAJIWALLHANGING.png?v=1720446341" />
       </head>
       <body className={`${inter} antialiased bg-[#fdf0f4]`}>
       <Script

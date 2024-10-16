@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MessageSquare, UserCircle2, Pencil, User, Mail, Phone, MapPin, Home, Flag } from 'lucide-react';
+import { MessageSquare, UserCircle2, Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2 } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { BsFileTextFill } from "react-icons/bs";
@@ -15,7 +15,7 @@ interface Post {
 }
 
 interface User {
-  id: string; // Add this line
+  id: string;
   email: string;
   phone: string;
   posts: Post[];
@@ -26,7 +26,6 @@ interface User {
 interface PersonalInfo {
   uniqueId?: string;
   isApproved?: string;
-  // Add other properties as needed
 }
 
 interface Profile {
@@ -51,8 +50,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-  // const adminEmail: string = sessionData.email;
   const router = useRouter();
 
   const fetchData = async () => {
@@ -98,28 +95,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  // const updateApprovalStatus = async (status: string) => {
-  //   if(status === "rejected"){
-  //     if (!window.confirm("Are you sure you want to reject this user?")) {
-  //       return;
-  //     }
-  //   }
-  //   try {
-  //     const res = await fetch('/api/userDetails', {
-  //       method: 'PATCH',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ email: profile?.email, isApproved: status, adminEmail: adminEmail }),
-  //     });
-  //     const result = await res.json();
-  //     if (result.success) {
-  //       setProfile(prev => prev ? {...prev, isApproved: status} : null);
-  //     }
-  //   } catch (e) {
-  //     console.error(e);
-  //     setError("An error occurred while updating the status");
-  //   }
-  // };
-
   const handleEditSubmit = async (section: string, updatedData: Partial<Profile>) => {
     if (!profile) return;
 
@@ -136,7 +111,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           ...updatedData,
           phone: updatedData.phone ?? profile.user?.phone,
           email: updatedData.email ?? profile.user?.email,
-          uniqueId: profile.personalInfo?.uniqueId ?? 0, // Ensure uniqueId is included
+          uniqueId: profile.personalInfo?.uniqueId ?? 0,
           isApproved: profile.personalInfo?.isApproved ?? "pending",
         }),
       });
@@ -163,7 +138,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
+  if (loading) return <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
   const getChanges = (current: Profile | HistoryItem, previous: Profile | HistoryItem): Change[] => {
@@ -211,7 +186,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         case 'address2':
           return <Home size={18} className="mr-2" />;
         case 'city':
-          return <FaCity size={18} className="mr-2" />;
+          return <Building2  size={18} className="mr-2" />;
         case 'state':
         case 'country':
           return <Flag size={18} className="mr-2" />;
@@ -235,7 +210,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <h3 className="text-lg sm:text-xl font-semibold flex items-center text-[#663399] mr-4">
             {section === 'personalInfo' ? (
               <>
-                <FaCircleUser size={24} className="mr-2" />
+                {/* <FaCircleUser size={24} className="mr-2" /> */}
                 Personal Information
               </>
             ) : (
@@ -305,7 +280,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
       </div>
-      {profile && (
+      {loading ? (
+        <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>
+      ) : profile ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="lg:col-span-1">
             <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -362,53 +339,33 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </div>
           </div>
         </div>
-      )}
-
-      {/* <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-        {profile?.isApproved === "approved" ? (
-          <div className="text-green-500 font-semibold">User Accepted</div>
-        ) : profile?.isApproved === "rejected" ? (
-          <div className="text-red-500 font-semibold">User Rejected</div>
-        ) : (
-          <>
-            <button
-              className="w-full flex items-center gap-x-3 sm:w-auto px-8 py-3 bg-[#663399] text-white font-semibold rounded-lg shadow-lg hover:bg-[#5a2d8a] transition duration-300 ease-in-out transform hover:-translate-y-1"
-              onClick={() => updateApprovalStatus("approved")}
-            >
-              <FaUserCheck />
-              Accept
-            </button>
-            <button
-              className="w-full flex items-center gap-x-3 sm:w-auto px-8 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1"
-              onClick={() => updateApprovalStatus("rejected")}
-            >
-              <FaUserTimes />
-              Reject
-            </button>
-          </>
-        )}
-      </div> */}
+      ) : null}
 
       <div className="mt-8 sm:mt-10">
         <h3 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-[#663399]">
           <FaUserFriends size={24} className="mr-2" fill="currentColor" />
           Changes History
         </h3>
-        {history.length === 0 &&  <p className="text-gray-700">No changes found</p>}
-        {history.map((historyItem, index) => {
-          const previousProfile = index > 0 ? history[index - 1] : profile;
-          const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
-          return (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
-              <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
-                {new Date(historyItem.updatedAt).toLocaleString()}
-              </h4>
-              {changes.map((change, idx) => (
-                <ChangeHistoryItem key={idx} change={change} />
-              ))}
-            </div>
-          );
-        })}
+        {loading ? (
+          <div className="text-center mt-4"><LoadingPageUi /><p>Loading change history...</p></div>
+        ) : history.length === 0 ? (
+          <p className="text-gray-700">No changes found</p>
+        ) : (
+          history.map((historyItem, index) => {
+            const previousProfile = index > 0 ? history[index - 1] : profile;
+            const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
+            return (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
+                <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
+                  {new Date(historyItem.updatedAt).toLocaleString()}
+                </h4>
+                {changes.map((change, idx) => (
+                  <ChangeHistoryItem key={idx} change={change} />
+                ))}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
