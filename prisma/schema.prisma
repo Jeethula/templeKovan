@@ -8,11 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id          String      @id @default(cuid())  
   email       String      @unique
   phone       String      @unique
-  role        String      @default("user")
+  role        String[]   @default(["user"])
   posts       Post[]
   comments    Comment[]
   likedPosts   Post[]      @relation("LikedPosts")
@@ -43,15 +51,47 @@ model PersonalInfo {
   comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  isApproved  String?     @default("pending")
+  isApproved  Status @default(PENDING)
   user        User      @relation(fields: [userid], references: [id])
   userid      String    @unique
   History     PersonalInfoHistory[]
+  Services    Services[]
 }
+
+
+ 
+
+model Services{
+  id         String   @id @default(cuid())
+  nameOfTheService String
+  description String
+  image    String?
+  paymentMode String?
+  transactionId String?
+  serviceDate DateTime?
+  posUserId String?
+  approvedBy String?
+  approvedAt DateTime?
+  price       Int
+  status      Status @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  personalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
+  personalInfoId      String
+}
+
+
+model ServiceLimit{
+  id         String   @id @default(cuid())
+  Thirumanjanam   Int @default(3)
+  Abhishekam      Int @default(3)
+  
+}
+
 
 model PersonalInfoHistory{
   id          String   @id @default(cuid())
-  uniqueId    String
+  uniqueId    Int
   email       String?
   address1    String?
   address2    String?
@@ -66,7 +106,6 @@ model PersonalInfoHistory{
   salutation  String?
   comments    String?  
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
   PeronalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
   personalInfoId      String
 }
@@ -76,7 +115,7 @@ model Post {
   title       String
   content     String
   image       String?
-  type       String  @default("public")
+  type        String  @default("public")
   likes       Int
   dislikes    Int
   author      User      @relation(fields: [authorId], references: [id])
