@@ -81,6 +81,7 @@ const DetailsModal = ({ service, date, userId }: { service: string; date: Date; 
         toast.error(`Error: ${errorData.error || 'Something went wrong'}`);
       }
     } catch (error) {
+      console.log(error);
       toast.error('Network error. Please try again later.');
     } finally {
       setIsSubmitting(false);
