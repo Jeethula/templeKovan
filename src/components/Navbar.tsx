@@ -34,6 +34,7 @@ const Navbar = () => {
     ...(role.includes('Admin') ? [{ name: 'User Management', path: '/userManagement' }] : []),
     ...(role.includes('approver') ? [{ name: 'Service Management', path: '/serviceManagement' }] : []),
     ...(role.includes('posuser') ? [{ name: 'POS User', path: '/posuser' }] : []),
+    ...(role.includes('approver') ? [{ name: 'Service Limit', path: '/servicelimit' }] : []),
   ];
 
   return (

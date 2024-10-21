@@ -80,7 +80,7 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
     if (!formData.amount) newErrors.amount = 'Amount is required'; 
     if (!formData.transactionId) newErrors.transactionId = 'Transaction ID is required';
     if (!formData.paymentMode) newErrors.paymentMode = 'Payment Mode is required';
-
+    if(!formData.image) newErrors.image = 'Image is required';
     if (Object.keys(newErrors).some(key => newErrors[key as keyof typeof newErrors])) {
       setErrors(newErrors);
       return;
@@ -126,6 +126,7 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
             value={formData.description}
             onChange={handleInputChange}
             placeholder=" "
+            onFocus={()=>{setErrors(prev => ({ ...prev, description: '' }))}}
             className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
               errors.description ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -139,30 +140,28 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
           {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
         </div>
 
-        <div className="relative">
-          <Input
-            id="amount"
-            type="number"
-            value={formData.amount}
-            onChange={handleInputChange}
-            placeholder=" "
-            className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-              errors.amount ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          <Label
-            htmlFor="amount"
-            className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-          >
-            Amount
-          </Label>
-          {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount}</p>}
+
+        <div>
+          <Label htmlFor="paymentMode" className="block mb-2">Payment Mode</Label>
+          <Select onValueChange={handleSelectChange} value={formData.paymentMode}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Payment Mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="upi">UPI</SelectItem>
+              <SelectItem value="neft">NEFT</SelectItem>
+              <SelectItem value="netbanking">NetBanking</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.paymentMode && <p className="mt-1 text-xs text-red-500">{errors.paymentMode}</p>}
         </div>
+
 
         <div className="relative">
           <Input
             id="transactionId"
             value={formData.transactionId}
+            onFocus={()=>{setErrors(prev => ({ ...prev, transactionId: '' }))}}
             onChange={handleInputChange}
             placeholder=" "
             className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
@@ -187,22 +186,33 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
             onChange={handleImageChange}
             className="w-full"
           />
+          {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
         </div>
 
-        <div>
-          <Label htmlFor="paymentMode" className="block mb-2">Payment Mode</Label>
-          <Select onValueChange={handleSelectChange} value={formData.paymentMode}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Payment Mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="upi">UPI</SelectItem>
-              <SelectItem value="neft">NEFT</SelectItem>
-              <SelectItem value="netbanking">NetBanking</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.paymentMode && <p className="mt-1 text-xs text-red-500">{errors.paymentMode}</p>}
+
+        <div className="relative">
+          <Input
+            id="amount"
+            type="number"
+            value={formData.amount}
+            onFocus={()=>{setErrors(prev => ({ ...prev, amount: '' }))}}
+            onChange={handleInputChange}
+            placeholder=" "
+            className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+              errors.amount ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          <Label
+            htmlFor="amount"
+            className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+          >
+            Amount
+          </Label>
+          {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount}</p>}
         </div>
+
+
+
 
         <Button
           type="submit"

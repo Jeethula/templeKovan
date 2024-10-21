@@ -81,6 +81,8 @@ model ServiceLimit{
   id         String   @id @default(cuid())
   thirumanjanam   Int @default(3)
   abhisekam      Int @default(3)
+  thirumanjanamPrice Int @default(1000)
+  abhisekamPrice Int @default(1000)
   
 }
 
