@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
-const DateCheckModal = ({ onNext, service, date, setDate }: { onNext: () => void; service: string; date: Date; setDate: (date: Date) => void }) => {
+const DateCheckModal = ({ onNext, service, setDate }: { onNext: () => void; service: string; setDate: (date: Date) => void }) => {
   const [serviceDate, setServiceDate] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false); // Add loading state

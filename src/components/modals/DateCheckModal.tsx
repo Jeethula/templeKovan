@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import toast from 'react-hot-toast';
 
-const DateCheckModal = ({ onNext, service, date, setDate }: { onNext: () => void; service: string; date: Date; setDate: (date: Date) => void }) => {
+const DateCheckModal = ({ onNext, service, setDate }: { onNext: () => void; service: string; setDate: (date: Date) => void }) => {
   const [serviceDate, setServiceDate] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ const DateCheckModal = ({ onNext, service, date, setDate }: { onNext: () => void
       setError('An error occurred while checking date availability');
       toast.error('Error occurred. Please try again later.');
     } finally {
-      setIsLoading(false);  // Stop loading
+      setIsLoading(false);
     }
   };
 

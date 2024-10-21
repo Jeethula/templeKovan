@@ -79,7 +79,7 @@ export async function GET() {
         const user=await prisma.user.create({
             data: {
             email: newObj.email,
-            role: 'user',
+            role: { set: ['user'] },
             phone:newObj.fullData.phoneNumber
             }
         });

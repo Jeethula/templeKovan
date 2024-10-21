@@ -11,10 +11,25 @@ import '../userManagement/style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { Clock } from 'lucide-react';
+import { ColDef } from 'ag-grid-community';
+
+
+
+type History = {
+  nameOfTheService: string;
+  description: string;
+  paymentMode: string;
+  transactionId: string;
+  serviceDate: Date;
+  price: string;
+  status: string;
+};
+
+
 
 const ServicesPage: React.FC = () => {
-  const [history, setHistory] = useState<any[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<History[]>([]);
+  const [filteredHistory, setFilteredHistory] = useState<History[]>([]);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -36,7 +51,7 @@ const ServicesPage: React.FC = () => {
     }
     const selectedService = (event.target.value).toLowerCase();
     const filteredServices = history.filter(
-      (service: any) => service.nameOfTheService === selectedService
+      (service: History) => service.nameOfTheService.toLowerCase() === selectedService
     );
     setFilteredHistory(filteredServices);
   };
@@ -71,14 +86,14 @@ const ServicesPage: React.FC = () => {
     return params.value;
 };
 
-  const columnDefs = [
+  const columnDefs: ColDef<History>[] = [
     { headerName: 'Service Name', field: 'nameOfTheService', sortable: true, filter: true },
     { headerName: 'Description', field: 'description', sortable: true, filter: true },
     { headerName: 'Payment Mode', field: 'paymentMode', sortable: true, filter: true },
     { headerName: 'Transaction ID', field: 'transactionId', sortable: true, filter: true },
-    { headerName: 'Service Date', field: 'serviceDate', sortable: true, filter: true, valueFormatter: (params: any) => new Date(params.value).toLocaleDateString() },
+    { headerName: 'Service Date', field: 'serviceDate', sortable: true, filter: true, valueFormatter: (params: { value: Date }) => new Date(params.value).toLocaleDateString() },
     { headerName: 'Price', field: 'price', sortable: true, filter: true },
-    { headerName: 'Status', field: 'status', sortable: true, filter: true,          cellRenderer: statusCellRenderer, },
+    { headerName: 'Status', field: 'status', sortable: true, filter: true, cellRenderer: statusCellRenderer },
   ];
 
   return (

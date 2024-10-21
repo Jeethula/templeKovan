@@ -14,6 +14,23 @@ import CustomFilter from  './CustomFilter'
 import CustomServiceFilter from './CustomServiceFilter'
 import '../userManagement/style.css';
 
+
+type Service = {
+    price: number;
+    id: string;
+    personalInfo: PersonalInfo;
+    nameOfTheService: string;
+    amount: number;
+    serviceDate: string;
+    status: string;
+}
+
+type PersonalInfo={
+    firstName:string;
+    lastName:string;
+    phoneNumber:string;
+}
+
 const ServiceGrid = () => {
     const [rowData, setRowData] = useState([]);
     const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
@@ -98,7 +115,7 @@ const ServiceGrid = () => {
             const response = await fetch(`/api/services/approver?approverId=${userId}`);
             const data = await response.json();
             if (data.status === 200) {
-                setRowData(data.services.map((service: any) => ({
+                setRowData(data.services.map((service: Service) => ({
                     id: service.id,
                     firstName: service.personalInfo.firstName,
                     lastName: service.personalInfo.lastName,

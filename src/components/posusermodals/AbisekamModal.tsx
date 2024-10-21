@@ -9,7 +9,7 @@ const AbhisekamModal = ({userId}:{userId:string}) => {
   const [date, setDate] = useState<Date>(new Date());
   return (
     <div>
-      {step === 1 && <DateCheckModal onNext={nextStep} service={service} date={date} setDate={setDate} />}
+      {step === 1 && <DateCheckModal onNext={nextStep} service={service} setDate={setDate} />}
       {step === 2 && <DetailsModal service={service} date={date} userId={userId} />}
     </div>
   );

@@ -1,7 +1,6 @@
 
 import prisma from "@/utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { parse } from "path";
  
 
 // api/services/user - GET all the services of the user by the user
@@ -38,7 +37,7 @@ export async function GET(req:NextRequest)
 
 
 // api/services/user - POST create a service by the user
-export async function POST(req:NextRequest, res:NextResponse)
+export async function POST(req:NextRequest)
 {
     const {userId,nameOfTheService,description,amount,image,paymentMode,transactionId,serviceDate} = await req.json();
     if(!userId)

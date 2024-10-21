@@ -10,7 +10,7 @@ const ThirumanjanamModal = () => {
   
   return (
     <div>
-      {step === 1 && <DateCheckModal onNext={nextStep} service={service} date={date} setDate={setDate} />}
+      {step === 1 && <DateCheckModal onNext={nextStep} service={service} setDate={setDate} />}
       {step === 2 && <DetailsModal service={service} date={date} />}
     </div>
   );

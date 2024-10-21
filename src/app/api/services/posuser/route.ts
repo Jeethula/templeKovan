@@ -3,7 +3,7 @@ import prisma from '@/utils/prisma';
 
 
 //fetch all the user details 
-export async function GET(req: NextRequest,res:NextResponse) {
+export async function GET(req: NextRequest) {
     const url=new URL(req.url)
     const posUserId=url.searchParams.get('posUserId')
     if(!posUserId)
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest,res:NextResponse) {
 
 
 // api/services/posuser - POST create a service
-export async function POST(req: NextRequest,res:NextResponse) {
+export async function POST(req: NextRequest) {
     const {userId,nameOfTheService,description,price,image,paymentMode,transactionId,serviceDate,posUserId} = await req.json();
 
     if(!userId)
