@@ -153,7 +153,7 @@ export async function DELETE(req: NextRequest) {
         if (user1) {
             if (user1.authorId !== authorId) {
                 if (user2) {
-                    if (user2.role !== "Admin") {
+                    if (user2.role.includes('Admin')) {
                         return NextResponse.json({ error: "You are not authorized to delete this post", status: 403 });
                     }
                 } else {

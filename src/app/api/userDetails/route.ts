@@ -172,7 +172,7 @@ export async function PUT(req: Request) {
         city: oldUserDetails.city,
         salutation: oldUserDetails?.salutation,
         comments: oldUserDetails?.comments,
-        uniqueId: oldUserDetails?.uniqueId.toString(),
+        uniqueId: oldUserDetails?.uniqueId,
         personalInfoId: oldUserDetails?.id,
       },
     });
@@ -297,7 +297,7 @@ export async function DELETE(req: Request) {
       },
     });
 
-    if (admin?.role !== "Admin") {
+    if (admin?.role.includes("Admin")) {
       return NextResponse.json({
         error: "You are not authorized",
         status: 403,
@@ -340,7 +340,7 @@ export async function PATCH(req: Request) {
       },
     });
 
-    if (admin?.role !== "Admin") {
+    if (admin?.role.includes("Admin")) {
       return NextResponse.json({
         error: "You are not authorized",
         status: 403,

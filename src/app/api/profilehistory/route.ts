@@ -10,7 +10,7 @@ export async function POST(req:NextRequest) {
                 personalInfoId
             },
             orderBy: {
-                updatedAt: 'desc',
+                createdAt: 'desc',
             },
         });
 

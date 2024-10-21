@@ -37,8 +37,8 @@
 
 .ag-theme-alpine .ag-floating-filter-input:focus {
   outline: none;
-  border-color: #663399; /* Match nav bar */
-  box-shadow: 0 0 0 3px rgba(102, 51, 153, 0.1); /* Lighter shadow of nav bar color */
+  border-color: #663399; 
+  box-shadow: 0 0 0 3px rgba(102, 51, 153, 0.1);
 }
 
 .ag-theme-alpine .ag-paging-panel {

@@ -1,9 +1,12 @@
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
-    "role" TEXT NOT NULL DEFAULT 'user',
+    "role" TEXT[] DEFAULT ARRAY['user']::TEXT[],
     "referral" TEXT,
     "parentId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -30,16 +33,37 @@ CREATE TABLE "PersonalInfo" (
     "comments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "isApproved" TEXT DEFAULT 'pending',
+    "isApproved" "Status" NOT NULL DEFAULT 'PENDING',
     "userid" TEXT NOT NULL,
 
     CONSTRAINT "PersonalInfo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "Services" (
+    "id" TEXT NOT NULL,
+    "nameOfTheService" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "image" TEXT,
+    "paymentMode" TEXT,
+    "transactionId" TEXT,
+    "serviceDate" TIMESTAMP(3),
+    "posUserId" TEXT,
+    "approvedBy" TEXT,
+    "approvedAt" TIMESTAMP(3),
+    "price" INTEGER NOT NULL,
+    "status" "Status" NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "personalInfoId" TEXT NOT NULL,
+
+    CONSTRAINT "Services_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "PersonalInfoHistory" (
     "id" TEXT NOT NULL,
-    "uniqueId" TEXT NOT NULL,
+    "uniqueId" INTEGER NOT NULL,
     "email" TEXT,
     "address1" TEXT,
     "address2" TEXT,
@@ -54,7 +78,6 @@ CREATE TABLE "PersonalInfoHistory" (
     "salutation" TEXT,
     "comments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
     "personalInfoId" TEXT NOT NULL,
 
     CONSTRAINT "PersonalInfoHistory_pkey" PRIMARY KEY ("id")
@@ -113,9 +136,6 @@ CREATE UNIQUE INDEX "PersonalInfo_uniqueId_key" ON "PersonalInfo"("uniqueId");
 CREATE UNIQUE INDEX "PersonalInfo_userid_key" ON "PersonalInfo"("userid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PersonalInfoHistory_uniqueId_key" ON "PersonalInfoHistory"("uniqueId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_LikedPosts_AB_unique" ON "_LikedPosts"("A", "B");
 
 -- CreateIndex
@@ -132,6 +152,9 @@ ALTER TABLE "User" ADD CONSTRAINT "User_parentId_fkey" FOREIGN KEY ("parentId") 
 
 -- AddForeignKey
 ALTER TABLE "PersonalInfo" ADD CONSTRAINT "PersonalInfo_userid_fkey" FOREIGN KEY ("userid") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Services" ADD CONSTRAINT "Services_personalInfoId_fkey" FOREIGN KEY ("personalInfoId") REFERENCES "PersonalInfo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PersonalInfoHistory" ADD CONSTRAINT "PersonalInfoHistory_personalInfoId_fkey" FOREIGN KEY ("personalInfoId") REFERENCES "PersonalInfo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

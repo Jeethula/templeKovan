@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest) {
             {
                 if(user2)
                 {
-                    if(user2.role!=="Admin")
+                    if(user2.role.includes("Admin"))
                     {
                         await prisma.comment.delete({
                             where:{
