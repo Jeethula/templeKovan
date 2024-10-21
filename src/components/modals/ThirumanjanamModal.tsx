@@ -1,26 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+import DateCheckModal from './DateCheckModal';
+import DetailsModal from './DetailsModal';
 
-const ThirumanjanamModal: React.FC = () => {
+const ThirumanjanamModal = () => {
+  const [step, setStep] = useState(1); 
+  const service="Thirumanjanam";
+  const nextStep = () => setStep(2);
+  const [date, setDate] = useState<Date>(new Date());
+  
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Book Thirumanjanam</h2>
-      <form>
-        <div className="mb-4">
-          <label htmlFor="name" className="block mb-2">Name</label>
-          <input type="text" id="name" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="block mb-2">Email</label>
-          <input type="email" id="email" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="date" className="block mb-2">Preferred Date</label>
-          <input type="date" id="date" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-          Book Now
-        </button>
-      </form>
+      {step === 1 && <DateCheckModal onNext={nextStep} service={service} date={date} setDate={setDate} />}
+      {step === 2 && <DetailsModal service={service} date={date} />}
     </div>
   );
 };

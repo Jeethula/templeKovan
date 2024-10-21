@@ -2,6 +2,65 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/utils/prisma';
 
 
+//fetch all the user details 
+export async function GET(req: NextRequest,res:NextResponse) {
+    const url=new URL(req.url)
+    const posUserId=url.searchParams.get('posUserId')
+    if(!posUserId)
+    {
+        return NextResponse.json({error:"POS User ID is required",status:400})
+    }
+
+    try
+    {
+        const user=await prisma.user.findUnique({
+            where:{
+                id:posUserId
+            },
+        })
+        if(!user)
+        {
+            return NextResponse.json({error:"User not found",status:404})
+        }
+        if(!user.role.includes('posuser'))
+        {
+            return NextResponse.json({error:"POS User not found",status:404})
+        }
+        const users=await prisma.user.findMany({
+            select:{
+                id:true,
+                phone:true,
+                email:true,
+                personalInfo:{
+                    select:{
+                        id:true,
+                        firstName:true,
+                        lastName:true,
+                        address1:true,
+                        address2:true,
+                        city:true,
+                        state:true,
+                        country:true,
+                        pincode:true,
+                        avatarUrl:true,
+                        salutation:true,
+                    }
+                }
+            }
+        })
+        return NextResponse.json({users:users,status:200})
+
+
+    }
+    catch(e)
+    {
+        return NextResponse.json({error:e,status:500})
+    }
+}
+
+
+
+
 // api/services/posuser - POST create a service
 export async function POST(req: NextRequest,res:NextResponse) {
     const {userId,nameOfTheService,description,price,image,paymentMode,transactionId,serviceDate,posUserId} = await req.json();
@@ -47,31 +106,6 @@ export async function POST(req: NextRequest,res:NextResponse) {
             {
                 return NextResponse.json({error:"Service Date is required",status:400})
             }
-
-            const today = new Date(serviceDate);
-            const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-      
-            const serviceCount = await prisma.services.count({
-              where: {
-                nameOfTheService: 'Thirumanjamanam',
-                createdAt: {
-                  gte: startOfDay,
-                  lte: endOfDay,
-                },
-              },
-            });
-            
-            const serviceLimit=await prisma.serviceLimit.findMany({
-                select:{
-                    Thirumanjanam:true
-                }
-            })
-
-            if (serviceCount >= serviceLimit[0].Thirumanjanam) {
-                return NextResponse.json({error: "Service limit reached", status: 400});
-            }
-
             const service=await prisma.user.update({
                 where:{
                     id:userId
@@ -100,33 +134,6 @@ export async function POST(req: NextRequest,res:NextResponse) {
 
         if(nameOfTheService==='Abhishekam')
         {
-            if(!serviceDate)
-            {
-                return NextResponse.json({error:"Service date is required",status:400})
-            }
-                const today = new Date(serviceDate);
-                const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-                const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-            
-                const serviceCount = await prisma.services.count({
-                    where: {
-                    nameOfTheService: 'Abhishekam',
-                    createdAt: {
-                        gte: startOfDay,
-                        lte: endOfDay,
-                    },
-                    },
-                });
-                
-                const serviceLimit=await prisma.serviceLimit.findMany({
-                    select:{
-                        Abhishekam:true
-                    }
-                })
-
-                if (serviceCount >= serviceLimit[0].Abhishekam) {
-                    return NextResponse.json({error: "Service limit reached", status: 400});
-                }
                 const service=await prisma.user.update({
                     where:{
                         id:userId

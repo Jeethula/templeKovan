@@ -1,6 +1,7 @@
 
 import prisma from "@/utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { parse } from "path";
  
 
 // api/services/user - GET all the services of the user by the user
@@ -39,8 +40,7 @@ export async function GET(req:NextRequest)
 // api/services/user - POST create a service by the user
 export async function POST(req:NextRequest, res:NextResponse)
 {
-    const {userId,nameOfTheService,description,price,image,paymentMode,transactionId,serviceDate} = await req.json();
-
+    const {userId,nameOfTheService,description,amount,image,paymentMode,transactionId,serviceDate} = await req.json();
     if(!userId)
     {
         return NextResponse.json({error:"User ID is required",status:400})
@@ -59,35 +59,21 @@ export async function POST(req:NextRequest, res:NextResponse)
             return NextResponse.json({error:"User not found",status:404})
         }
 
-        if(nameOfTheService==='Thirumanjamanam')
+        const serviceDateObj = new Date(serviceDate);
+        serviceDateObj.setHours(0, 0, 0, 0);
+        const serviceDateString = serviceDateObj.toISOString().split('T')[0];
+        console.log(typeof(serviceDateString));
+
+
+        if(nameOfTheService==='thirumanjanam')
         {
             if(!serviceDate)
             {
                 return NextResponse.json({error:"Service date is required",status:400})
             }
-                const today = new Date(serviceDate);
-                const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-                const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-        
-                const serviceCount = await prisma.services.count({
-                where: {
-                    nameOfTheService: 'Thirumanjamanam',
-                    createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                    },
-                },
-                });
-                
-                const serviceLimit=await prisma.serviceLimit.findMany({
-                    select:{
-                        Thirumanjanam:true
-                    }
-                })
-
-                if (serviceCount >= serviceLimit[0].Thirumanjanam) {
-                    return NextResponse.json({error: "Service limit reached", status: 400});
-                }
+            const serviceDateObj=new Date(serviceDate)
+            console.log(serviceDateObj);
+            
                 const service=await prisma.user.update({
                     where:{
                         id:userId
@@ -99,11 +85,11 @@ export async function POST(req:NextRequest, res:NextResponse)
                                     create:{
                                         nameOfTheService,
                                         description,
-                                        price,
+                                        price:parseInt(amount),
                                         image,
                                         paymentMode,
                                         transactionId,
-                                        serviceDate
+                                        serviceDate:new Date(serviceDateString)
                                     }
                                 }
                             }
@@ -113,35 +99,12 @@ export async function POST(req:NextRequest, res:NextResponse)
                 return NextResponse.json({service:service,status:200})
         }
 
-        if(nameOfTheService==='Abhishekam')
+        if(nameOfTheService==='abhisekam')
         {
             if(!serviceDate)
             {
                 return NextResponse.json({error:"Service date is required",status:400})
             }
-                const today = new Date(serviceDate);
-                const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-                const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-        
-                const serviceCount = await prisma.services.count({
-                where: {
-                    nameOfTheService: 'Abhishekam',
-                    createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                    },
-                },
-                });
-                
-                const serviceLimit=await prisma.serviceLimit.findMany({
-                    select:{
-                        Abhishekam:true
-                    }
-                })
-
-                if (serviceCount >= serviceLimit[0].Abhishekam) {
-                    return NextResponse.json({error: "Service limit reached", status: 400});
-                }
                 const service=await prisma.user.update({
                     where:{
                         id:userId
@@ -153,11 +116,11 @@ export async function POST(req:NextRequest, res:NextResponse)
                                     create:{
                                         nameOfTheService,
                                         description,
-                                        price,
+                                        price:parseInt(amount),
                                         image,
                                         paymentMode,
                                         transactionId,
-                                        serviceDate
+                                        serviceDate:new Date(serviceDateString)
                                     }
                                 }
                             }
@@ -167,8 +130,9 @@ export async function POST(req:NextRequest, res:NextResponse)
                 return NextResponse.json({service:service,status:200})
         } 
 
-        if(nameOfTheService==='generalDonation')
+        if(nameOfTheService==='donation')
         {
+            
             const service=await prisma.user.update({
                 where:{
                     id:userId
@@ -180,11 +144,11 @@ export async function POST(req:NextRequest, res:NextResponse)
                                 create:{
                                     nameOfTheService,
                                     description,
-                                    price,
+                                    price:parseInt(amount),
                                     image,
                                     paymentMode,
                                     transactionId,
-                                    serviceDate
+                                    serviceDate: new Date(serviceDateString)
                                 }
                             }
                         }
@@ -198,6 +162,8 @@ export async function POST(req:NextRequest, res:NextResponse)
 }
     catch(e)
     {
+        console.log("err");
+        
         return NextResponse.json({error:e,status:500})
     }
  

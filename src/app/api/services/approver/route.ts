@@ -5,9 +5,10 @@ import prisma from '@/utils/prisma';
 // api/services/approver - GET all the services of the users
 export async function GET(req:NextRequest)
 {
+    // const url = new URL(req.url);
+    // const approverId = url.searchParams.get("approverId");
     const url = new URL(req.url);
     const approverId = url.searchParams.get("approverId");
-
     if (!approverId) {
         return NextResponse.json({error: "Approver ID is required", status: 400});
     }
@@ -55,16 +56,24 @@ export async function GET(req:NextRequest)
                         pincode:true,
                         avatarUrl:true,
                         salutation:true,
+                        phoneNumber:true,
+                        userid:true
 
                     }
                 }
+            },
+            orderBy:{
+                createdAt:"desc"
             }
         })
 
         if(!services)
         {
+            
             return NextResponse.json({error:"Services not found",status:404})
         }
+        console.log(services);
+        
         return NextResponse.json({services:services,status:200})
     }
     catch(e)
@@ -78,7 +87,8 @@ export async function GET(req:NextRequest)
 export async function POST(req:NextRequest)
 {
     const {serviceId,status,approverId} = await req.json();
-
+    console.log(serviceId,status,approverId);
+    
     if(!serviceId)
     {
         return NextResponse.json({error:"User ID is required",status:400})
@@ -108,10 +118,12 @@ export async function POST(req:NextRequest)
         {
             return NextResponse.json({error:"Approver not found",status:404})
         }
-        if(!approver.role.includes('pos'))
+        if(!approver.role.includes('approver'))
         {
             return NextResponse.json({error:"Approver not found",status:404})
         }
+        console.log("Updating Status");
+        
         await prisma.services.update({
             where:{
                 id:serviceId
@@ -122,7 +134,7 @@ export async function POST(req:NextRequest)
                 approvedBy:approverId,
             }
         })
-
+        console.log("Status Updated Successfully");
         return NextResponse.json({message:"Status Updated Successfully",status:200})
     }
     catch(e)

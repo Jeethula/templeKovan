@@ -10,11 +10,7 @@ datasource db {
 
 
 
-enum Status {
-  PENDING
-  APPROVED
-  REJECTED
-}
+
 
 model User {
   id          String      @id @default(cuid())  
@@ -51,7 +47,7 @@ model PersonalInfo {
   comments    String?  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  isApproved  Status @default(PENDING)
+  isApproved   String @default("PENDING")
   user        User      @relation(fields: [userid], references: [id])
   userid      String    @unique
   History     PersonalInfoHistory[]
@@ -68,12 +64,12 @@ model Services{
   image    String?
   paymentMode String?
   transactionId String?
-  serviceDate DateTime?
+  serviceDate DateTime? @db.Date
   posUserId String?
   approvedBy String?
   approvedAt DateTime?
   price       Int
-  status      Status @default(PENDING)
+  status      String @default("PENDING")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   personalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
@@ -83,8 +79,8 @@ model Services{
 
 model ServiceLimit{
   id         String   @id @default(cuid())
-  Thirumanjanam   Int @default(3)
-  Abhishekam      Int @default(3)
+  thirumanjanam   Int @default(3)
+  abhisekam      Int @default(3)
   
 }
 

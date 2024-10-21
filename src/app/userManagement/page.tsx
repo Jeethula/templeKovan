@@ -68,7 +68,9 @@ const PersonalInfoGrid: React.FC = () => {
 
   useEffect(() => {
     const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    if (sessionData.role !== 'Admin') {
+    console.log(sessionData);
+    
+    if (!sessionData.role.includes('Admin') ) {
       router.push('/unAuthorized');
     }
     fetchData();

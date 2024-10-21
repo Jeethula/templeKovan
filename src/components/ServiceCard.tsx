@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-
+import { useState } from "react";
+import Image from "next/image";
 interface ServiceCardProps {
   title: string;
   imageSrc: string;
@@ -29,8 +28,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, description,
         </div>
         <p className="p-4 text-center">{description}</p>
       </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          {/* Removed the Card wrapper here */}
           <div className="bg-white p-8 rounded-lg max-w-md w-full">
             <button
               className="float-right text-gray-600 hover:text-gray-800"
@@ -38,6 +39,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, description,
             >
               &times;
             </button>
+            {/* Render the modal component directly */}
             {modalComponent}
           </div>
         </div>
