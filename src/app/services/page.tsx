@@ -123,15 +123,14 @@ const ServicesPage: React.FC = () => {
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-4">Your History</h2>
         <select
-            className="block w-40 px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-            onChange={handleServiceChange}
+          className="block w-40  px-2 py-2 border border-gray-300 rounded-md text-gray-400"
+          onChange={handleServiceChange}
         >
-            <option value="All">All Services</option>
-            <option value="Donation">Donation</option>
-            <option value="Thirumanjanam">Thirumanjanam</option>
-            <option value="Abisekam">Abisekam</option>
+          <option value="All">All Services</option>
+          <option value="Donation">Donation</option>
+          <option value="Thirumanjanam">Thirumanjanam</option>
+          <option value="Abisekam">Abisekam</option>
         </select>
-
 
         <div className="ag-theme-alpine mt-4" style={{ height: 400, width: '100%' }}>
           <AgGridReact
