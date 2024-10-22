@@ -91,7 +91,7 @@ const PersonalInfoGrid: React.FC = () => {
 
   const statusCellRenderer = (params: { value: string }) => {
 
-    if (params.value === 'pending') {
+    if (params.value === 'PENDING') {
       return (
         <div className='flex justify-left items-center text-yellow-500 font-bold'>
           <Clock size={16} style={{ marginRight: '4px' }} />
@@ -99,7 +99,7 @@ const PersonalInfoGrid: React.FC = () => {
         </div>
       );
     }
-    if (params.value === 'rejected') {
+    if (params.value === 'REJECTED') {
       return (
         <div className='flex justify-left items-center text-red-500 font-bold'>
           <RxCross1 size={16} style={{ marginRight: '4px' }} />
@@ -107,7 +107,7 @@ const PersonalInfoGrid: React.FC = () => {
         </div>
       );
     }
-    if (params.value === 'approved') {
+    if (params.value === 'APPROVED') {
       return (
         <div className='flex justify-left items-center text-green-500 font-bold'>
           <IoCheckmarkDone size={20} style={{ marginRight: '4px' }} />

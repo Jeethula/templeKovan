@@ -103,7 +103,16 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
       });
 
       if (response.ok) {
-        toast.success('Form submitted successfully!');
+        toast.success('Form submitted successfully!')
+        setFormData({
+          description: '',
+          amount: '',
+          transactionId: '',
+          image: null,
+          paymentMode: ''
+        });
+        
+
       } else {
         const errorData = await response.json();
         toast.error(`Error: ${errorData.error || 'Something went wrong'}`);
