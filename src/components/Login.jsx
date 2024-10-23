@@ -6,6 +6,7 @@ import { auth, provider } from '../Firebase/Firebase';
 import OtpLogin from './OtpLogin'; // Import the OTP login component
 import Image from 'next/image';
 import { FcGoogle } from "react-icons/fc";
+import { FaPhoneAlt } from 'react-icons/fa';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="relative w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+      <div className="relative w-full max-w-fit p-6 bg-white rounded-lg shadow-lg">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://thumbs.dreamstime.com/b/indian-temple-3396438.jpg?w=768"
@@ -71,35 +72,23 @@ const Login = () => {
             className="rounded-lg opacity-50"
           />
         </div>
-        <div className="relative z-10 flex h-full p-4 flex-col items-center justify-center gap-y-3">
-          {/* Conditionally render Google Sign-In or OTP Login */}
-          {!isOtpLogin ? (
-            <>
-              <button
+        <div className="relative z-10 flex h-full w-full p-5 bg-white rounded-lg flex-col gap-y-3 ">
+            <button
                 onClick={handleGoogleSignIn}
                 disabled={loading}
                 className="w-full px-4 py-3 font-semibold text-white bg-blue-600 flex items-center gap-x-2 justify-center rounded hover:bg-blue-700 disabled:bg-blue-400"
               >
                 {loading ? 'Signing in...' : 'Sign in with Google'}  <FcGoogle size={20} />
               </button>
-              <button
-                onClick={() => setIsOtpLogin(true)}
-                className="w-full px-4 py-3 font-semibold text-white bg-blue-600 flex items-center gap-x-2 justify-center rounded hover:bg-blue-700 disabled:bg-blue-400"
-              >
-                Use OTP Login
-              </button>
-            </>
-          ) : (
-            <>
-              <OtpLogin /> {/* Render the OTP login form */}
-              <button
-                onClick={() => setIsOtpLogin(false)}
-                className="w-full px-4 py-3 font-semibold text-white bg-blue-600 flex items-center gap-x-2 justify-center rounded hover:bg-blue-700 disabled:bg-blue-400"
-              >
-                Back to Google Sign-In
-              </button>
-            </>
-          )}
+              <div className='flex flex-col items-center gap-y-2 text-gray-500 justify-center'>
+              <h1>or</h1>
+              <div className='w-full h-[1px] '></div>
+              <h1 className='flex items-center gap-x-2'>Sign in with Phone number <FaPhoneAlt size={16} /></h1>
+              </div>
+              <div className='mt-4 w-fit mx-auto'>
+                <OtpLogin /> 
+              </div>
+
         </div>
       </div>
     </div>

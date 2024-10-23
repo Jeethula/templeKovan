@@ -1,25 +1,18 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'firebase/auth';
-import { auth } from '../Firebase/Firebase';
+import { useAuth } from '../app/context/AuthContext';
 import { FaBars, FaSignOutAlt, FaTimes } from 'react-icons/fa';
 import TranslateComponent from './TranslateComponent';
-import { useAuth } from '../app/context/AuthContext'; 
 import { useState } from 'react';
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { role } = useAuth(); 
+  const { role, signOut } = useAuth(); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      sessionStorage.removeItem("user");
-    } catch (error) {
-      console.error('Error signing out', error);
-    }
+    await signOut();
   };
 
   const nav = [
@@ -92,4 +85,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

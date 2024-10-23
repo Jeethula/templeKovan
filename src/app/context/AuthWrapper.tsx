@@ -1,6 +1,8 @@
 "use client";
 import { useAuth } from "./AuthContext";
 import Login from "../../components/Login";
+import OtpLogin from "../../components/OtpLogin";
+import { useState } from "react";
 
 export default function AuthWrapper({
   children,
@@ -8,7 +10,7 @@ export default function AuthWrapper({
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
-  console.log(user?.email, "123");
+  const [loginMethod, setLoginMethod] = useState<"google" | "otp">("google");
 
   if (loading) {
     return (
@@ -41,7 +43,21 @@ export default function AuthWrapper({
   }
 
   if (!user) {
-    return <Login />;
+    return (
+      <div>
+        {loginMethod === "google" ? (
+          <>
+            <Login />
+            <button onClick={() => setLoginMethod("otp")}>Login with OTP</button>
+          </>
+        ) : (
+          <>
+            <OtpLogin />
+            <button onClick={() => setLoginMethod("google")}>Login with Google</button>
+          </>
+        )}
+      </div>
+    );
   }
 
   return <>{children}</>;

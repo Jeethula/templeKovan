@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -8,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import AuthWrapper from "../app/context/AuthWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,13 +45,15 @@ export default function RootLayout({
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
         ></Script>
         <Theme>
-          <AuthProvider>
-            <AuthWrapper>
+          <Suspense fallback={<div className="h-screen w-full flex items-center text-2xl font-semibold text-red-600 justify-center bg-violet-200">Loading...</div>}>
+            <AuthProvider>
+              <AuthWrapper>
               <Navbar />
               {children}
               <Toaster />
             </AuthWrapper>
-          </AuthProvider>
+            </AuthProvider>
+          </Suspense>
         </Theme>
       </body>
     </html>

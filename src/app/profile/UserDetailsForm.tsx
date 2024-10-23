@@ -185,25 +185,25 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     }
   };
 
-  const UserDetails = async () => {
-    const data = await fetch('/api/auth',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        email:user?.email
-    })
-    })
-    const res = await data.json();
-    console.log(res,"from page");
-    sessionStorage.setItem('user',JSON.stringify(res.user));
-  }
+  // const UserDetails = async () => {
+  //   const data = await fetch('/api/auth',{
+  //     method:'POST',
+  //     headers:{
+  //       'Content-Type':'application/json'
+  //     },
+  //     body:JSON.stringify({
+  //       email:user?.email
+  //   })
+  //   })
+  //   const res = await data.json();
+  //   console.log(res,"from page");
+  //   sessionStorage.setItem('user',JSON.stringify(res.user));
+  // }
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        await UserDetails();
+        // await UserDetails();
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
         if (user) {
           await getData();
@@ -273,10 +273,10 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           country: userDetails.country,
           comments: userDetails.comments || "",
           salutation: userDetails.salutation,
-          avatarUrl: user?.photoURL,
+          avatarUrl: user?.photoURL as string || "",
           uniqueId: parseInt(userDetails?.unique_id),
           userId: userID,
-          email: user?.email,
+          email: user?.email as string || "",
           phone: userDetails.phone_number,
         };
 
@@ -343,8 +343,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           pincode: userDetails.pincode,
           country: userDetails.country,
           comments: userDetails.comments || "",
-          email: user?.email,
-          avatarUrl: user?.photoURL,
+          email: user?.email as string || "",
+          avatarUrl: user?.photoURL as string || "",
           salutation: userDetails.salutation,
           userId: userID,
         };

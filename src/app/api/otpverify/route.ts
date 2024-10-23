@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // if(!user){
-    //   return NextResponse.json({ success: false, error: 'Phone number not found' }, { status: 404 });
-    // }
+    if(!user){
+      return NextResponse.json({ success: false, error: 'Phone number not found' }, { status: 404 });
+    }
 
     try {
       const response = await axios.get(url);
@@ -39,13 +39,14 @@ export async function POST(req: NextRequest) {
           phone: phoneNumber
         },
         select:{
-            personalInfo: true,
             email: true,
             phone: true,
             role:true,
             id:true
         }
       })
+
+      console.log(user,"-----")
     
     const storedOtp = otp; 
 
