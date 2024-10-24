@@ -85,19 +85,19 @@ export default function OtpLogin() {
 
     try {
       const response = await axios.post("/api/otpverify", {
-        phoneNumber: `91${phoneNumber}`,
+        phoneNumber: `${phoneNumber}`,
         action: "send",
       });
 
+
+
       if (response.data.success) {
         setStep("otp");
-        console.log("OTP sent successfully");
       } else {
         setError(response.data.error || "Failed to send OTP");
       }
     } catch (error) {
       setError("Failed to send OTP. Please try again.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export default function OtpLogin() {
 
     try {
       const response = await axios.post("/api/otpverify", {
-        phoneNumber: `91${phoneNumber}`,
+        phoneNumber: `${phoneNumber}`,
         otp,
         action: "verify",
       });
@@ -117,7 +117,7 @@ export default function OtpLogin() {
       if (response.data.success && response.data.verified) {
         console.log("OTP verified successfully");
         const userData: { phoneNumber: string } = {
-          phoneNumber: `91${phoneNumber}`,
+          phoneNumber: `${phoneNumber}`,
         };
         setRole(response.data.user.role);
         sessionStorage.setItem("user", JSON.stringify(response.data.user));

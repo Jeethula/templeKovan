@@ -7,10 +7,11 @@ const BASE_URL = 'https://2factor.in/API/V1';
 
 export async function POST(req: NextRequest) {
   const { phoneNumber, action, otp } = await req.json();
-
+  console.log(phoneNumber,action,otp);
+  
   if (action === 'send') {
     const otpValue = Math.floor(100000 + Math.random() * 900000).toString();
-    const url = `${BASE_URL}/${API_KEY}/SMS/${phoneNumber}/${otpValue}/OTP_DEFAULT`;
+    const url = `${BASE_URL}/${API_KEY}/SMS/91${phoneNumber}/${otpValue}/OTP_DEFAULT`;
 
     const user = await prisma.user.findUnique({
       where: {
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     })
 
     if(!user){
-      return NextResponse.json({ success: false, error: 'Phone number not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Phone number not found' }, { status: 200 });
     }
 
     try {
@@ -45,8 +46,6 @@ export async function POST(req: NextRequest) {
             id:true
         }
       })
-
-      console.log(user,"-----")
     
     const storedOtp = otp; 
 
