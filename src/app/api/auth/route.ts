@@ -1,39 +1,56 @@
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
-export async function POST(req:Request){
+export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const identifier = body?.identifier; // This can be either email or phone number
+        const identifier = body?.identifier;
+
+        if (!identifier) {
+            return NextResponse.json({ error: "Identifier is required", status: 400 });
+        }
 
         let user;
         if (identifier.includes('@')) {
-            // It's an email
             user = await prisma.user.findUnique({
                 where: { email: identifier }
             });
         } else {
-            // It's a phone number
             user = await prisma.user.findUnique({
                 where: { phone: identifier }
             });
         }
 
-        if(user){
-            return NextResponse.json({user, status:200, success:"user found"});
+        if (user) {
+            return NextResponse.json({ user, status: 200, success: "user found" });
         } else {
-            // Create a new user if not found
+
+            const generateUniqueIdentifier = async (type: 'email' | 'phone') => {
+                let uniqueIdentifier;
+                let userExists;
+                do {
+                    if (type === 'email') {
+                        uniqueIdentifier = `user${Math.floor(Math.random() * 10000)}@example.com`;
+                        userExists = await prisma.user.findUnique({ where: { email: uniqueIdentifier } });
+                    } else {
+                        uniqueIdentifier = `+123456${Math.floor(Math.random() * 10000)}`;
+                        userExists = await prisma.user.findUnique({ where: { phone: uniqueIdentifier } });
+                    }
+                } while (userExists);
+                return uniqueIdentifier;
+            };
+
             const newUser = await prisma.user.create({
                 data: {
-                    email: identifier.includes('@') ? identifier : undefined,
-                    phone: !identifier.includes('@') ? identifier : undefined,
-                    role: ['user'], 
+                    email: identifier.includes('@') ? identifier : await generateUniqueIdentifier('email'),
+                    phone: !identifier.includes('@') ? identifier : await generateUniqueIdentifier('phone'),
+                    role: ['user'],
                 }
             });
-            return NextResponse.json({user: newUser, status:200, success:"user created"});
+            return NextResponse.json({ user: newUser, status: 200, success: "user created" });
         }
-    } catch(e) {
-        console.log(e)
-        return NextResponse.json({error:"error in user", status:404});
+    } catch (e) {
+        console.log(e);
+        return NextResponse.json({ error: "error in user", status: 404 });
     }
 }

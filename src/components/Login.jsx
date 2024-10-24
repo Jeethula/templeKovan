@@ -24,7 +24,7 @@ const Login = () => {
 
   const handleUserAuth = async (user) => {
     try {
-      const response = await fetch('/api/auth/google-signin', {
+      const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

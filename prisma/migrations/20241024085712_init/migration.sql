@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -33,7 +30,7 @@ CREATE TABLE "PersonalInfo" (
     "comments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "isApproved" "Status" NOT NULL DEFAULT 'PENDING',
+    "isApproved" TEXT NOT NULL DEFAULT 'PENDING',
     "userid" TEXT NOT NULL,
 
     CONSTRAINT "PersonalInfo_pkey" PRIMARY KEY ("id")
@@ -47,17 +44,28 @@ CREATE TABLE "Services" (
     "image" TEXT,
     "paymentMode" TEXT,
     "transactionId" TEXT,
-    "serviceDate" TIMESTAMP(3),
+    "serviceDate" DATE,
     "posUserId" TEXT,
     "approvedBy" TEXT,
     "approvedAt" TIMESTAMP(3),
     "price" INTEGER NOT NULL,
-    "status" "Status" NOT NULL DEFAULT 'PENDING',
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "personalInfoId" TEXT NOT NULL,
 
     CONSTRAINT "Services_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ServiceLimit" (
+    "id" TEXT NOT NULL,
+    "thirumanjanam" INTEGER NOT NULL DEFAULT 3,
+    "abhisekam" INTEGER NOT NULL DEFAULT 3,
+    "thirumanjanamPrice" INTEGER NOT NULL DEFAULT 1000,
+    "abhisekamPrice" INTEGER NOT NULL DEFAULT 1000,
+
+    CONSTRAINT "ServiceLimit_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
