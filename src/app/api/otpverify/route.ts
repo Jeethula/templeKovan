@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import prisma from '@/utils/prisma';
 
-const API_KEY = "f73cf02b-9077-11ef-8b17-0200cd936042";
+const API_KEY =process.env.PHONE_API_KEY
 const BASE_URL = 'https://2factor.in/API/V1';
 
 export async function POST(req: NextRequest) {
