@@ -27,7 +27,7 @@ export async function POST(req:Request){
                 data: {
                     email: identifier.includes('@') ? identifier : undefined,
                     phone: !identifier.includes('@') ? identifier : undefined,
-                    role: ['user'], // Set default role
+                    role: ['user'], 
                 }
             });
             return NextResponse.json({user: newUser, status:200, success:"user created"});

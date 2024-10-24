@@ -12,6 +12,7 @@ type AuthContextType = {
   user: User | null | string | Userdata;
   loading: boolean;
   role: string[];
+  setRole: React.Dispatch<React.SetStateAction<string []>>;
   setUser: React.Dispatch<React.SetStateAction<User | null | string | Userdata>>;
   signOut: () => Promise<void>;
 };
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true, 
   role: [],
   setUser: () => {},
+  setRole: () => {},
   signOut: async () => {}, 
 });
 
@@ -86,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, role, setUser, signOut }}>
+    <AuthContext.Provider value={{ user, loading, role,setRole, setUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );

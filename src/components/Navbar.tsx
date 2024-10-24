@@ -9,6 +9,9 @@ import { useState } from 'react';
 const Navbar = () => {
   const pathname = usePathname();
   const { role, signOut } = useAuth(); 
+
+  console.log(role);
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleSignOut = async () => {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../app/context/AuthContext";
 import { User } from "firebase/auth";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const OtpInput = ({
   length,
@@ -23,10 +24,7 @@ const OtpInput = ({
     }
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const newValue = e.target.value;
     if (newValue.length <= 1) {
       const newOtp = value.split("");
@@ -38,17 +36,14 @@ const OtpInput = ({
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !value[index] && index > 0) {
       inputs.current[index - 1]?.focus();
     }
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex justify-center gap-2 mb-4">
       {[...Array(length)].map((_, index) => (
         <input
           key={index}
@@ -60,7 +55,7 @@ const OtpInput = ({
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          className="w-10 h-10 text-center border rounded-md"
+          className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       ))}
     </div>
@@ -74,10 +69,10 @@ export default function OtpLogin() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { setRole, setUser } = useAuth();
 
-  const handlePhoneChange = (value: string) => {
-    setPhoneNumber(value);
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumber(e.target.value);
   };
 
   const handleOtpChange = (value: string) => {
@@ -124,6 +119,7 @@ export default function OtpLogin() {
         const userData: { phoneNumber: string } = {
           phoneNumber: `91${phoneNumber}`,
         };
+        setRole(response.data.user.role);
         sessionStorage.setItem("user", JSON.stringify(response.data.user));
         setUser(userData as User | null | string);
         router.push("/");
@@ -139,30 +135,30 @@ export default function OtpLogin() {
   };
 
   return (
-    <div className="p-2 rounded-lg max-w-fit flex flex-col justify-center items-center mx-auto">
-
+    <div className="flex flex-col items-center">
       {step === "phone" ? (
-        <div className="space-y-4 ">
-          <OtpInput
-            length={10}
+        <div className="space-y-4 w-full">
+          <Input
             value={phoneNumber}
             onChange={handlePhoneChange}
+            placeholder="Enter Phone Number"
+            className="text-center border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
           />
           <Button
             onClick={handleSendOtp}
-            disabled={phoneNumber.length !== 10 || loading} 
-            className="w-fit bg-green-500 hover:bg-green-600 "
+            disabled={phoneNumber.length !== 10 || loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 transition duration-300 text-white"
           >
             {loading ? "Sending..." : "Send OTP"}
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <OtpInput length={6} value={otp} onChange={handleOtpChange} />
           <Button
             onClick={handleVerifyOtp}
             disabled={otp.length !== 6 || loading}
-            className="w-full"
+            className="w-full bg-green-500 hover:bg-green-600 transition duration-300 text-white"
           >
             {loading ? "Verifying..." : "Verify OTP"}
           </Button>
