@@ -107,7 +107,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
   const [isEditable, setIsEditable] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const router = useRouter();
   const validateUniqueId = (uniqueId: string): boolean => {
     const regex = /^\d{4,5}$/;
