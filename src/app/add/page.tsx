@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { UserDetails, initialUserDetails } from "../../utils/type";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import { MdGroupAdd } from "react-icons/md";
 import toast from "react-hot-toast";
 import {
@@ -64,7 +64,7 @@ const FloatingSelect = React.forwardRef<
   return (
     <div className="relative">
       <Select value={value?.toString()} onValueChange={onChange} defaultValue={defaultValue?.toString()}>
-        <SelectTrigger className="w-full peer text-black">
+        <SelectTrigger className="w-full text-black peer">
           <SelectValue placeholder=" " />
         </SelectTrigger>
         <SelectContent>
@@ -98,7 +98,7 @@ const UserDetailsForm: React.FC = () => {
   const [errors, setErrors] = useState<
     Partial<UserDetails & { email: string }>
   >({});
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
   console.log(userId);
@@ -304,13 +304,13 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center  items-center max-w-screen min-h-screen bg-[#fdf0f4]">
-      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
-        <h1 className="text-2xl font-bold mb-8 text-red-500 flex gap-x-3 items-center">
+    <div className="flex justify-center items-center bg-[#fdf0f4] max-w-screen min-h-screen">
+      <div className="bg-white shadow-xl mt-5 mb-10 px-5 md:px-9 p-4 rounded-xl w-[90%] md:w-[75%] h-fit">
+        <h1 className="flex items-center gap-x-3 mb-8 font-bold text-2xl text-red-500">
           <MdGroupAdd />
           Add User{" "}
         </h1>
-        <p className="text-gray-500 text-wrap mb-5">
+        <p className="mb-5 text-gray-500 text-wrap">
           Fill in the details of the new user in the form below, who will be
           your referral.
         </p>
@@ -341,11 +341,11 @@ const UserDetailsForm: React.FC = () => {
           {renderField("first_name", "First Name")}
           {renderField("last_name", "Last Name")}
           {renderField("unique_id", "Unique ID")}
-         <div className="flex items-center gap-x-2 ">
+         <div className="flex items-center gap-x-2">
           <button
             type="button"
             onClick={handleUniqueIdCheck}
-            className="ml-2 px-3 py-1 mb-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700"
+            className="bg-blue-500 hover:bg-blue-700 mb-3 ml-2 px-3 py-1 rounded-md font-semibold text-white"
           >
             Check
           </button> <h1 className="font-medium">
@@ -374,7 +374,7 @@ const UserDetailsForm: React.FC = () => {
               {loading ? (
                 <div className="flex items-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

@@ -27,8 +27,8 @@ export async function PUT(req:NextRequest)
             data:{
                 thirumanjanam:parseInt(thirumanjanam),
                 abhisekam:parseInt(abhisekam),
-                thirumanjanamPrice:parseInt(thirumanjanamPrice),
-                abhisekamPrice:parseInt(abhisekamPrice)
+                // thirumanjanamPrice:parseInt(thirumanjanamPrice),
+                // abhisekamPrice:parseInt(abhisekamPrice)
             }
         });
         console.log("Service limit updated successfully");
