@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { UserDetails } from "../../utils/type";
 import { initialUserDetails } from "../../utils/type";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import { FaUserEdit } from "react-icons/fa";
 import { CgDetailsMore } from "react-icons/cg";
 import toast from "react-hot-toast";
