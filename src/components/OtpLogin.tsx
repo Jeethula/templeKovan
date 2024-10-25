@@ -55,7 +55,7 @@ const OtpInput = ({
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border-gray-300 border rounded-md focus:ring-2 focus:ring-blue-500 w-12 h-12 text-center focus:outline-none"
         />
       ))}
     </div>
@@ -97,6 +97,7 @@ export default function OtpLogin() {
         setError(response.data.error || "Failed to send OTP");
       }
     } catch (error) {
+      console.log(error);
       setError("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
@@ -142,12 +143,12 @@ export default function OtpLogin() {
             value={phoneNumber}
             onChange={handlePhoneChange}
             placeholder="Enter Phone Number"
-            className="text-center border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-center"
           />
           <Button
             onClick={handleSendOtp}
             disabled={phoneNumber.length !== 10 || loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 transition duration-300 text-white"
+            className="bg-blue-500 hover:bg-blue-600 w-full text-white transition duration-300"
           >
             {loading ? "Sending..." : "Send OTP"}
           </Button>
@@ -158,13 +159,13 @@ export default function OtpLogin() {
           <Button
             onClick={handleVerifyOtp}
             disabled={otp.length !== 6 || loading}
-            className="w-full bg-green-500 hover:bg-green-600 transition duration-300 text-white"
+            className="bg-green-500 hover:bg-green-600 w-full text-white transition duration-300"
           >
             {loading ? "Verifying..." : "Verify OTP"}
           </Button>
         </div>
       )}
-      {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+      {error && <p className="mt-4 text-center text-red-500">{error}</p>}
     </div>
   );
 }
