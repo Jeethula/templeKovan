@@ -46,15 +46,10 @@ export default function AuthWrapper({
     return (
       <div>
         {loginMethod === "google" ? (
-          <>
             <Login />
-            <button onClick={() => setLoginMethod("otp")}>Login with OTP</button>
-          </>
+
         ) : (
-          <>
-            <OtpLogin />
-            <button onClick={() => setLoginMethod("google")}>Login with Google</button>
-          </>
+          <OtpLogin />
         )}
       </div>
     );
