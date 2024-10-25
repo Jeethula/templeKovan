@@ -66,7 +66,7 @@ const FloatingSelect = React.forwardRef<
   return (
     <div className="relative">
       <Select value={value?.toString()} onValueChange={onValueChange} defaultValue={defaultValue?.toString()}>
-        <SelectTrigger className="w-full peer text-black">
+        <SelectTrigger className="w-full text-black peer">
           <SelectValue placeholder=" " />
         </SelectTrigger>
         <SelectContent>
@@ -273,10 +273,10 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           country: userDetails.country,
           comments: userDetails.comments || "",
           salutation: userDetails.salutation,
-          avatarUrl: user?.photoURL as string || "",
+          avatarUrl: "",
           uniqueId: parseInt(userDetails?.unique_id),
           userId: userID,
-          email: user?.email as string || "",
+          email:  "",
           phone: userDetails.phone_number,
         };
 
@@ -343,8 +343,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           pincode: userDetails.pincode,
           country: userDetails.country,
           comments: userDetails.comments || "",
-          email: user?.email as string || "",
-          avatarUrl: user?.photoURL as string || "",
+          email: "",
+          avatarUrl:  "",
           salutation: userDetails.salutation,
           userId: userID,
         };
@@ -438,10 +438,10 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
   );
 
   return (
-    <div className="flex justify-center items-center max-w-screen min-h-screen bg-[#fdf0f4]">
-      <div className="bg-white shadow-xl rounded-xl h-fit mb-10 md:w-[75%] w-[90%] p-4 md:px-9 px-5 mt-5">
+    <div className="flex justify-center items-center bg-[#fdf0f4] max-w-screen min-h-screen">
+      <div className="bg-white shadow-xl mt-5 mb-10 px-5 md:px-9 p-4 rounded-xl w-[90%] md:w-[75%] h-fit">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-red-600 flex gap-x-2 items-center">
+          <h1 className="flex items-center gap-x-2 font-bold text-2xl text-red-600">
             {" "}
             Your Details <CgDetailsMore />{" "}
           </h1>
@@ -451,7 +451,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
             <button
               type="button"
               onClick={() => setIsEditable(!isEditable)}
-              className="font-medium p-2 w-fit h-fit px-4 bg-red-500 hover:bg-red-700 text-white rounded-md flex items-center gap-x-3"
+              className="flex items-center gap-x-3 bg-red-500 hover:bg-red-700 px-4 p-2 rounded-md w-fit h-fit font-medium text-white"
             >
               {!isEditable ? " Edit" : "Cancel"} <FaUserEdit />
             </button>
@@ -469,7 +469,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           {renderField("first_name", "First Name")}
           {renderField("last_name", "Last Name")}
           {renderField("unique_id", "Unique ID( 5 - 6 unique digits)")}
-          <div className="flex items-center gap-x-2 ">
+          <div className="flex items-center gap-x-2">
             <button
               type="button"
               onClick={handleUniqueIdCheck}
@@ -516,7 +516,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
                 {loading ? (
                   <div className="flex items-center">
                     <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -553,7 +553,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
                 {loading ? (
                   <div className="flex items-center">
                     <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
