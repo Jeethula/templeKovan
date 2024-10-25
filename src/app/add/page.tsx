@@ -201,7 +201,7 @@ const UserDetailsForm: React.FC = () => {
       pincode: userDetails.pincode,
       country: userDetails.country,
       comments: userDetails.comments,
-      avatarUrl: user?.photoURL || "",
+      avatarUrl: user && typeof user === 'object' && 'photoURL' in user ? user.photoURL || "" : "",
       salutation: userDetails.salutation,
       uniqueId: parseInt(userDetails.unique_id)
     };

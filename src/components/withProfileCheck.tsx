@@ -1,4 +1,3 @@
-// components/withProfileCheck.tsx
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../app/context/AuthContext';
@@ -8,21 +7,30 @@ const withProfileCheck = (WrappedComponent: React.ComponentType) => {
   const ProfileCheck = (props: React.ComponentProps<typeof WrappedComponent>) => {
     const router = useRouter();
     const { user } = useAuth();
-    const userId = JSON.parse(sessionStorage.getItem('user') || '{}').id;
 
     useEffect(() => {
       const checkProfileCompletion = async () => {
-        if (!user?.email) {
+        if (typeof user !== 'string' && user?.email) {
+          try {
+            const userId = JSON.parse(sessionStorage.getItem('user') || '{}').id;
+            const response = await fetch(`/api/userDetails?userId=${userId}`);
+            
+            if (!response.ok) {
+              throw new Error('Failed to fetch user details');
+            }
+
+            const data = await response.json();
+
+            if (!data.userDetails) {
+              toast.error('Please complete your profile to continue');
+              router.push('/profile?redirect=blog');
+            }
+          } catch (error) {
+            console.error('Error fetching profile details:', error);
+            toast.error('An error occurred. Please try again.');
+          }
+        } else {
           router.push('/login');
-          return;
-        }
-
-        const response = await fetch(`/api/userDetails?userId=${userId}`);
-        const data = await response.json();
-
-        if (!data.userDetails) {
-            toast.error('Please complete your profile to continue');
-          router.push('/profile?redirect=blog');
         }
       };
 

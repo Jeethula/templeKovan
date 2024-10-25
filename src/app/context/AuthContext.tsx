@@ -3,16 +3,17 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User } from 'firebase/auth';
 import { auth } from '../../Firebase/Firebase';
 
-
 type Userdata = {
   phoneNumber: string;
+  email?: string;
+  photoURL?: string;
 };
 
 type AuthContextType = {
   user: User | null | string | Userdata;
   loading: boolean;
   role: string[];
-  setRole: React.Dispatch<React.SetStateAction<string []>>;
+  setRole: React.Dispatch<React.SetStateAction<string[]>>;
   setUser: React.Dispatch<React.SetStateAction<User | null | string | Userdata>>;
   signOut: () => Promise<void>;
 };
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         const sessionUser = sessionStorage.getItem('user');
         if (sessionUser) {
-          const userData = JSON.parse(sessionUser);
+          const userData = JSON.parse(sessionUser) as Userdata;
           setUser(userData);
           fetchUserRole(userData.phoneNumber);
         } else {
@@ -87,8 +88,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // const getUserEmail = () => {
+  //   if (typeof user !== "string" && user && "email" in user) {
+  //     return user.email;
+  //   }
+  //   return null;
+  // };
+
   return (
-    <AuthContext.Provider value={{ user, loading, role,setRole, setUser, signOut }}>
+    <AuthContext.Provider value={{ user, loading, role, setRole, setUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );
