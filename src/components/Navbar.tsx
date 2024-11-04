@@ -9,8 +9,7 @@ import { useState } from 'react';
 const Navbar = () => {
   const pathname = usePathname();
   const { role, signOut } = useAuth(); 
-
-  console.log(role);
+  
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -18,6 +17,8 @@ const Navbar = () => {
     await signOut();
   };
 
+
+  
   const nav = [
     { name: 'Home', path: '/' },
     { name: 'Profile', path: '/profile' },

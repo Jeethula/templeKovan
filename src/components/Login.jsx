@@ -10,7 +10,7 @@ import { Button } from './ui/button';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState("initial"); // Removed TypeScript syntax
+  const [step, setStep] = useState("initial");
   const router = useRouter();
 
   useEffect(() => {
