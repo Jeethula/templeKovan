@@ -45,7 +45,7 @@ export default function RootLayout({
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
         ></Script>
         <Theme>
-          <Suspense fallback={<div className="h-screen w-full flex items-center text-2xl font-semibold text-red-600 justify-center bg-violet-200">Loading...</div>}>
+          <Suspense fallback={<div className="flex justify-center items-center bg-violet-200 w-full h-screen font-semibold text-2xl text-red-600">Loading...</div>}>
             <AuthProvider>
               <AuthWrapper>
               <Navbar />
