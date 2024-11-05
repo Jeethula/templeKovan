@@ -34,17 +34,17 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="flex flex-wrap items-center justify-between text-white bg-[#663399] sticky top-0 z-10 h-fit lg:p-3 max-w-screen xl:px-56 md:px-24 sm:px-8 px-3 py-1">
+    <nav className="top-0 z-10 sticky flex flex-wrap justify-between items-center bg-[#663399] px-3 sm:px-8 md:px-24 xl:px-56 py-1 lg:p-3 max-w-screen h-fit text-white">
       <div className="flex items-center space-x-4">
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="text-xl transition-colors duration-100 hover:text-orange-400 font-semibold"
+            className="font-semibold text-xl hover:text-orange-400 transition-colors duration-100"
           >
             {isDropdownOpen ? <FaTimes /> : <FaBars />}
           </button>
           {isDropdownOpen && (
-            <div className="absolute left-0 mt-3 w-48 bg-white rounded-md shadow-lg z-12">
+            <div className="left-0 z-12 absolute bg-white shadow-lg mt-3 rounded-md w-48">
               {dropdownItems.map((item, index) => (
                 <Link
                   key={index}
@@ -79,7 +79,7 @@ const Navbar = () => {
       </div>
       <button
         onClick={handleSignOut}
-        className="px-3 py-1 flex items-center gap-x-2 text-white bg-red-500 rounded hover:bg-red-600"
+        className="flex items-center gap-x-2 bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white"
       >
         Sign Out <FaSignOutAlt />
       </button>
