@@ -13,10 +13,22 @@ const DateCheckModal = ({ onNext, service, setDate }: { onNext: () => void; serv
     setServiceDate(e.target.value);
     setError('');
   };
+   
+    
 
-  const checkAvailability = async () => {
+  const checkAvailability = async (): Promise<void> => {
     setIsLoading(true); 
     try {
+      const selectedDate = new Date(serviceDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); 
+  
+      if (selectedDate < today) {
+        setError('The selected date is in the past');
+        toast.error('Selected date is not valid');
+        setIsLoading(false);
+        return;
+      }
       const response = await fetch('/api/services/datecheck', {
         method: 'POST',
         headers: {
