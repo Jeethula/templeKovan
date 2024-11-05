@@ -107,6 +107,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
   const [isEditable, setIsEditable] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
   // const { user } = useAuth();
   const router = useRouter();
   const validateUniqueId = (uniqueId: string): boolean => {
@@ -206,6 +207,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         // await UserDetails();
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
         if (user) {
+          setEmail(user.email);
           await getData();
         } else {
           router.push("/");
@@ -343,7 +345,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           pincode: userDetails.pincode,
           country: userDetails.country,
           comments: userDetails.comments || "",
-          email: "",
+          email: email,
           avatarUrl:  "",
           salutation: userDetails.salutation,
           userId: userID,

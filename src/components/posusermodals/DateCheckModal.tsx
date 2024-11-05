@@ -22,7 +22,16 @@ const DateCheckModal = ({ onNext, service, setDate }: { onNext: () => void; serv
 
     setIsLoading(true); // Set loading to true when the request starts
     try {
-      console.log(serviceDate, service);
+      const selectedDate = new Date(serviceDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+ 
+      if (selectedDate < today) {
+        setError('The selected date is in the past');
+        toast.error('Selected date is not valid');
+        setIsLoading(false);
+        return;
+      }
       
       const response = await fetch('/api/services/datecheck', {
         method: 'POST',

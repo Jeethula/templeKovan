@@ -193,6 +193,7 @@ const PersonalInfoGrid: React.FC = () => {
       filterParams:{
         values:['approved','rejected','pending']
       },
+      hide:true,
       floatingFilter: true,
       cellRenderer: statusCellRenderer,
       flex: 1,

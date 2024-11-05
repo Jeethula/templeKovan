@@ -33,7 +33,7 @@ export async function POST(req: Request) {
                         uniqueIdentifier = `user${Math.floor(Math.random() * 10000)}@example.com`;
                         userExists = await prisma.user.findUnique({ where: { email: uniqueIdentifier } });
                     } else {
-                        uniqueIdentifier = `+123456${Math.floor(Math.random() * 10000)}`;
+                        uniqueIdentifier = `123456${Math.floor(Math.random() * 10000)}`;
                         userExists = await prisma.user.findUnique({ where: { phone: uniqueIdentifier } });
                     }
                 } while (userExists);

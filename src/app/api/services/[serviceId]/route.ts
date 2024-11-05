@@ -20,6 +20,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params })
                 price:true,
                 serviceDate:true,
                 image:true,
+                approvedBy:true,
                 transactionId:true,
                 paymentMode:true,
                 status:true,

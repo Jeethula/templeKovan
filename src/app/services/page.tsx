@@ -15,6 +15,7 @@ import { AiOutlinePrinter } from 'react-icons/ai';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ColDef } from 'ag-grid-community';
 import  UseApprovedByData  from '../../utils/UseApprovedByData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const styles = StyleSheet.create({
@@ -240,12 +241,12 @@ const ServicesPage: React.FC = () => {
     await fetchHistory();
   };
 
-  const handleServiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    if (event.target.value === "All") {
+  const handleServiceChange = (value: string) => {
+    if (value === "All") {
       setFilteredHistory(history);
       return;
     }
-    const selectedService = (event.target.value).toLowerCase();
+    const selectedService = value.toLowerCase();
     const filteredServices = history.filter(
       (service: History) => service.nameOfTheService.toLowerCase() === selectedService
     );
@@ -325,7 +326,7 @@ const ServicesPage: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-[#fdf0f4]">
+    <div className="px-4 py-8 min-w-screen w-full min-h-screen   bg-[#fdf0f4]">
       <h1 className="text-3xl font-bold mb-8 text-center">Our Services</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <ServiceCard
@@ -350,15 +351,17 @@ const ServicesPage: React.FC = () => {
 
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-4">Your History</h2>
-        <select
-          className="block w-40  px-2 py-2 border border-gray-300 rounded-md text-gray-400"
-          onChange={handleServiceChange}
-        >
-          <option value="All">All Services</option>
-          <option value="Donation">Donation</option>
-          <option value="Thirumanjanam">Thirumanjanam</option>
-          <option value="Abisekam">Abisekam</option>
-        </select>
+        <Select onValueChange={handleServiceChange} >
+          <SelectTrigger className='w-[200px]' >
+            <SelectValue placeholder="Select a service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All Services</SelectItem>
+            <SelectItem value="Donation">Donation</SelectItem>
+            <SelectItem value="Thirumanjanam">Thirumanjanam</SelectItem>
+            <SelectItem value="Abisekam">Abisekam</SelectItem>
+          </SelectContent>
+          </Select>
 
         <div className="ag-theme-alpine mt-4" style={{ height: 400, width: '100%' }}>
           <AgGridReact

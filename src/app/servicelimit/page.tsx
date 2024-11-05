@@ -77,7 +77,7 @@ const ServiceLimitsPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="min-h-screen min-w-screen w-full bg-[#fdf0f4] p-6">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Service Limits</h1>
 
       {isEditing && editedServiceLimit ? (
