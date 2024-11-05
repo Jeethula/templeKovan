@@ -26,6 +26,8 @@ export async function GET(req:NextRequest)
                 }
             }
         })
+        
+
         return NextResponse.json({services:user,status:200})
     }
     catch(e)
@@ -34,6 +36,7 @@ export async function GET(req:NextRequest)
     }
 
 }
+
 
 
 // api/services/user - POST create a service by the user

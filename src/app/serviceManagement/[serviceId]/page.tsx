@@ -160,7 +160,7 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
             </div>
           </CardContent>
           <CardFooter className="p-6 bg-gray-50 flex justify-end space-x-4">
-            <Button onClick={handleAccept} className="bg-green-500 hover:bg-green-600 text-white">Accept</Button>
+            <Button onClick={handleAccept} className="bg-green-500 hover:bg-green-600 text-white">Approve</Button>
             <Button onClick={handleReject} className="bg-red-500 hover:bg-red-600 text-white">Reject</Button>
           </CardFooter>
         </Card>

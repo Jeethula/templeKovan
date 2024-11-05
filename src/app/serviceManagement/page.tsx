@@ -22,6 +22,7 @@ type Service = {
     nameOfTheService: string;
     amount: number;
     serviceDate: string;
+    approvedBy: string;
     status: string;
 }
 

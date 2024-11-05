@@ -11,7 +11,196 @@ import '../userManagement/style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { Clock } from 'lucide-react';
+import { AiOutlinePrinter } from 'react-icons/ai';
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ColDef } from 'ag-grid-community';
+import  UseApprovedByData  from '../../utils/UseApprovedByData';
+
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: '#FFF9F0',
+  },
+  headerSection: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  mainTitle: {
+    fontSize: 28,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#8B4513',
+    fontFamily: 'Helvetica',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  decorativeLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: '#8B4513',
+    marginBottom: 20,
+    opacity: 0.3,
+  },
+  contentContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    padding: 25,
+    border: '1px solid #D4AF37',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottom: '1px solid #F0E6D6',
+  },
+  label: {
+    width: '40%',
+    fontSize: 11,
+    color: '#8B4513',
+    fontFamily: 'Helvetica-Bold',
+  },
+  value: {
+    width: '60%',
+    fontSize: 11,
+    color: '#333',
+    fontFamily: 'Helvetica',
+  },
+  footer: {
+    marginTop: 30,
+    padding: 20,
+    borderTop: '2px solid #D4AF37',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 10,
+    color: '#8B4513',
+    textAlign: 'center',
+    fontFamily: 'Helvetica',
+    marginBottom: 5,
+  },
+  blessingText: {
+    fontSize: 14,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginTop: 15,
+  },
+  receiptTitle: {
+    fontSize: 16,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  ornament: {
+    fontSize: 24,
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+});
+
+const MyDocument: React.FC<{ 
+  rowData: History; 
+  userData: { 
+    id: string; 
+    email: string; 
+    phone: string 
+  }; 
+  approvedByData:{
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }
+}> = ({ rowData, userData, approvedByData }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.headerSection}>
+        <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
+        <Text style={styles.subtitle}></Text>
+        <View style={styles.decorativeLine} />
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.ornament}>☸</Text>
+        <Text style={styles.receiptTitle}>Seva Receipt</Text>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Devotee ID</Text>
+          <Text style={styles.value}>{userData.id}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact Details</Text>
+          <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Name</Text>
+          <Text style={styles.value}>{rowData.nameOfTheService}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Description</Text>
+          <Text style={styles.value}>{rowData.description}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Date</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Offering Amount</Text>
+          <Text style={styles.value}>₹{rowData.price}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Payment Details</Text>
+          <Text style={styles.value}>
+            {rowData.paymentMode} | Trans. ID: {rowData.transactionId}
+          </Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approved By</Text>
+          <Text style={styles.value}>{approvedByData?.firstName} {approvedByData?.lastName}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approver Contact</Text>
+          <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+        </View>
+
+        <View style={[styles.row, { borderBottom: 'none' }]}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{rowData.status}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          This is a computer generated receipt. No signature required.
+        </Text>
+        <Text style={styles.footerText}>
+          For any queries, please contact the temple office.
+        </Text>
+        {/* <Text style={styles.blessingText}>
+          
+        </Text> */}
+      </View>
+    </Page>
+  </Document>
+);
+
+
 
 
 
@@ -22,6 +211,7 @@ type History = {
   transactionId: string;
   serviceDate: Date;
   price: string;
+  approvedBy: string;
   status: string;
 };
 
@@ -30,19 +220,25 @@ type History = {
 const ServicesPage: React.FC = () => {
   const [history, setHistory] = useState<History[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<History[]>([]);
+  const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
-      const userId: string = sessionData.id;
-      const response = await fetch(`/api/services/user?userId=${userId}`);
-      const data = await response.json();
-      setHistory(data.services.personalInfo.Services);
-      setFilteredHistory(data.services.personalInfo.Services);
-    };
 
     fetchHistory();
   }, []);
+
+  const fetchHistory = async () => {
+    const userId: string = sessionData.id;
+    const response = await fetch(`/api/services/user?userId=${userId}`);
+    const data = await response.json();
+    setHistory(data.services.personalInfo.Services);
+    setFilteredHistory(data.services.personalInfo.Services);
+  };
+
+
+  const handleSubmitSuccess = async () => {
+    await fetchHistory();
+  };
 
   const handleServiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value === "All") {
@@ -55,6 +251,35 @@ const ServicesPage: React.FC = () => {
     );
     setFilteredHistory(filteredServices);
   };
+
+  // const printCellRenderer = (params: { data: History }) => (
+  //   <PDFDownloadLink
+  //     document={<MyDocument rowData={params.data} userData={sessionData} />}
+  //     fileName="Service_Details.pdf"
+  //   >
+  //     <button className="text-blue-500 hover:text-blue-700">
+  //       <AiOutlinePrinter size={18} />
+  //     </button>
+  //   </PDFDownloadLink>
+  // );
+
+  const printCellRenderer = (params: { data: History }) => {
+ 
+    const approvedByData = UseApprovedByData(params.data.approvedBy);
+
+    return (
+      <PDFDownloadLink
+        document={<MyDocument rowData={params.data} userData={sessionData} approvedByData={approvedByData || { firstName: 'Not Approved Yet', lastName: '', phoneNumber: '' }} />}
+        fileName="Service_Details.pdf"
+      >
+        <button className="text-blue-500 hover:text-blue-700">
+          <AiOutlinePrinter size={18} />
+        </button>
+      </PDFDownloadLink>
+    );
+  };
+  
+  
 
 
 
@@ -94,6 +319,9 @@ const ServicesPage: React.FC = () => {
     { headerName: 'Service Date', field: 'serviceDate', sortable: true, filter: true, valueFormatter: (params: { value: Date }) => new Date(params.value).toLocaleDateString() },
     { headerName: 'Price', field: 'price', sortable: true, filter: true },
     { headerName: 'Status', field: 'status', sortable: true, filter: true, cellRenderer: statusCellRenderer },
+    { headerName: 'Approved By', field: 'approvedBy', sortable: true, filter: true, hide: true },
+    { headerName: 'Print', cellRenderer: printCellRenderer, width: 80 }
+    
   ];
 
   return (
@@ -104,19 +332,19 @@ const ServicesPage: React.FC = () => {
           title="Donation"
           imageSrc='https://www.mygoldguide.in/sites/default/files/styles/single_image_story_header_image/public/The%20Sacred%20Daan%20%28donation%29%20of%20Gold.jpg?itok=6Nc--uvy'
           description="Support our temple with your generous donations."
-          modalComponent={<DonationModal />}
+          modalComponent={<DonationModal onSubmitSuccess={handleSubmitSuccess} />}
         />
         <ServiceCard
           title="Thirumanjanam"
           imageSrc="https://i.ytimg.com/vi/OzEJnTs_bqU/maxresdefault.jpg"
           description="Participate in the sacred bathing ritual of the deity."
-          modalComponent={<ThirumanjanamModal />}
+          modalComponent={<ThirumanjanamModal onSubmitSuccess={handleSubmitSuccess} />}
         />
         <ServiceCard
           title="Abisekam"
           imageSrc="https://chinnajeeyar.org/wp-content/uploads/2016/11/15032201_10154073675297205_4908543132323661187_n.jpg"
           description="Take part in the divine anointment ceremony."
-          modalComponent={<AbisekamModal />}
+          modalComponent={<AbisekamModal onSubmitSuccess={handleSubmitSuccess} />}
         />
       </div>
 

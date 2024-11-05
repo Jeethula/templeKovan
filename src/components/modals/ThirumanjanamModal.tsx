@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DateCheckModal from './DateCheckModal';
 import DetailsModal from './DetailsModal';
 
-const ThirumanjanamModal = () => {
+const ThirumanjanamModal = ({ onSubmitSuccess }: { onSubmitSuccess: () => void }) => {
   const [step, setStep] = useState(1); 
   const service="Thirumanjanam";
   const nextStep = () => setStep(2);
@@ -11,7 +11,7 @@ const ThirumanjanamModal = () => {
   return (
     <div>
       {step === 1 && <DateCheckModal onNext={nextStep} service={service} setDate={setDate} />}
-      {step === 2 && <DetailsModal service={service} date={date} />}
+      {step === 2 && <DetailsModal service={service} date={date} onSubmitSuccess={onSubmitSuccess} />}
     </div>
   );
 };

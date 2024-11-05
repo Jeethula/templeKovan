@@ -14,7 +14,7 @@ interface FormData {
   paymentMode: string;
 }
 
-const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
+const DetailsModal = ({ service, date, onSubmitSuccess }: { service: string; date: Date; onSubmitSuccess: () => void }) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
 
@@ -111,6 +111,7 @@ const DetailsModal = ({ service, date }: { service: string; date: Date }) => {
           image: null,
           paymentMode: ''
         });
+        onSubmitSuccess();
         
 
       } else {
