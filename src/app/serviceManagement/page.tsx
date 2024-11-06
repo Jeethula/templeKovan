@@ -14,7 +14,7 @@ import CustomFilter from  './CustomFilter'
 import CustomServiceFilter from './CustomServiceFilter'
 import '../userManagement/style.css';
 import UseApprovedByData from '../../utils/UseApprovedByData'
-import { AiOutlinePrinter } from 'react-icons/ai';
+import { FaDownload } from "react-icons/fa6";
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 
@@ -265,16 +265,19 @@ const ServiceGrid = () => {
             fileName="Service_Details.pdf"
           >
             <button className="text-blue-500 hover:text-blue-700">
-              <AiOutlinePrinter size={18} />
+            <FaDownload size={18} />
             </button>
           </PDFDownloadLink>
         );
       };
 
     const columnDefs: ColDef[] = [
-        { headerName: 'Service Name', field: 'nameOfTheService',
+        { 
+          headerName: 'Service Name', 
+          field: 'nameOfTheService',
             filter: CustomServiceFilter,
             floatingFilter: true, 
+            maxWidth:150,
             filterParams: {
                 values: ['abhisekam','donation','thirumanjanam']
             },
@@ -284,6 +287,7 @@ const ServiceGrid = () => {
             headerName: 'Service Date',
             field: 'serviceDate',
             floatingFilter: true,
+            maxWidth: 150,
             cellStyle: { textAlign: 'left', fontWeight: 'normal' },
             valueFormatter: (params) => {
                 const date = new Date(params.value);
@@ -293,7 +297,13 @@ const ServiceGrid = () => {
                 return `${day}/${month}/${year}`;
               }
          },
-         { headerName: 'Amount', field: 'amount',floatingFilter: true,cellStyle: { textAlign: 'left', fontWeight: 'normal' } },
+         { 
+          headerName: 'Amount', 
+          field: 'amount',
+          maxWidth: 150,
+          floatingFilter: true,
+          cellStyle: { textAlign: 'left', fontWeight: 'normal' }
+         },
         { 
             headerName: 'Name', 
             field: 'name', 
@@ -305,6 +315,7 @@ const ServiceGrid = () => {
             headerName: 'Phone No', 
             field: 'phoneNo', 
             floatingFilter: true,
+            maxWidth:150,
             valueGetter: (params: ValueGetterParams) => params.data.phoneNo,
             cellStyle: { textAlign: 'left', fontWeight: 'normal' } 
         },
@@ -313,6 +324,7 @@ const ServiceGrid = () => {
             field: 'status', 
             cellRenderer: statusCellRenderer,  
             filter: CustomFilter,
+            maxWidth: 170,
             floatingFilter: true, 
             filterParams: {
                 values: ['APPROVED', 'REJECTED', 'PENDING']  
@@ -345,9 +357,10 @@ const ServiceGrid = () => {
             hide:true
         },
         {
-            headerName: 'Print',
+            headerName: 'Download Receipt',
             field: 'print',
-            flex:0,
+            maxWidth: 160,
+            filter: false,
             cellRenderer: printCellRenderer,
             cellStyle: { textAlign: 'left', fontWeight: 'normal' }
         }
@@ -391,13 +404,12 @@ const ServiceGrid = () => {
 
     const defaultColDef = useMemo(() => ({
         flex:2,
-        minWidth:200,
         sortable: true,
         filter: true,
         resizable: true,
       }), []);
     return (
-        <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen'>
+        <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen px-4'>
         <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
           <div className='flex w-full items-center justify-between gap-y-5 px-3'>
             <h1 className='text-2xl font-bold text-red-500 flex items-center gap-x-3'><FaUsersGear />Manage Services</h1>

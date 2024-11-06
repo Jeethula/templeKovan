@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from 'firebase/auth';
 import { auth } from '../../Firebase/Firebase';
+import { useRouter } from 'next/navigation';
 
 type Userdata = {
   phoneNumber: string;
@@ -18,6 +19,7 @@ type AuthContextType = {
   signOut: () => Promise<void>;
 };
 
+
 const AuthContext = createContext<AuthContextType>({ 
   user: null, 
   loading: true, 
@@ -30,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null | string | Userdata>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<string[]>([]);
@@ -83,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.removeItem('user');
       setUser(null);
       setRole([]);
+      router.push('/');
     } catch (error) {
       console.error('Error signing out', error);
     }

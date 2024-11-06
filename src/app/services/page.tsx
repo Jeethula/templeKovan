@@ -11,7 +11,7 @@ import '../userManagement/style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { Clock } from 'lucide-react';
-import { AiOutlinePrinter } from 'react-icons/ai';
+import { FaDownload } from "react-icons/fa6";
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ColDef } from 'ag-grid-community';
 import  UseApprovedByData  from '../../utils/UseApprovedByData';
@@ -274,7 +274,7 @@ const ServicesPage: React.FC = () => {
         fileName="Service_Details.pdf"
       >
         <button className="text-blue-500 hover:text-blue-700">
-          <AiOutlinePrinter size={18} />
+          <FaDownload size={18} />
         </button>
       </PDFDownloadLink>
     );
@@ -327,7 +327,7 @@ const ServicesPage: React.FC = () => {
     { headerName: 'Price', field: 'price', sortable: true, filter: true },
     { headerName: 'Status', field: 'status', sortable: true, filter: true, cellRenderer: statusCellRenderer },
     { headerName: 'Approved By', field: 'approvedBy', sortable: true, filter: true, hide: true },
-    { headerName: 'Print', cellRenderer: printCellRenderer, width: 80 }
+    { headerName: 'Download Receipt', cellRenderer: printCellRenderer, width: 80 }
     
   ];
 
