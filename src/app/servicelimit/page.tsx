@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 type ServiceLimit = {
   id: string;
@@ -11,9 +12,10 @@ type ServiceLimit = {
 };
 
 const ServiceLimitsPage = () => {
-    const [serviceLimits, setServiceLimits] = useState<ServiceLimit[]>([]);
+  const [serviceLimits, setServiceLimits] = useState<ServiceLimit[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedServiceLimit, setEditedServiceLimit] = useState<Partial<ServiceLimit> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const userSession =
@@ -32,6 +34,9 @@ const ServiceLimitsPage = () => {
         setServiceLimits(data.serviceLimits);
       } catch (error) {
         console.error("Error fetching service limits:", error);
+        toast.error("Failed to load service limits");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -45,8 +50,9 @@ const ServiceLimitsPage = () => {
 
   const handleUpdate = async () => {
     if (!editedServiceLimit) return;
-  
+    
     try {
+      setIsLoading(true);
       const res = await fetch(`/api/servicelimit`, {
         method: "PUT",
         headers: {
@@ -59,114 +65,137 @@ const ServiceLimitsPage = () => {
         const updatedServiceLimits = await fetch("/api/servicelimit");
         const data = await updatedServiceLimits.json();
         setServiceLimits(data.serviceLimits);
+        setIsEditing(false);
+        toast.success("Service limits updated successfully");
       } else {
-        console.error("Error updating service limit");
+        toast.error("Failed to update service limits");
       }
     } catch (error) {
       console.error("Error updating service limit:", error);
+      toast.error("Failed to update service limits");
+    } finally {
+      setIsLoading(false);
     }
   };
-  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!editedServiceLimit) return;
     setEditedServiceLimit({
       ...editedServiceLimit,
-      [e.target.name]: e.target.value,
+      [e.target.name]: Number(e.target.value),
     });
   };
 
-  return (
-    <div className="min-h-screen min-w-screen w-full bg-[#fdf0f4] p-6">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Service Limits</h1>
 
-      {isEditing && editedServiceLimit ? (
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-700">Edit Service Limit</h2>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Thirumanjanam:</label>
-            <input
-              type="number"
-              name="thirumanjanam"
-              value={editedServiceLimit.thirumanjanam || ""}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Abhisekam:</label>
-            <input
-              type="number"
-              name="abhisekam"
-              value={editedServiceLimit.abhisekam || ""}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Thirumanjanam Price:</label>
-            <input
-              type="number"
-              name="thirumanjanamPrice"
-              value={editedServiceLimit.thirumanjanamPrice || ""}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Abhisekam Price:</label>
-            <input
-              type="number"
-              name="abhisekamPrice"
-              value={editedServiceLimit.abhisekamPrice || ""}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500"
-            />
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={handleUpdate}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300"
-            >
-              Update
-            </button>
-            <button
-              onClick={() => setIsEditing(false)}
-              className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300"
-            >
-              Cancel
-            </button>
-          </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#fdf0f4] to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Service Limits</h1>
+          <p className="text-lg text-gray-600">Manage temple service limitations and pricing</p>
         </div>
-      ) : (
-        <div className="max-w-lg mx-auto ">
-          {serviceLimits.map((serviceLimit) => (
-            <div key={serviceLimit.id} className="bg-white p-6 rounded-lg shadow-lg">
-              <p className="text-lg font-medium text-gray-700">
-                <strong>Thirumanjanam:</strong> {serviceLimit.thirumanjanam}
-              </p>
-              <p className="text-lg font-medium text-gray-700">
-                <strong>Abhisekam:</strong> {serviceLimit.abhisekam}
-              </p>
-              <p className="text-lg font-medium text-gray-700">
-                <strong>Thirumanjanam Price:</strong> ₹{serviceLimit.thirumanjanamPrice}
-              </p>
-              <p className="text-lg font-medium text-gray-700">
-                <strong>Abhisekam Price:</strong> ₹{serviceLimit.abhisekamPrice}
-              </p>
-              {isApprover && (
-                
-                <button
-                  onClick={() => handleEdit(serviceLimit)}
-                  className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
-                >
-                  Edit
-                </button>
-              )}
+
+        {isEditing && editedServiceLimit ? (
+          <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto border border-gray-100">
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Edit Service Limit</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Thirumanjanam Limit</label>
+                <input
+                  type="number"
+                  name="thirumanjanam"
+                  value={editedServiceLimit.thirumanjanam || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Abhisekam Limit</label>
+                <input
+                  type="number"
+                  name="abhisekam"
+                  value={editedServiceLimit.abhisekam || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Thirumanjanam Price (₹)</label>
+                <input
+                  type="number"
+                  name="thirumanjanamPrice"
+                  value={editedServiceLimit.thirumanjanamPrice || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Abhisekam Price (₹)</label>
+                <input
+                  type="number"
+                  name="abhisekamPrice"
+                  value={editedServiceLimit.abhisekamPrice || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+                />
+              </div>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="flex justify-end space-x-4 mt-8">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdate}
+                className="px-6 py-2.5 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition duration-300"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto">
+            {serviceLimits.map((serviceLimit) => (
+              <div key={serviceLimit.id} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Thirumanjanam Limit</p>
+                      <p className="text-2xl font-semibold text-gray-900">{serviceLimit.thirumanjanam}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Abhisekam Limit</p>
+                      <p className="text-2xl font-semibold text-gray-900">{serviceLimit.abhisekam}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Thirumanjanam Price</p>
+                      <p className="text-2xl font-semibold text-gray-900">₹{serviceLimit.thirumanjanamPrice}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Abhisekam Price</p>
+                      <p className="text-2xl font-semibold text-gray-900">₹{serviceLimit.abhisekamPrice}</p>
+                    </div>
+                  </div>
+                </div>
+                {isApprover && (
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={() => handleEdit(serviceLimit)}
+                      className="inline-flex items-center px-6 py-2.5 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition duration-300"
+                    >
+                      <span>Edit Limits</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

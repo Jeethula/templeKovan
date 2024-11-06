@@ -337,7 +337,7 @@ const ServicesPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <ServiceCard
           title="Donation"
-          imageSrc='https://www.mygoldguide.in/sites/default/files/styles/single_image_story_header_image/public/The%20Sacred%20Daan%20%28donation%29%20of%20Gold.jpg?itok=6Nc--uvy'
+          imageSrc={`https://www.mygoldguide.in/sites/default/files/styles/single_image_story_header_image/public/The%20Sacred%20Daan%20%28donation%29%20of%20Gold.jpg?itok=6Nc--uvy`}
           description="Support our temple with your generous donations."
           modalComponent={<DonationModal onSubmitSuccess={handleSubmitSuccess} />}
         />

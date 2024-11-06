@@ -84,7 +84,6 @@ const PersonalInfoGrid: React.FC = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  console.log(rowData);
   
   const paginationPageSize = 10;
   const paginationPageSizeSelector = [10, 20, 50, 100];
@@ -269,7 +268,7 @@ const PersonalInfoGrid: React.FC = () => {
   };
 
   return (
-    <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen'>
+    <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen px-4'> {/* Added px-4 here */}
       <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
         <div className='flex w-full items-center justify-between gap-y-5 px-3'>
           <h1 className='text-2xl font-medium text-red-500 flex items-center gap-x-3'><FaUsersGear />Manage Users </h1>
@@ -293,7 +292,8 @@ const PersonalInfoGrid: React.FC = () => {
             rowClassRules={{
               'hover:bg-blue-50 cursor-pointer': () => true,
             }}
-            headerHeight={48}
+            headerHeight={56}  // Increased from 48 to 56
+            floatingFiltersHeight={50}  // Add this line
             rowHeight={45}
             domLayout="autoHeight"
             animateRows={true}
