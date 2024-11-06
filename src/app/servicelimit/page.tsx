@@ -15,7 +15,6 @@ const ServiceLimitsPage = () => {
   const [serviceLimits, setServiceLimits] = useState<ServiceLimit[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedServiceLimit, setEditedServiceLimit] = useState<Partial<ServiceLimit> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const userSession =
@@ -35,9 +34,7 @@ const ServiceLimitsPage = () => {
       } catch (error) {
         console.error("Error fetching service limits:", error);
         toast.error("Failed to load service limits");
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
 
     fetchServiceLimits();
@@ -52,7 +49,6 @@ const ServiceLimitsPage = () => {
     if (!editedServiceLimit) return;
     
     try {
-      setIsLoading(true);
       const res = await fetch(`/api/servicelimit`, {
         method: "PUT",
         headers: {
@@ -73,9 +69,7 @@ const ServiceLimitsPage = () => {
     } catch (error) {
       console.error("Error updating service limit:", error);
       toast.error("Failed to update service limits");
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
