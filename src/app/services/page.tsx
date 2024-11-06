@@ -317,7 +317,13 @@ const ServicesPage: React.FC = () => {
     { headerName: 'Description', field: 'description', sortable: true, filter: true },
     { headerName: 'Payment Mode', field: 'paymentMode', sortable: true, filter: true },
     { headerName: 'Transaction ID', field: 'transactionId', sortable: true, filter: true },
-    { headerName: 'Service Date', field: 'serviceDate', sortable: true, filter: true, valueFormatter: (params: { value: Date }) => new Date(params.value).toLocaleDateString() },
+    { headerName: 'Service Date', field: 'serviceDate', sortable: true, filter: true,            valueFormatter: (params) => {
+      const date = new Date(params.value);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } },
     { headerName: 'Price', field: 'price', sortable: true, filter: true },
     { headerName: 'Status', field: 'status', sortable: true, filter: true, cellRenderer: statusCellRenderer },
     { headerName: 'Approved By', field: 'approvedBy', sortable: true, filter: true, hide: true },
