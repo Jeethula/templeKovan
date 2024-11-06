@@ -5,12 +5,9 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../Firebase/Firebase';
 import OtpLogin from './OtpLogin';
 import { FcGoogle } from "react-icons/fc";
-import { FaPhoneAlt } from 'react-icons/fa';
-import { Button } from './ui/button';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState("initial");
   const router = useRouter();
 
   useEffect(() => {
@@ -58,45 +55,50 @@ const Login = () => {
     }
   };
 
-  const handlePhoneSignIn = () => {
-    setStep("otp");
-  };
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-6">Welcome Back!</h1>
-        {step === "initial" && (
-          <div className="space-y-4">
-            <Button
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-50 to-pink-50">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-3xl shadow-xl border border-purple-100 p-8 sm:p-10">
+          <div className="text-center space-y-3 mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Welcome Back
+            </h1>
+            <p className="text-gray-600">Sign in to continue to Temple</p>
+          </div>
+
+          <div className="space-y-6">
+            <OtpLogin />
+
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="px-2 bg-white text-gray-500">Or</span>
+              </div>
+            </div>
+
+            <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-300"
+              className="w-full flex items-center justify-center gap-3 h-12 bg-white hover:bg-gray-50
+                       rounded-xl border-2 border-gray-200 hover:border-purple-200 transition-all duration-200
+                       shadow-sm hover:shadow px-4"
             >
-              {loading ? 'Signing in...' : 'Sign in with Google'}
-              <FcGoogle size={24} className="ml-2" />
-            </Button>
+              <FcGoogle size={22} />
+              <span className="text-gray-700 font-medium">
+                {loading ? "Signing in..." : "Continue with Google"}
+              </span>
+            </button>
+          </div>
+        </div>
 
-            <Button
-              onClick={handlePhoneSignIn}
-              className="w-full flex items-center justify-center px-4 py-3 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
-            >
-              Sign in with Phone Number <FaPhoneAlt size={24} className="ml-2" />
-            </Button>
-          </div>
-        )}
-        {step === "otp" && (
-          <div className="mt-6">
-            <h2 className="text-center text-gray-700 mb-4">Enter Your Phone Number</h2>
-            <OtpLogin />
-            <Button
-              onClick={() => setStep("initial")}
-              className="mt-4 w-full flex items-center justify-center px-4 py-3 font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300"
-            >
-              Back to Sign in with Google
-            </Button>
-          </div>
-        )}
+        <p className="mt-6 text-center text-sm text-gray-600">
+          By continuing, you agree to our{' '}
+          <a href="#" className="font-medium text-purple-600 hover:text-purple-500">Terms</a>
+          {' '}and{' '}
+          <a href="#" className="font-medium text-purple-600 hover:text-purple-500">Privacy Policy</a>
+        </p>
       </div>
     </div>
   );
