@@ -56,14 +56,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-purple-50 to-pink-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#fdf0f4]">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-xl border border-purple-100 p-8 sm:p-10">
+        <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8 sm:p-10">
           <div className="text-center space-y-3 mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-[#663399]">
               Welcome Back
             </h1>
-            <p className="text-gray-600">Sign in to continue to Temple</p>
+            <p className="text-gray-700">Sign in to continue to Temple</p>
           </div>
 
           <div className="space-y-6">
@@ -71,18 +71,18 @@ const Login = () => {
 
             <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-[#663399]/20"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="px-2 bg-white text-gray-500">Or</span>
+                <span className="px-2 bg-white text-gray-600">Or</span>
               </div>
             </div>
 
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 h-12 bg-white hover:bg-gray-50
-                       rounded-xl border-2 border-gray-200 hover:border-purple-200 transition-all duration-200
+              className="w-full flex items-center justify-center gap-3 h-12 bg-white hover:bg-[#fdf0f4]
+                       rounded-xl border-2 border-[#663399]/20 hover:border-[#663399]/30 transition-all duration-200
                        shadow-sm hover:shadow px-4"
             >
               <FcGoogle size={22} />
@@ -93,11 +93,11 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-700">
           By continuing, you agree to our{' '}
-          <a href="#" className="font-medium text-purple-600 hover:text-purple-500">Terms</a>
+          <a href="#" className="font-medium text-[#663399] hover:text-[#663399]/80">Terms</a>
           {' '}and{' '}
-          <a href="#" className="font-medium text-purple-600 hover:text-purple-500">Privacy Policy</a>
+          <a href="#" className="font-medium text-[#663399] hover:text-[#663399]/80">Privacy Policy</a>
         </p>
       </div>
     </div>

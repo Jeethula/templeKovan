@@ -136,22 +136,21 @@ export default function OtpLogin() {
                 value={phoneNumber}
                 onChange={handlePhoneChange}
                 placeholder="Enter your mobile number"
-                className="h-12 pl-14 pr-4 text-base bg-white focus:outline-none border-2 border-gray-200 
-                         focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl w-full
+                className="h-12 pl-14 pr-4 text-base bg-white focus:outline-none border-2 border-orange-200 
+                         focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl w-full
                          transition-all duration-200"
                 maxLength={10}
                 type="tel"
               />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-medium">+91</span>
             </div>
           </div>
 
           <button
             onClick={handleSendOtp}
             disabled={phoneNumber.length !== 10 || loading}
-            className="w-full h-12 text-base font-medium bg-gradient-to-r from-purple-600 to-pink-600
-                     hover:from-purple-700 hover:to-pink-700 text-white rounded-xl 
-                     transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50
+            className="w-full h-12 text-base font-medium bg-orange-600 hover:bg-orange-700 text-white 
+                     rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50
                      disabled:cursor-not-allowed"
           >
             {loading ? "Sending..." : "Get OTP"}
@@ -171,9 +170,8 @@ export default function OtpLogin() {
           <button
             onClick={handleVerifyOtp}
             disabled={otp.length !== 6 || loading}
-            className="w-full h-12 text-base font-medium bg-gradient-to-r from-purple-600 to-pink-600
-                     hover:from-purple-700 hover:to-pink-700 text-white rounded-xl
-                     transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50
+            className="w-full h-12 text-base font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl
+                     transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50
                      disabled:cursor-not-allowed"
           >
             {loading ? "Verifying..." : "Verify & Continue"}
@@ -183,7 +181,7 @@ export default function OtpLogin() {
             <span className="text-gray-600">Didn't receive code?</span>
             <button
               onClick={handleSendOtp}
-              className="text-purple-600 hover:text-purple-500 font-medium transition-colors"
+              className="text-orange-600 hover:text-orange-500 font-medium transition-colors"
             >
               Resend OTP
             </button>
