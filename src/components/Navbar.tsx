@@ -55,6 +55,7 @@ const Navbar = () => {
                       ? 'text-orange-400 font-semibold'
                       : 'hover:bg-gray-200 font-semibold'
                   }`}
+                  onClick={() => setIsDropdownOpen(false)}
                 >
                   {item.name}
                 </Link>
