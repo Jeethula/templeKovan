@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserDetails, initialUserDetails } from "../../utils/type";
 // import { useAuth } from "../context/AuthContext";
 import { MdGroupAdd } from "react-icons/md";
@@ -92,6 +92,11 @@ const FloatingTextarea = React.forwardRef<
 });
 FloatingTextarea.displayName = 'FloatingTextarea';
 
+// Add helper function for generating random IDs (outside component)
+const generateRandomId = () => {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+};
+
 const UserDetailsForm: React.FC = () => {
   const [userDetails, setUserDetails] =
     useState<UserDetails>(initialUserDetails);
@@ -106,33 +111,8 @@ const UserDetailsForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
-  const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>("");
 
-  const handleUniqueIdCheck = async () => {
-    try {
-      const res = await fetch("/api/checkuniqueid", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uniqueId: parseInt(userDetails.unique_id) }),
-      });
 
-      const data = await res.json();
-      if (data.exists) {
-        setUniqueIdCheckMessage("Unique ID already exists");
-        setIsUniqueIdVerified(false);
-      } else {
-        setUniqueIdCheckMessage("Unique ID is available");
-        setIsUniqueIdVerified(true);
-      }
-    } catch (error) {
-      console.error("Network error:", error);
-      setUniqueIdCheckMessage("Network error. Please try again.");
-      setIsUniqueIdVerified(false);
-    }
-  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -183,10 +163,6 @@ const UserDetailsForm: React.FC = () => {
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fill all the required fields correctly");
-      return;
-    }
-    if (!isUniqueIdVerified) {
-      toast.error("Please verify the Unique ID");
       return;
     }
 
@@ -304,103 +280,101 @@ const UserDetailsForm: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center items-center bg-[#fdf0f4] max-w-screen min-h-screen">
-      <div className="bg-white shadow-xl mt-5 mb-10 px-5 md:px-9 p-4 rounded-xl w-[90%] md:w-[75%] h-fit">
-        <h1 className="flex items-center gap-x-3 mb-8 font-bold text-2xl text-red-500">
-          <MdGroupAdd />
-          Add User{" "}
-        </h1>
-        <p className="mb-5 text-gray-500 text-wrap">
-          Fill in the details of the new user in the form below, who will be
-          your referral.
-        </p>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <FloatingLabelInput
-              type="email"
-              id="email"
-              name="email"
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={`w-full ${
-                errors.email ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-              }`}
-            />
-            {errors.email && <p className="text-red-500">{errors.email}</p>}
-          </div>
-          {renderField("salutation", "Salutation", "select", [
-            "Mr.",
-            "Ms.",
-            "Mrs.",
-            "Dr.",
-            "Prof.",
-            "Mx.",
-          ])}
-          {renderField("first_name", "First Name")}
-          {renderField("last_name", "Last Name")}
-          {renderField("unique_id", "Unique ID")}
-         <div className="flex items-center gap-x-2">
-          <button
-            type="button"
-            onClick={handleUniqueIdCheck}
-            className="bg-blue-500 hover:bg-blue-700 mb-3 ml-2 px-3 py-1 rounded-md font-semibold text-white"
-          >
-            Check
-          </button> <h1 className="font-medium">
-            Check Availablity!</h1> </div>
-          {uniqueIdCheckMessage && (
-            <p className={` mb-4 text-${isUniqueIdVerified ? "green" : "red"}-600`}>
-             {isUniqueIdVerified ? '✅' : '❌'} {uniqueIdCheckMessage}
+    <div className="min-h-screen bg-[#fdf0f4]">
+      <div className="w-full max-w-lg mx-auto p-4">
+        <div className="bg-white rounded-xl shadow-md border border-[#663399]/20 p-4">
+          {/* Header Section */}
+          <div className="text-center space-y-2 mb-6">
+            <h1 className="text-2xl font-bold text-[#663399] flex items-center justify-center gap-2">
+              <MdGroupAdd />
+              Add User
+            </h1>
+            <p className="text-sm text-gray-600">
+              Fill in the details of the new user who will be your referral
             </p>
-          )}
-          {renderField("phone_number", "Phone Number")}
-          {renderField("address_line_1", "Address Line 1")}
-          {renderField("address_line_2", "Address Line 2")}
-          {renderField("city", "City")}
-          {renderField("state", "State")}
-          {renderField("pincode", "Pin Code")}
-          {renderField("country", "Country")}
-          {renderField("comments", "Comments", "textarea")}
-          <div className="flex justify-start items-center mt-7 mb-4">
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Section */}
+            <div className="relative">
+              <FloatingLabelInput
+                type="email"
+                id="email"
+                name="email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full border border-[#663399]/20 rounded-lg text-sm"
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+              )}
+            </div>
+
+            {/* Name Section */}
+            <div className="flex gap-3">
+              <div className="w-1/3">
+                {renderField("salutation", "Salutation", "select", [
+                  "Mr.", "Ms.", "Mrs.", "Dr.", "Prof.", "Mx.",
+                ])}
+              </div>
+              <div className="w-2/3">
+                {renderField("first_name", "First Name")}
+              </div>
+            </div>
+
+            {/* Other Personal Details */}
+            <div className="space-y-4">
+              {renderField("last_name", "Last Name")}
+              
+              {/* Unique ID Section */}
+
+              {renderField("phone_number", "Phone Number")}
+            </div>
+
+            {/* Address Section */}
+            <div className="space-y-4 pt-2">
+              <div className="text-sm font-medium text-[#663399]/80 pb-1">Address Details</div>
+              {renderField("address_line_1", "Address Line 1")}
+              {renderField("address_line_2", "Address Line 2")}
+              
+              <div className="flex gap-3">
+                <div className="w-1/2">{renderField("city", "City")}</div>
+                <div className="w-1/2">{renderField("state", "State")}</div>
+              </div>
+              
+              <div className="flex gap-3">
+                <div className="w-1/2">{renderField("pincode", "Pin Code")}</div>
+                <div className="w-1/2">{renderField("country", "Country")}</div>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="pt-2">
+              {renderField("comments", "Additional Comments", "textarea")}
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${
-                loading ? "cursor-not-allowed" : ""
-              }`}
+              className="w-full h-11 text-base font-medium 
+                       bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
+                       transition-all duration-200 mt-6
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <div className="flex items-center">
-                  <svg
-                    className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Creating Profile...
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm">Creating Profile...</span>
                 </div>
               ) : (
                 "Create Profile"
               )}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
@@ -97,75 +96,124 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen bg-[#fdf0f4]">
+      <div className="text-[#663399] text-lg">Loading...</div>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto p-6 bg-[#fdf0f4] ">
+    <div className="min-h-screen bg-[#fdf0f4] pb-6">
       {service ? (
-        <Card className="shadow-lg rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <CardHeader className=" p-6">
-            <div className="flex justify-start items-center gap-5">
-                <Link
-              className="hover:underline text-orange-600  flex items-center gap-1"
+        <div className="max-w-3xl mx-auto px-4">
+          {/* Header */}
+          <div className="py-4 flex items-center gap-3">
+            <Link
               href="/serviceManagement"
+              className="flex items-center gap-2 text-[#663399] hover:text-[#663399]/80 transition-colors"
             >
-              <FaArrowLeft className="size-4 " /> Back
-              </Link>
-              <CardTitle className="text-3xl font-bold text-red-500">{service.nameOfTheService}</CardTitle>
+              <FaArrowLeft className="text-lg" />
+              <span>Back</span>
+            </Link>
+          </div>
+
+          {/* Main Content */}
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            {/* Service Title */}
+            <div className="p-6 bg-[#663399] text-white">
+              <h1 className="text-2xl font-bold">{service.nameOfTheService}</h1>
+              <div className="mt-2 inline-block px-3 py-1 rounded-full bg-white/20 text-sm">
+                Status: {service.status}
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="w-full md:w-1/3">
-                {service.image ? (
+
+            {/* Image Section */}
+            <div className="p-4">
+              {service.image ? (
+                <div className="relative h-[600px] w-full rounded-xl overflow-hidden">
                   <Image
                     src={service.image}
                     alt="Service Image"
-                    width={300}
-                    height={500}
-                    className="rounded-lg shadow-lg object-cover"
+                    fill
+                    style={{ objectFit: 'contain' }}
+                    className="rounded-xl"
                   />
-                ) : (
-                  <div className="rounded-lg shadow-lg bg-gray-200 w-full h-full flex items-center justify-center">
-                    <p className="text-gray-500">No Image Available</p>
+                </div>
+              ) : (
+                <div className="h-[600px] rounded-xl bg-gray-100 flex items-center justify-center">
+                  <p className="text-gray-500">No Image Available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Service Details */}
+            <div className="p-6 space-y-6">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-[#663399]">Service Details</h2>
+                <div className="grid gap-3 text-gray-700">
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Service Date</span>
+                    <span>{new Date(service.serviceDate).toLocaleDateString()}</span>
                   </div>
-                )}
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Price</span>
+                    <span>₹{service.price.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Transaction ID</span>
+                    <span>{service.transactionId}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Payment Mode</span>
+                    <span>{service.paymentMode}</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="w-full md:w-2/3">
-                <h2 className="text-2xl font-semibold mb-4">Service Details</h2>
-                <div className="space-y-2">
-                  <p><strong>Service Date:</strong> {new Date(service.serviceDate).toLocaleDateString()}</p>
-                  <p><strong>Price:</strong> ₹{service.price.toLocaleString()}</p>
-                  <p><strong>Transaction ID:</strong> {service.transactionId}</p>
-                  <p><strong>Payment Mode:</strong> {service.paymentMode}</p>
-                  <p><strong>Status:</strong> <span className={`px-2 py-1 rounded-full ${service.status === 'Accepted' ? 'bg-green-100 text-green-700' : service.status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{service.status}</span></p>
-                </div>
-
-                {/* Personal Info */}
-                <div className="mt-6 border-t border-gray-200 pt-4">
-                  <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><strong>Name:</strong> {service.personalInfo.firstName} {service.personalInfo.lastName}</div>
-                    <div><strong>Phone:</strong> {service.personalInfo.phoneNumber}</div>
-                    <div><strong>Address 1:</strong> {service.personalInfo.address1}</div>
-                    <div><strong>Address 2:</strong> {service.personalInfo.address2}</div>
-                    <div><strong>City:</strong> {service.personalInfo.city}</div>
-                    <div><strong>State:</strong> {service.personalInfo.state}</div>
-                    <div><strong>Country:</strong> {service.personalInfo.country}</div>
-                    <div><strong>Pincode:</strong> {service.personalInfo.pincode}</div>
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-[#663399]">Personal Information</h2>
+                <div className="grid gap-3 text-gray-700">
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Name</span>
+                    <span>{service.personalInfo.firstName} {service.personalInfo.lastName}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Phone</span>
+                    <span>{service.personalInfo.phoneNumber}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Address</span>
+                    <span className="text-right">
+                      {service.personalInfo.address1}<br />
+                      {service.personalInfo.address2}<br />
+                      {service.personalInfo.city}, {service.personalInfo.state}<br />
+                      {service.personalInfo.country} - {service.personalInfo.pincode}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="p-6 bg-gray-50 flex justify-end space-x-4">
-            <Button onClick={handleAccept} className="bg-green-500 hover:bg-green-600 text-white">Approve</Button>
-            <Button onClick={handleReject} className="bg-red-500 hover:bg-red-600 text-white">Reject</Button>
-          </CardFooter>
-        </Card>
+
+            {/* Action Buttons */}
+            <div className="p-6 bg-[#fdf0f4] flex gap-4">
+              <Button
+                onClick={handleAccept}
+                className="flex-1 h-12 bg-[#663399] hover:bg-[#663399]/90 text-white rounded-xl"
+              >
+                Approve
+              </Button>
+              <Button
+                onClick={handleReject}
+                className="flex-1 h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl"
+              >
+                Reject
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : (
-        <div className="flex justify-center items-center h-screen text-lg">
+        <div className="flex justify-center items-center h-screen text-[#663399]">
           <p>Service not found</p>
         </div>
       )}
