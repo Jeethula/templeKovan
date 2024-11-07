@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MessageSquare, UserCircle2, Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2 } from 'lucide-react';
+import { MessageSquare, UserCircle2, Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
 import { BsFileTextFill } from "react-icons/bs";
@@ -269,102 +269,129 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   };
 
   return (
-    <div className="w-full min-w-screen h-full min-h-screen p-4 sm:p-8 bg-[#fdf0f4] rounded-xl">
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <button
-          className="text-orange-600 hover:underline flex text-xl items-center"
-          onClick={() => router.push('/userManagement')}
-        >
-          <IoMdArrowRoundBack size={20} className="mr-2" fill="currentColor" />
-          Back
-        </button>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-red-500 flex items-center gap-x-2"><FaCircleUser />User Profile</h1>
-      </div>
-      {loading ? (
-        <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>
-      ) : profile ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <div className="flex flex-col items-center">
-                <div className="relative w-32 h-32 mb-6">
-                  <Image
-                    src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='
-                    alt="User avatar"
-                    layout="fill"
-                    className="rounded-full object-cover shadow-lg bg-none"
-                  />
-                </div>
-                <EditableSection 
-                  section="personalInfo" 
-                  fields={['firstName', 'lastName', 'email', 'phone']} 
-                  profile={profile}
-                  onSave={handleEditSubmit}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-2">
-            <EditableSection 
-              section="addressInfo" 
-              fields={['address1', 'address2', 'city', 'state', 'country', 'pincode']} 
-              profile={profile}
-              onSave={handleEditSubmit}
-            />
-
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-[#663399]">
-                <UserCircle2 size={24} className="mr-2" fill="currentColor" />
-                User Activity
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center">
-                  <BsFileTextFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Posts:</span> {profile.user?.posts?.length || 0}</p>
-                </div>
-                <div className="flex items-center">
-                  <PiThumbsUpFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Liked:</span> {profile.user?.likedPosts?.length || 0}</p>
-                </div>
-                <div className="flex items-center">
-                  <PiThumbsDownFill size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Disliked:</span> {profile.user?.dislikedPosts?.length || 0}</p>
-                </div>
-                <div className="flex items-center">
-                  <MessageSquare size={20} className="mr-2 text-[#663399]" fill="currentColor" />
-                  <p className="text-gray-700"><span className="font-medium">Comments:</span> {typeof profile.comments === 'string' ? profile.comments.length : 0}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-[#fdf0f4] to-white">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="mb-12">
+          <button
+            onClick={() => router.push('/userManagement')}
+            className="group flex items-center text-[#663399] hover:text-[#663399]/80 transition-all duration-300 mb-6"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform duration-300" />
+            <span className="text-lg">Back to Users</span>
+          </button>
+          <h1 className="text-3xl font-bold text-[#663399]">User Profile</h1>
         </div>
-      ) : null}
 
-      <div className="mt-8 sm:mt-10">
-        <h3 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-[#663399]">
-          <FaUserFriends size={24} className="mr-2" fill="currentColor" />
-          Changes History
-        </h3>
         {loading ? (
-          <div className="text-center mt-4"><LoadingPageUi /><p>Loading change history...</p></div>
-        ) : history.length === 0 ? (
-          <p className="text-gray-700">No changes found</p>
-        ) : (
-          history.map((historyItem, index) => {
-            const previousProfile = index > 0 ? history[index - 1] : profile;
-            const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
-            return (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg mb-4">
-                <h4 className="text-md sm:text-lg font-semibold mb-2 text-[#663399]">
-                  {new Date(historyItem.updatedAt).toLocaleString()}
-                </h4>
-                {changes.map((change, idx) => (
-                  <ChangeHistoryItem key={idx} change={change} />
-                ))}
+          <LoadingPageUi />
+        ) : profile ? (
+          <div className="space-y-6">
+            {/* Personal Information Card */}
+            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold text-[#663399]">Personal Information</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Contact Information */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Full Name</label>
+                      <p className="text-lg font-medium text-gray-900">
+                        {typeof profile.firstName === 'string' ? profile.firstName : ''} {typeof profile.lastName === 'string' ? profile.lastName : ''}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Email</label>
+                      <p className="text-lg text-gray-900">{profile.user?.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Phone</label>
+                      <p className="text-lg text-gray-900">{profile.user?.phone}</p>
+                    </div>
+                  </div>
+
+                  {/* Address Information */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Address</label>
+                      <p className="text-lg text-gray-900">{typeof profile.address1 === 'string' ? profile.address1 : ''}</p>
+                      <p className="text-lg text-gray-900">{typeof profile.address2 === 'string' ? profile.address2 : ''}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Location</label>
+                      <p className="text-lg text-gray-900">
+                        {typeof profile.city === 'string' ? profile.city : ''}, {typeof profile.state === 'string' ? profile.state : ''} {typeof profile.pincode === 'string' ? profile.pincode : ''}
+                      </p>
+                      <p className="text-lg text-gray-900">{typeof profile.country === 'string' ? profile.country : ''}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Edit Button */}
+                <button
+                  onClick={() => handleEditSubmit('personalInfo', {})}
+                  className="mt-6 w-full sm:w-auto px-6 py-3 bg-[#663399] text-white rounded-xl
+                           hover:bg-[#663399]/90 transition-colors duration-200"
+                >
+                  Edit Profile
+                </button>
               </div>
-            );
-          })
+            </div>
+
+            {/* Activity Stats Card */}
+            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
+              <h2 className="text-2xl font-semibold text-[#663399] mb-6">Activity Overview</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
+                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.posts?.length || 0}</p>
+                  <p className="text-gray-600">Posts</p>
+                </div>
+                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
+                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.likedPosts?.length || 0}</p>
+                  <p className="text-gray-600">Likes</p>
+                </div>
+                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
+                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.dislikedPosts?.length || 0}</p>
+                  <p className="text-gray-600">Dislikes</p>
+                </div>
+                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
+                  <p className="text-2xl font-bold text-[#663399]">{typeof profile.comments === 'string' ? profile.comments.length : 0}</p>
+                  <p className="text-gray-600">Comments</p>
+                </div>
+              </div>
+            </div>
+
+            {/* History Card */}
+            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
+              <h2 className="text-2xl font-semibold text-[#663399] mb-6">Profile History</h2>
+              <div className="space-y-4">
+                {history.length === 0 ? (
+                  <p className="text-gray-600">No changes recorded</p>
+                ) : (
+                  history.map((historyItem, index) => {
+                    const previousProfile = index > 0 ? history[index - 1] : profile;
+                    const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
+                    return (
+                      <div key={index} className="p-4 bg-[#fdf0f4] rounded-xl">
+                        <p className="text-sm font-medium text-[#663399] mb-2">
+                          {new Date(historyItem.updatedAt).toLocaleString()}
+                        </p>
+                        {changes.map((change, idx) => (
+                          <p key={idx} className="text-gray-700">
+                            Changed <span className="font-medium">{change.field}</span> from{' '}
+                            {JSON.stringify(change.from)} to {JSON.stringify(change.to)}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center text-red-500">Profile not found</div>
         )}
       </div>
     </div>

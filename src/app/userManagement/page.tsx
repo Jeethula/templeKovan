@@ -1,17 +1,12 @@
 "use client";
-import React, { useEffect, useState, useMemo } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import CustomFilter from './CustomFilter';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ColDef } from 'ag-grid-community';
 import { Clock } from 'lucide-react';
-import './style.css';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
-import { FaUsersGear } from 'react-icons/fa6';
-import {  RowClickedEvent } from 'ag-grid-community';
+import { FaUserCog, FaSearch } from 'react-icons/fa';
+import { MdEmail, MdPhone } from 'react-icons/md';
+import { HiLocationMarker } from 'react-icons/hi';
 
 type PersonalInfo = {
   userid: string;
@@ -27,21 +22,58 @@ type PersonalInfo = {
   country: string;
   comments: string;
   avatarUrl: string;
-  [key: string]: string;
-};
-
-type UserDetail = {
-  id: string;
   email?: string;
   role?: string;
-  phone?: string;
+  Phone?: string;
+  [key: string]: string | undefined;
 };
+
+const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => (
+  <div 
+    onClick={onClick}
+    className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+  >
+    <div className="flex items-start space-x-3">
+      <div className="w-10 h-10 shrink-0 bg-[#663399] rounded-full flex items-center justify-center text-white text-sm font-semibold">
+        {user.firstName[0]}{user.lastName[0]}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="font-semibold text-base text-gray-800 truncate">
+          {`${user.firstName} ${user.lastName}`}
+        </h3>
+        <div className="mt-1 space-y-1.5">
+          {user.Phone ? (
+            <div className="flex items-center space-x-2 text-gray-600">
+              <MdPhone className="text-[#663399] shrink-0 w-4 h-4" />
+              <span className="text-sm truncate">{user.Phone}</span>
+            </div>
+          ) : user.email && (
+            <div className="flex items-center space-x-2 text-gray-600">
+              <MdEmail className="text-[#663399] shrink-0 w-4 h-4" />
+              <span className="text-sm truncate">{user.email}</span>
+            </div>
+          )}
+          <div className="flex space-x-2 text-gray-600">
+            <HiLocationMarker className="text-[#663399] shrink-0 w-4 h-4 mt-0.5" />
+            <div className="text-sm space-y-0.5 flex-1 min-w-0">
+              <div className="truncate">
+                {[user.address1, user.address2].filter(Boolean).join(', ')}
+              </div>
+              <div className="truncate">
+                {[user.city, user.state, user.pincode].filter(Boolean).join(', ')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const PersonalInfoGrid: React.FC = () => {
   const router = useRouter();
-  const [rowData, setRowData] = useState([]);
-  const [showAllData, setShowAllData] = useState(false);
-  const [isSmallDevice, setIsSmallDevice] = useState(false);
+  const [userData, setUserData] = useState<PersonalInfo[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = async () => {
     try {
@@ -52,7 +84,7 @@ const PersonalInfoGrid: React.FC = () => {
       const data = await res.json();
       
       const combinedData = data.personalInfodetails.map((personal: PersonalInfo) => {
-        const userDetail = data.userDetails.find((user: UserDetail) => user.id === personal.userid);
+        const userDetail = data.userDetails.find((user: any) => user.id === personal.userid);
         return {
           ...personal,
           email: userDetail?.email,
@@ -60,7 +92,7 @@ const PersonalInfoGrid: React.FC = () => {
           Phone: userDetail?.phone
         };
       });
-      setRowData(combinedData);
+      setUserData(combinedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -68,239 +100,62 @@ const PersonalInfoGrid: React.FC = () => {
 
   useEffect(() => {
     const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    console.log(sessionData);
-    
-    if (!sessionData.role.includes('Admin') ) {
+    if (!sessionData.role?.includes('Admin')) {
       router.push('/unAuthorized');
     }
     fetchData();
-
-    const handleResize = () => {
-      setIsSmallDevice(window.innerWidth < 640);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
-  const paginationPageSize = 10;
-  const paginationPageSizeSelector = [10, 20, 50, 100];
 
-  const statusCellRenderer = (params: { value: string }) => {
-
-    if (params.value === 'PENDING') {
-      return (
-        <div className='flex justify-left items-center text-yellow-500 font-bold'>
-          <Clock size={16} style={{ marginRight: '4px' }} />
-          Pending
-        </div>
-      );
-    }
-    if (params.value === 'REJECTED') {
-      return (
-        <div className='flex justify-left items-center text-red-500 font-bold'>
-          <RxCross1 size={16} style={{ marginRight: '4px' }} />
-          Rejected
-        </div>
-      );
-    }
-    if (params.value === 'APPROVED') {
-      return (
-        <div className='flex justify-left items-center text-green-500 font-bold'>
-          <IoCheckmarkDone size={20} style={{ marginRight: '4px' }} />
-          Approved
-        </div>
-      );
-    }
-    return params.value;
-  };
-
-  const allColumnDefs: ColDef[] = [
-    {
-      headerName: "Full Name",
-      valueGetter: (params) => `${params.data.firstName} ${params.data.lastName}`,
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { fontWeight: '500', textAlign: 'left' }
-    },
-    {
-      headerName: "Address 1",
-      field: "address1",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Address 2",
-      field: "address2",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "City",
-      field: "city",
-      sortable: true,
-      filter: 'agTextColumnFilter',
-      floatingFilter: true,
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Email",
-      field: "email",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Phone",
-      field: "Phone",
-      sortable: true,
-      filter: 'agTextColumnFilter',
-      floatingFilter: true,
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Created At",
-      field: "createdAt",
-      sortable: true,
-      filter: 'agDateColumnFilter',
-      floatingFilter: true,
-      valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString()
-      },
-      flex: 2,
-      cellStyle: { textAlign: 'left' }
-    },
-    {
-      headerName: "Status",
-      field: "isApproved",
-      sortable: true,
-      filter:CustomFilter,
-      filterParams:{
-        values:['approved','rejected','pending']
-      },
-      hide:true,
-      floatingFilter: true,
-      cellRenderer: statusCellRenderer,
-      flex: 1,
-    },
-    {
-      headerName: "Pincode",
-      field: "pincode",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agNumberColumnFilter',
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "State",
-      field: "state",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Country",
-      field: "country",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 1,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Comments",
-      field: "comments",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-    {
-      headerName: "Avatar URL",
-      field: "avatarUrl",
-      sortable: true,
-      floatingFilter: true,
-      filter: 'agTextColumnFilter',
-      flex: 2,
-      cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-    },
-  ];
-  
-  const defaultColDef = useMemo(() => ({
-    flex:2,
-    minWidth:200,
-    sortable: true,
-    filter: true,
-    resizable: true,
-  }), []);
-
-  const onRowClicked = (event: RowClickedEvent) => {
-    const selectedId = event.data.userid;
-    router.push(`userManagement/${selectedId}`);
-  }
-
-  const getColumnDefs = () => {
-    if (showAllData) {
-      return allColumnDefs;
-    } else if (isSmallDevice) {
-      return allColumnDefs.filter(col => col.headerName && ['Full Name', 'Phone','Created At', 'Status'].includes(col.headerName));
-    } else {
-      return allColumnDefs.filter(col => col.headerName && ['Full Name', 'Address 2', 'Address 1', 'City', 'Phone', 'Status'].includes(col.headerName));
-    }
-  };
+  const filteredUsers = userData.filter(user => {
+    const searchValue = searchTerm.toLowerCase();
+    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchValue) ||
+      user.email?.toLowerCase().includes(searchValue) ||
+      user.Phone?.toLowerCase().includes(searchValue)
+    );
+  });
 
   return (
-    <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen px-4'> {/* Added px-4 here */}
-      <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
-        <div className='flex w-full items-center justify-between gap-y-5 px-3'>
-          <h1 className='text-2xl font-medium text-red-500 flex items-center gap-x-3'><FaUsersGear />Manage Users </h1>
-        <button
-          className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-4 py-2 rounded-md mb-4"
-          onClick={() => setShowAllData(!showAllData)}
-        >
-          {showAllData ? 'View Less Data' : 'View All Data'}
-        </button>
+    <div className="bg-[#fdf0f4] min-h-screen">
+      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+        {/* Header Section */}
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="space-y-4">
+            <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
+              <FaUserCog className="text-xl" />
+              <span>Manage Users</span>
+            </h1>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-9 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399] transition-all"
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            </div>
+          </div>
         </div>
 
-        <div className="ag-theme-alpine" style={{ height: '80%', width: '100%' }}>
-          <AgGridReact
-            rowData={rowData}
-            columnDefs={getColumnDefs()}
-            defaultColDef={defaultColDef}
-            pagination={true}
-            paginationPageSize={paginationPageSize}
-            paginationPageSizeSelector={paginationPageSizeSelector}
-            onRowClicked={onRowClicked}
-            rowClassRules={{
-              'hover:bg-blue-50 cursor-pointer': () => true,
-            }}
-            headerHeight={56}  // Increased from 48 to 56
-            floatingFiltersHeight={50}  // Add this line
-            rowHeight={45}
-            domLayout="autoHeight"
-            animateRows={true}
-            enableCellTextSelection={true}
-            suppressMovableColumns={true}
-          />
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 gap-3">
+          {filteredUsers.map((user) => (
+            <UserCard
+              key={user.userid}
+              user={user}
+              onClick={() => router.push(`userManagement/${user.userid}`)}
+            />
+          ))}
         </div>
+
+        {/* No Results Message */}
+        {filteredUsers.length === 0 && searchTerm && (
+          <div className="text-center py-6">
+            <p className="text-gray-500 text-base">No users found matching your search.</p>
+          </div>
+        )}
       </div>
     </div>
   );

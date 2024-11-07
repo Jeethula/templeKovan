@@ -6,7 +6,7 @@ type ApprovedByData = {
   phoneNumber: string;
 };
 
-const UseApprovedByData = (approvedById: string | null) => {
+const useApprovedByData = (approvedById: string | null) => {
   const [approvedByData, setApprovedByData] = useState<ApprovedByData | null>(null);
 
   useEffect(() => {
@@ -30,4 +30,4 @@ const UseApprovedByData = (approvedById: string | null) => {
   return approvedByData;
 };
 
-export default UseApprovedByData;
+export default useApprovedByData;

@@ -41,36 +41,42 @@ const CustomFilter: React.FC<CustomFilterProps> = ({ model, onModelChange, getVa
     };
 
     return (
-        <div className="flex flex-col m-2">
-            <strong className="mb-2">Status Filter</strong>
-            <div className="flex items-center gap-x-2 mb-1">
-                <input
-                    type="checkbox"
-                    name="Approved"
-                    checked={checkboxState.approved}
-                    onChange={() => handleCheckboxChange("approved")}
-                />
-                <label>Approved</label>
-            </div>
+        <div className="flex flex-col p-4 bg-white rounded-xl shadow-sm">
+            <strong className="text-[#663399] text-sm font-semibold mb-4">Filter by Status</strong>
+            
+            <div className="space-y-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-2 border-[#663399]/30 
+                                 text-[#663399] focus:ring-[#663399]/20 cursor-pointer"
+                        checked={checkboxState.approved}
+                        onChange={() => handleCheckboxChange("approved")}
+                    />
+                    <span className="text-gray-700">Approved</span>
+                </label>
 
-            <div className="flex items-center gap-x-2 mb-1">
-                <input
-                    type="checkbox"
-                    name="Rejected"
-                    checked={checkboxState.rejected}
-                    onChange={() => handleCheckboxChange("rejected")}
-                />
-                <label>Rejected</label>
-            </div>
+                <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-2 border-[#663399]/30 
+                                 text-[#663399] focus:ring-[#663399]/20 cursor-pointer"
+                        checked={checkboxState.rejected}
+                        onChange={() => handleCheckboxChange("rejected")}
+                    />
+                    <span className="text-gray-700">Rejected</span>
+                </label>
 
-            <div className="flex items-center gap-x-2 mb-1">
-                <input
-                    type="checkbox"
-                    name="Pending"
-                    checked={checkboxState.pending}
-                    onChange={() => handleCheckboxChange("pending")}
-                />
-                <label>Pending</label>
+                <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-2 border-[#663399]/30 
+                                 text-[#663399] focus:ring-[#663399]/20 cursor-pointer"
+                        checked={checkboxState.pending}
+                        onChange={() => handleCheckboxChange("pending")}
+                    />
+                    <span className="text-gray-700">Pending</span>
+                </label>
             </div>
         </div>
     );

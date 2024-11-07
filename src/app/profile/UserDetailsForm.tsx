@@ -98,9 +98,12 @@ interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
 }
 
-const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
-  onProfileCompletion,
-}) => {
+// Add this helper function for generating random IDs
+const generateRandomId = () => {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+};
+
+const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
   const [userDetails, setUserDetails] =
     useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
@@ -219,6 +222,37 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     };
     fetchUserDetails();
   }, [router]);
+
+  // Add this function to automatically generate and verify unique ID
+  const generateUniqueId = async () => {
+    let isUnique = false;
+    let newId: string;
+    
+    while (!isUnique) {
+      newId = generateRandomId();
+      try {
+        const res = await fetch("/api/checkuniqueid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uniqueId: newId }),
+        });
+        const data = await res.json();
+        if (!data.exists) {
+          isUnique = true;
+          setUserDetails(prev => ({ ...prev, unique_id: newId }));
+          setIsUniqueIdVerified(true);
+        }
+      } catch (error) {
+        console.error("Error checking unique ID:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isEditable && !isSubmitted) {
+      generateUniqueId();
+    }
+  }, [isEditable, isSubmitted]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -385,207 +419,172 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     }
   };
 
-  const renderField = (
-    name: keyof UserDetails,
-    label: string,
-    type: string = "text",
-    options?: string[]
-  ) => (
-    <div className="mb-4">
-      {type === "select" ? (
-        <FloatingSelect
-          id={name}
-          value={userDetails[name]}
-          onValueChange={(value: string) => handleChange({
-            target: { name, value },
-          } as React.ChangeEvent<HTMLInputElement>)}
-          disabled={!isEditable}
-          label={label}
-        >
-          <SelectItem value="default">Select {label}</SelectItem>
-          {options?.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </FloatingSelect>
-      ) : type === "textarea" ? (
-        <FloatingTextarea
-          id={name}
-          name={name}
-          value={userDetails[name]}
-          onChange={handleChange}
-          disabled={!isEditable}
-          label={label}
-        />
-      ) : (
-        <FloatingLabelInput
-          type={type}
-          id={name}
-          name={name}
-          label={label}
-          value={userDetails[name]}
-          onChange={handleChange}
-          disabled={!isEditable}
-          maxLength={
-            name === "phone_number" ? 10 : name === "pincode" ? 6 : undefined
-          }
-          className={`w-full ${
-            errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-          }`}
-        />
-      )}
-      {errors[name] && <p className="text-red-500">{errors[name]}</p>}
-    </div>
-  );
-
   return (
-    <div className="flex justify-center items-center bg-[#fdf0f4] max-w-screen min-h-screen">
-      <div className="bg-white shadow-xl mt-5 mb-10 px-5 md:px-9 p-4 rounded-xl w-[90%] md:w-[75%] h-fit">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="flex items-center gap-x-2 font-bold text-2xl text-red-600">
-            {" "}
-            Your Details <CgDetailsMore />{" "}
-          </h1>
+    <div className="min-h-screen bg-[#fdf0f4]">
+      <div className="w-full max-w-lg mx-auto p-4">
+        <div className="bg-white rounded-xl shadow-md border border-[#663399]/20 p-4">
+          {/* Header Section */}
+          <div className="text-center space-y-2 mb-6">
+            <h1 className="text-2xl font-bold text-[#663399]">
+              Profile Details
+            </h1>
+            <p className="text-sm text-gray-600">Complete your profile information</p>
+          </div>
+
+          {/* Edit Button */}
           {Object.keys(userDetails).some(
             (key) => userDetails[key as keyof UserDetails]
           ) && (
-            <button
-              type="button"
-              onClick={() => setIsEditable(!isEditable)}
-              className="flex items-center gap-x-3 bg-red-500 hover:bg-red-700 px-4 p-2 rounded-md w-fit h-fit font-medium text-white"
-            >
-              {!isEditable ? " Edit" : "Cancel"} <FaUserEdit />
-            </button>
-          )}
-        </div>
-        <form onSubmit={handleSubmit}>
-          {renderField("salutation", "Salutation", "select", [
-            "Mr.",
-            "Ms.",
-            "Mrs.",
-            "Dr.",
-            "Prof.",
-            "Mx.",
-          ])}
-          {renderField("first_name", "First Name")}
-          {renderField("last_name", "Last Name")}
-          {renderField("unique_id", "Unique ID( 5 - 6 unique digits)")}
-          <div className="flex items-center gap-x-2">
-            <button
-              type="button"
-              onClick={handleUniqueIdCheck}
-              disabled={!isEditable}
-              className={`ml-2 px-3 py-1 mb-3 ${
-                !isEditable
-                  ? "bg-gray-300 text-black "
-                  : "bg-blue-500 hover:bg-blue-700 text-white"
-              }  font-semibold rounded-md `}
-            >
-              Check
-            </button>{" "}
-            <h1 className={`font-medium ${!isEditable ? "hidden" : ""}`}>
-              Check Availablity!
-            </h1>{" "}
-          </div>
-          {uniqueIdCheckMessage && (
-            <p
-              className={` mb-4 px-2 text-${
-                isUniqueIdVerified ? "green" : "red"
-              }-600`}
-            >
-              {isUniqueIdVerified ? "✅" : "❌"} {uniqueIdCheckMessage}
-            </p>
-          )}
-          {renderField("phone_number", "Phone Number")}
-          {renderField("address_line_1", "Address Line 1")}
-          {renderField("address_line_2", "Address Line 2")}
-          {renderField("city", "City")}
-          {renderField("state", "State")}
-          {renderField("pincode", "Pin Code")}
-          {renderField("country", "Country")}
-          {renderField("comments", "Comments (Optional)", "textarea")}
-          <div className="flex justify-start items-center mt-7 mb-4">
-            {isEditable  && isSubmitted && (
+            <div className="flex justify-end mb-4">
               <button
                 type="button"
-                onClick={handleUpdate}
-                disabled={loading}
-                className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${
-                  loading ? "cursor-not-allowed" : ""
-                }`}
+                onClick={() => setIsEditable(!isEditable)}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium 
+                         bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
+                         transition-all duration-200"
               >
-                {loading ? (
-                  <div className="flex items-center">
-                    <svg
-                      className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Updating...
-                  </div>
-                ) : (
-                  "Update Details"
-                )}
+                {!isEditable ? "Edit Profile" : "Cancel"} <FaUserEdit />
               </button>
-            )}
-            {isEditable && !isSubmitted && (
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name Section - Salutation and First Name in same row */}
+            <div className="flex gap-3">
+              <div className="w-1/3">
+                {renderField("salutation", "Salutation", userDetails, handleChange, isEditable, errors, "select", [
+                  "Mr.", "Ms.", "Mrs.", "Dr.", "Prof.", "Mx.",
+                ])}
+              </div>
+              <div className="w-2/3">
+                {renderField("first_name", "First Name", userDetails, handleChange, isEditable, errors)}
+              </div>
+            </div>
+
+            {/* Other Personal Details */}
+            <div className="space-y-4">
+              {renderField("last_name", "Last Name", userDetails, handleChange, isEditable, errors)}
+              {renderField("phone_number", "Phone Number", userDetails, handleChange, isEditable, errors)}
+            </div>
+
+            {/* Address Section */}
+            <div className="space-y-4 pt-2">
+              <div className="text-sm font-medium text-[#663399]/80 pb-1">Address Details</div>
+              {renderField("address_line_1", "Address Line 1", userDetails, handleChange, isEditable, errors)}
+              {renderField("address_line_2", "Address Line 2", userDetails, handleChange, isEditable, errors)}
+              
+              {/* City and State in same row */}
+              <div className="flex gap-3">
+                <div className="w-1/2">
+                  {renderField("city", "City", userDetails, handleChange, isEditable, errors)}
+                </div>
+                <div className="w-1/2">
+                  {renderField("state", "State", userDetails, handleChange, isEditable, errors)}
+                </div>
+              </div>
+              
+              {/* Pincode and Country in same row */}
+              <div className="flex gap-3">
+                <div className="w-1/2">
+                  {renderField("pincode", "Pin Code", userDetails, handleChange, isEditable, errors)}
+                </div>
+                <div className="w-1/2">
+                  {renderField("country", "Country", userDetails, handleChange, isEditable, errors)}
+                </div>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="pt-2">
+              {renderField("comments", "Additional Comments", userDetails, handleChange, isEditable, errors, "textarea")}
+            </div>
+
+            {/* Submit/Update Button */}
+            {isEditable && (
               <button
-                type="submit"
+                type={isSubmitted ? "button" : "submit"}
+                onClick={isSubmitted ? handleUpdate : undefined}
                 disabled={loading}
-                className={`font-semibold p-2 bg-violet-600 hover:bg-violet-800 text-white rounded-md ${
-                  loading ? "cursor-not-allowed" : ""
-                }`}
+                className="w-full h-11 text-base font-medium 
+                         bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
+                         transition-all duration-200 mt-6
+                         disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <div className="flex items-center">
-                    <svg
-                      className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Submitting...
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm">{isSubmitted ? "Updating..." : "Submitting..."}</span>
                   </div>
                 ) : (
-                  "Submit"
+                  <span>{isSubmitted ? "Update Profile" : "Complete Profile"}</span>
                 )}
               </button>
             )}
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
+
+// Update the renderField function styling
+const renderField = (
+  name: keyof UserDetails,
+  label: string,
+  userDetails: UserDetails,
+  handleChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => void,
+  isEditable: boolean,
+  errors: Partial<UserDetails>,
+  type: string = "text",
+  options?: string[]
+) => (
+  <div className="relative">
+    {type === "select" ? (
+      <FloatingSelect
+        id={name}
+        value={userDetails[name]}
+        onValueChange={(value) => handleChange({
+          target: { name, value },
+        } as React.ChangeEvent<HTMLInputElement>)}
+        disabled={!isEditable}
+        label={label}
+        className="w-full border border-[#663399]/20 rounded-lg text-sm"
+      >
+        {options?.map((option) => (
+          <SelectItem key={option} value={option} className="text-sm">{option}</SelectItem>
+        ))}
+      </FloatingSelect>
+    ) : type === "textarea" ? (
+      <FloatingTextarea
+        id={name}
+        name={name}
+        value={userDetails[name]}
+        onChange={handleChange}
+        disabled={!isEditable}
+        label={label}
+        className="w-full min-h-[80px] border border-[#663399]/20 rounded-lg text-sm"
+      />
+    ) : (
+      <FloatingLabelInput
+        type={type}
+        id={name}
+        name={name}
+        label={label}
+        value={userDetails[name]}
+        onChange={handleChange}
+        disabled={!isEditable}
+        maxLength={name === "phone_number" ? 10 : name === "pincode" ? 6 : undefined}
+        className="w-full border border-[#663399]/20 rounded-lg text-sm"
+      />
+    )}
+    {errors[name] && (
+      <p className="mt-1 text-xs text-red-500">{errors[name]}</p>
+    )}
+  </div>
+);
 
 export default UserDetailsForm;
