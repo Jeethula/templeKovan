@@ -45,8 +45,16 @@ export async function POST(req: Request) {
                     email: identifier.includes('@') ? identifier : await generateUniqueIdentifier('email'),
                     phone: !identifier.includes('@') ? identifier : await generateUniqueIdentifier('phone'),
                     role: ['user'],
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    role: true,
+                    isfirstTimeLogin: true,
                 }
             });
+            console.log(newUser);
             return NextResponse.json({ user: newUser, status: 200, success: "user created" });
         }
     } catch (e) {

@@ -4,7 +4,6 @@ import { UserDetails } from "../../utils/type";
 import { initialUserDetails } from "../../utils/type";
 // import { useAuth } from "../context/AuthContext";
 import { FaUserEdit } from "react-icons/fa";
-import { CgDetailsMore } from "react-icons/cg";
 import toast from "react-hot-toast";
 import {
   Select,
@@ -314,6 +313,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           userId: userID,
           email:  "",
           phone: userDetails.phone_number,
+          isfirstTimeLogin:false,
         };
 
         const res = await fetch("/api/userDetails", {
@@ -383,6 +383,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           avatarUrl:  "",
           salutation: userDetails.salutation,
           userId: userID,
+          isfirstTimeLogin:false,
         };
 
         const res = await fetch("/api/userDetails", {

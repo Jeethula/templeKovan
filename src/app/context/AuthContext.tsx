@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User } from 'firebase/auth';
 import { auth } from '../../Firebase/Firebase';
 import { useRouter } from 'next/navigation';
+import { clearLine } from 'readline';
 
 type Userdata = {
   phoneNumber: string;
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       const data = await response.json();
       const userFromStorage = data.user;
+      console.log(userFromStorage, "userFromStorage");
       setRole(userFromStorage.role);
       sessionStorage.setItem('user', JSON.stringify(userFromStorage));
     } catch (error) {

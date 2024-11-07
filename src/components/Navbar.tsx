@@ -1,16 +1,18 @@
 "use client";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../app/context/AuthContext';
 import { useState, useEffect } from 'react';
 import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes } from 'react-icons/fa';
 import TranslateComponent from './TranslateComponent';
+import { Bell } from 'lucide-react';
 
 const Navbar = () => {
   const pathname = usePathname();
   const { role, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,10 +27,14 @@ const Navbar = () => {
     await signOut();
   };
 
+  const handleAnnouncement = async () => {
+    router.push('/blog');
+  }
+
   const mainNav = [
     { name: 'Home', path: '/', icon: <FaHome className="text-lg" /> },
     { name: 'Profile', path: '/profile', icon: <FaUser className="text-lg" /> },
-    { name: 'Blog', path: '/blog', icon: <FaBlog className="text-lg" /> },
+    { name: 'Announcement', path: '/blog', icon: <FaBlog className="text-lg" /> },
   ];
 
   const menuItems = [
@@ -58,9 +64,9 @@ const Navbar = () => {
               }
             </button>
 
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0" onClick={handleAnnouncement}>
               <span className="text-2xl font-bold text-white">
-                Sri Renuka Akkama Temple
+                <Bell />
               </span>
             </div>
           </div>
