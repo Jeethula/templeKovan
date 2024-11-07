@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent } from 'react';
+import { Dialog, DialogContent } from "../../components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,15 @@ interface FormData {
   paymentMode: string;
 }
 
-const DetailsModal = ({ service, date, onSubmitSuccess }: { service: string; date: Date; onSubmitSuccess: () => void }) => {
+interface DetailsModalProps {
+  service: string;
+  date: Date;
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmitSuccess: () => void;
+}
+
+const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
 
@@ -127,138 +136,149 @@ const DetailsModal = ({ service, date, onSubmitSuccess }: { service: string; dat
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-5">{service} Details</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="relative">
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder=" "
-            onFocus={()=>{setErrors(prev => ({ ...prev, description: '' }))}}
-            className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-              errors.description ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          <Label
-            htmlFor="description"
-            className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-          >
-            Description
-          </Label>
-          {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
-        </div>
-
-
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
         <div>
-          <Label htmlFor="paymentMode" className="block mb-2">Payment Mode</Label>
-          <Select onValueChange={handleSelectChange} value={formData.paymentMode}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Payment Mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="upi">UPI</SelectItem>
-              <SelectItem value="neft">NEFT</SelectItem>
-              <SelectItem value="netbanking">NetBanking</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.paymentMode && <p className="mt-1 text-xs text-red-500">{errors.paymentMode}</p>}
-        </div>
-
-
-        <div className="relative">
-          <Input
-            id="transactionId"
-            value={formData.transactionId}
-            onFocus={()=>{setErrors(prev => ({ ...prev, transactionId: '' }))}}
-            onChange={handleInputChange}
-            placeholder=" "
-            className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-              errors.transactionId ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          <Label
-            htmlFor="transactionId"
-            className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-          >
-            Transaction ID
-          </Label>
-          {errors.transactionId && <p className="mt-1 text-xs text-red-500">{errors.transactionId}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="image" className="block mb-2">Upload Image</Label>
-          <Input
-            type="file"
-            id="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full"
-          />
-          {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
-        </div>
-
-
-        <div className="relative">
-          <Input
-            id="amount"
-            type="number"
-            value={formData.amount}
-            onFocus={()=>{setErrors(prev => ({ ...prev, amount: '' }))}}
-            onChange={handleInputChange}
-            placeholder=" "
-            className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-              errors.amount ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          <Label
-            htmlFor="amount"
-            className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-          >
-            Amount
-          </Label>
-          {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount}</p>}
-        </div>
-
-
-
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <span className="flex items-center justify-center">
-              <svg
-                className="animate-spin h-5 w-5 mr-3 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+          <h1 className="text-2xl font-bold mb-5">{service} Details</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder=" "
+                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+                  errors.description ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              <Label
+                htmlFor="description"
+                className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-              Submitting...
-            </span>
-          ) : (
-            `Submit ${service}`
-          )}
-        </Button>
-      </form>
-    </div>
+                Description
+              </Label>
+              {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
+            </div>
+
+            <div className="relative">
+              <Select onValueChange={handleSelectChange} value={formData.paymentMode}>
+                <SelectTrigger className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+                  errors.paymentMode ? 'border-red-500' : 'border-gray-300'
+                }`}>
+                  <SelectValue placeholder=" " />
+                </SelectTrigger>
+                <Label
+                  htmlFor="paymentMode"
+                  className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                >
+                  Payment Mode
+                </Label>
+                <SelectContent>
+                  <SelectItem value="upi">UPI</SelectItem>
+                  <SelectItem value="neft">NEFT</SelectItem>
+                  <SelectItem value="netbanking">NetBanking</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.paymentMode && <p className="mt-1 text-xs text-red-500">{errors.paymentMode}</p>}
+            </div>
+
+            <div className="relative">
+              <Input
+                id="transactionId"
+                value={formData.transactionId}
+                onChange={handleInputChange}
+                placeholder=" "
+                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+                  errors.transactionId ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              <Label
+                htmlFor="transactionId"
+                className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+              >
+                Transaction ID
+              </Label>
+              {errors.transactionId && <p className="mt-1 text-xs text-red-500">{errors.transactionId}</p>}
+            </div>
+
+            <div className="relative">
+              <Input
+                id="amount"
+                type="number"
+                value={formData.amount}
+                onChange={handleInputChange}
+                placeholder=" "
+                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+                  errors.amount ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              <Label
+                htmlFor="amount"
+                className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+              >
+                Amount
+              </Label>
+              {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount}</p>}
+            </div>
+
+            <div className="relative">
+              <Input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                placeholder=" "
+                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
+                  errors.image ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              <Label
+                htmlFor="image"
+                className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+              >
+                Upload Image
+              </Label>
+              {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  Submitting...
+                </span>
+              ) : (
+                `Submit ${service}`
+              )}
+            </Button>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

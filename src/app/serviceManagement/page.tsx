@@ -1,433 +1,204 @@
 "use client";
-
-import React, { useEffect, useState, useMemo } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { ValueGetterParams, ColDef } from 'ag-grid-community';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Clock } from 'lucide-react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
-import { Clock } from 'lucide-react';
-import { FaUsersGear } from 'react-icons/fa6';
-import CustomFilter from  './CustomFilter'
-import CustomServiceFilter from './CustomServiceFilter'
-import '../userManagement/style.css';
-import UseApprovedByData from '../../utils/UseApprovedByData'
-import { FaDownload } from "react-icons/fa6";
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-
+import { FaUsersGear, FaDownload } from 'react-icons/fa6';
+import { FaSearch } from 'react-icons/fa';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import UseApprovedByData from '../../utils/UseApprovedByData';// Move the PDF styles and component to a separate file
 
 type Service = {
-    price: number;
     id: string;
-    personalInfo: PersonalInfo;
     nameOfTheService: string;
+    amount: number;
     description: string;
     paymentMode: string;
     transactionId: string;
-    amount: number;
-    serviceDate: string;
     approvedBy: string;
+    serviceDate: string;
     status: string;
-}
-
-type PersonalInfo={
-    firstName:string;
-    lastName:string;
-    phoneNumber:string;
-}
-
-
-const styles = StyleSheet.create({
-    page: {
-      padding: 40,
-      backgroundColor: '#FFF9F0',
-    },
-    headerSection: {
-      marginBottom: 30,
-      alignItems: 'center',
-    },
-    mainTitle: {
-      fontSize: 28,
-      color: '#8B0000',
-      fontFamily: 'Helvetica-Bold',
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    subtitle: {
-      fontSize: 12,
-      color: '#8B4513',
-      fontFamily: 'Helvetica',
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    decorativeLine: {
-      width: '100%',
-      height: 2,
-      backgroundColor: '#8B4513',
-      marginBottom: 20,
-      opacity: 0.3,
-    },
-    contentContainer: {
-      backgroundColor: '#FFF',
-      borderRadius: 8,
-      padding: 25,
-      border: '1px solid #D4AF37',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    row: {
-      flexDirection: 'row',
-      marginBottom: 12,
-      paddingBottom: 8,
-      borderBottom: '1px solid #F0E6D6',
-    },
-    label: {
-      width: '40%',
-      fontSize: 11,
-      color: '#8B4513',
-      fontFamily: 'Helvetica-Bold',
-    },
-    value: {
-      width: '60%',
-      fontSize: 11,
-      color: '#333',
-      fontFamily: 'Helvetica',
-    },
-    footer: {
-      marginTop: 30,
-      padding: 20,
-      borderTop: '2px solid #D4AF37',
-      alignItems: 'center',
-    },
-    footerText: {
-      fontSize: 10,
-      color: '#8B4513',
-      textAlign: 'center',
-      fontFamily: 'Helvetica',
-      marginBottom: 5,
-    },
-    blessingText: {
-      fontSize: 14,
-      color: '#8B0000',
-      fontFamily: 'Helvetica-Bold',
-      textAlign: 'center',
-      marginTop: 15,
-    },
-    receiptTitle: {
-      fontSize: 16,
-      color: '#8B0000',
-      fontFamily: 'Helvetica-Bold',
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    ornament: {
-      fontSize: 24,
-      color: '#D4AF37',
-      textAlign: 'center',
-      marginBottom: 10,
-    },
-  });
-  
-  const MyDocument: React.FC<{ 
-    rowData: Service; 
-    userData: { 
-      id: string; 
-      email: string; 
-      phone: string 
-    }; 
-    approvedByData:{
-      firstName: string;
-      lastName: string;
-      phoneNumber: string;
-    }
-  }> = ({ rowData, userData, approvedByData }) => (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.headerSection}>
-          <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
-          <Text style={styles.subtitle}></Text>
-          <View style={styles.decorativeLine} />
-        </View>
-  
-        <View style={styles.contentContainer}>
-          <Text style={styles.ornament}>☸</Text>
-          <Text style={styles.receiptTitle}>Seva Receipt</Text>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Devotee ID</Text>
-            <Text style={styles.value}>{userData.id}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Contact Details</Text>
-            <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Seva Name</Text>
-            <Text style={styles.value}>{rowData.nameOfTheService}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Description</Text>
-            <Text style={styles.value}>{rowData.description}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Seva Date</Text>
-            <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Offering Amount</Text>
-            <Text style={styles.value}>₹{rowData.amount}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Payment Details</Text>
-            <Text style={styles.value}>
-              {rowData.paymentMode} | Trans. ID: {rowData.transactionId}
-            </Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Approved By</Text>
-            <Text style={styles.value}>{approvedByData?.firstName} {approvedByData?.lastName}</Text>
-          </View>
-  
-          <View style={styles.row}>
-            <Text style={styles.label}>Approver Contact</Text>
-            <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
-          </View>
-  
-          <View style={[styles.row, { borderBottom: 'none' }]}>
-            <Text style={styles.label}>Status</Text>
-            <Text style={styles.value}>{rowData.status}</Text>
-          </View>
-        </View>
-  
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            This is a computer generated receipt. No signature required.
-          </Text>
-          <Text style={styles.footerText}>
-            For any queries, please contact the temple office.
-          </Text>
-          {/* <Text style={styles.blessingText}>
-            
-          </Text> */}
-        </View>
-      </Page>
-    </Document>
-  );
-
-const ServiceGrid = () => {
-    const [rowData, setRowData] = useState([]);
-    const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
-    const userId: string = sessionData.id;
-    const router = useRouter();
-    const statusCellRenderer = (params: { value: string }) => {
-        if (params.value === 'PENDING') {
-            return (
-                <div className='flex justify-left items-center text-yellow-500 font-bold'>
-                    <Clock size={16} style={{ marginRight: '4px' }} />
-                    PENDING
-                </div>
-            );
-        }
-        if (params.value === 'REJECTED') {
-            return (
-                <div className='flex justify-left items-center text-red-500 font-bold'>
-                    <RxCross1 size={16} style={{ marginRight: '4px' }} />
-                    REJECTED
-                </div>
-            );
-        }
-        if (params.value === 'APPROVED') {
-            return (
-                <div className='flex justify-left items-center text-green-500 font-bold'>
-                    <IoCheckmarkDone size={20} style={{ marginRight: '4px' }} />
-                    APPROVED
-                </div>
-            );
-        }
-        return params.value;
-    };
-
-    const printCellRenderer = (params: { data:Service }) => {
- 
-        const approvedByData = UseApprovedByData(params.data.approvedBy);
-        console.log(params.data.approvedBy);
-        return (
-          <PDFDownloadLink 
-            document={<MyDocument rowData={params.data} userData={sessionData} approvedByData={approvedByData || { firstName: 'Not Approved Yet', lastName: '', phoneNumber: '' }} />}
-            fileName="Service_Details.pdf"
-          >
-            <button className="text-blue-500 hover:text-blue-700">
-            <FaDownload size={18} />
-            </button>
-          </PDFDownloadLink>
-        );
-      };
-
-    const columnDefs: ColDef[] = [
-        { 
-          headerName: 'Service Name', 
-          field: 'nameOfTheService',
-            filter: CustomServiceFilter,
-            floatingFilter: true, 
-            maxWidth:150,
-            filterParams: {
-                values: ['abhisekam','donation','thirumanjanam']
-            },
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-         },
-         { 
-            headerName: 'Service Date',
-            field: 'serviceDate',
-            floatingFilter: true,
-            maxWidth: 150,
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' },
-            valueFormatter: (params) => {
-                const date = new Date(params.value);
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
-              }
-         },
-         { 
-          headerName: 'Amount', 
-          field: 'amount',
-          maxWidth: 150,
-          floatingFilter: true,
-          cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-         },
-        { 
-            headerName: 'Name', 
-            field: 'name', 
-            floatingFilter: true,
-            valueGetter: (params: ValueGetterParams) => `${params.data.firstName} ${params.data.lastName}`,
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' } 
-        },
-        { 
-            headerName: 'Phone No', 
-            field: 'phoneNo', 
-            floatingFilter: true,
-            maxWidth:150,
-            valueGetter: (params: ValueGetterParams) => params.data.phoneNo,
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' } 
-        },
-        { 
-            headerName: 'Status', 
-            field: 'status', 
-            cellRenderer: statusCellRenderer,  
-            filter: CustomFilter,
-            maxWidth: 170,
-            floatingFilter: true, 
-            filterParams: {
-                values: ['APPROVED', 'REJECTED', 'PENDING']  
-            },
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-        },
-        {
-            headerName:'Approved By',
-            field:'approvedBy',
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' },
-            hide:true
-
-        },
-        {
-            headerName: 'Description',
-            field: 'description',
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' },
-            hide:true
-        },
-        {
-            headerName: 'Payment Mode',
-            field: 'paymentMode',
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' },
-            hide:true
-        },
-        {
-            headerName: 'Transaction Id',
-            field: 'transactionId',
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' },
-            hide:true
-        },
-        {
-            headerName: 'Download Receipt',
-            field: 'print',
-            maxWidth: 160,
-            filter: false,
-            cellRenderer: printCellRenderer,
-            cellStyle: { textAlign: 'left', fontWeight: 'normal' }
-        }
-    ];
-    const paginationPageSize = 10;
-    const paginationPageSizeSelector = [10, 20, 50, 100];
-
-    useEffect(() => {
-        const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-        if (!sessionData.role.includes('approver') ) {
-          router.push('/unAuthorized');
-        }
-        const fetchServices = async () => {
-            const response = await fetch(`/api/services/approver?approverId=${userId}`);
-            const data = await response.json();
-            if (data.status === 200) {
-                setRowData(data.services.map((service: Service) => ({
-                    id: service.id,
-                    firstName: service.personalInfo.firstName,
-                    lastName: service.personalInfo.lastName,
-                    phoneNo: service.personalInfo.phoneNumber,
-                    nameOfTheService: service.nameOfTheService,
-                    amount: service.price,
-                    description: service.description,
-                    paymentMode: service.paymentMode,
-                    transactionId: service.transactionId,
-                    approvedBy: service.approvedBy,
-                    serviceDate: new Date(service.serviceDate).toLocaleDateString(),
-                    status: service.status
-                })));
-            }
-        };
-        fetchServices();
-    }, []);
-
-    const onRowClicked = (params: { data: { id: string } }) => {
-        console.log(params);
-        
-        router.push(`/serviceManagement/${params.data.id}`);
-    };
-
-    const defaultColDef = useMemo(() => ({
-        flex:2,
-        sortable: true,
-        filter: true,
-        resizable: true,
-      }), []);
-    return (
-        <div className='bg-[#fdf0f4] h-full w-full min-h-screen min-w-screen px-4'>
-        <div className="pt-5 flex flex-col items-center gap-y-5 justify-center">
-          <div className='flex w-full items-center justify-between gap-y-5 px-3'>
-            <h1 className='text-2xl font-bold text-red-500 flex items-center gap-x-3'><FaUsersGear />Manage Services</h1>
-        </div>
-        <div className="ag-theme-alpine" style={{ height: 500, width: '100%' }}>
-            <AgGridReact
-                rowData={rowData}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                pagination={true}
-                paginationPageSize={paginationPageSize}
-                paginationPageSizeSelector={paginationPageSizeSelector}
-                onRowClicked={onRowClicked}
-            />
-        </div>
-        </div>
-        </div>
-    );
 };
 
-export default ServiceGrid;
+const ServiceCard: React.FC<{ service: Service; onClick: () => void; sessionData: any }> = ({ service, onClick, sessionData }) => {
+  const approvedByData = UseApprovedByData(service.approvedBy);
+  
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return <Clock className="text-yellow-500" size={16} />;
+      case 'REJECTED':
+        return <RxCross1 className="text-red-500" size={16} />;
+      case 'APPROVED':
+        return <IoCheckmarkDone className="text-green-500" size={20} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <h3 className="font-semibold text-base text-gray-800">
+              {service.nameOfTheService}
+            </h3>
+            <span className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium"
+              style={{
+                backgroundColor: service.status === 'APPROVED' ? '#e6ffe6' : 
+                              service.status === 'REJECTED' ? '#ffe6e6' : '#fff9e6',
+                color: service.status === 'APPROVED' ? '#006600' : 
+                       service.status === 'REJECTED' ? '#cc0000' : '#997a00'
+              }}>
+              {getStatusIcon(service.status)}
+              <span>{service.status}</span>
+            </span>
+          </div>
+          <div className="mt-2 space-y-1 text-sm text-gray-600">
+            <p>Amount: ₹{service.amount}</p>
+            <p>Date: {service.serviceDate}</p>
+          </div>
+        </div>
+        {/* <PDFDownloadLink 
+          document={<MyDocument rowData={service} userData={sessionData} approvedByData={approvedByData || { firstName: 'Not Approved Yet', lastName: '', phoneNumber: '' }} />}
+          fileName="Service_Details.pdf"
+          className="text-blue-500 hover:text-blue-700"
+        >
+          <FaDownload size={18} />
+        </PDFDownloadLink> */}
+      </div>
+    </div>
+  );
+};
+
+const ServiceManagementGrid: React.FC = () => {
+  const router = useRouter();
+  const [services, setServices] = useState<Service[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [serviceTypeFilter, setServiceTypeFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (!sessionData.role.includes('approver') ) {
+      router.push('/unAuthorized');
+    }
+    const userId = sessionData.id;
+    const fetchServices = async () => {
+        const response = await fetch(`/api/services/approver?approverId=${userId}`);
+        const data = await response.json();
+        if (response.status === 200) {
+            setServices(data.services.map((service: any) => ({
+                id: service.id,
+                nameOfTheService: service.nameOfTheService,
+                amount: service.amount,
+                description: service.description,
+                paymentMode: service.paymentMode,
+                transactionId: service.transactionId,
+                approvedBy: service.approvedBy,
+                serviceDate: new Date(service.serviceDate).toLocaleDateString(),
+                status: service.status
+            })));
+        }
+    };
+    fetchServices();
+}, []);
+
+  const filteredServices = services.filter(service => {
+    const matchesSearch = (
+      service.nameOfTheService.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const matchesStatus = !statusFilter || service.status === statusFilter;
+    const matchesType = !serviceTypeFilter || service.nameOfTheService === serviceTypeFilter;
+    const matchesDate = !dateFilter || service.serviceDate.includes(dateFilter);
+
+    return matchesSearch && matchesStatus && matchesType && matchesDate;
+  });
+
+  return (
+    <div className="bg-[#fdf0f4] min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
+        {/* Header and Filters Section */}
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="space-y-4">
+            <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
+              <FaUsersGear className="text-xl" />
+              <span>Manage Services</span>
+            </h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search services..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 pl-9 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+                />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+              >
+                <option value="">All Status</option>
+                <option value="APPROVED">Approved</option>
+                <option value="PENDING">Pending</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+
+              <select
+                value={serviceTypeFilter}
+                onChange={(e) => setServiceTypeFilter(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+              >
+                <option value="">All Services</option>
+                <option value="abhisekam">Abhisekam</option>
+                <option value="donation">Donation</option>
+                <option value="thirumanjanam">Thirumanjanam</option>
+              </select>
+
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredServices.map((service) => (
+            <ServiceCard
+              key={service.id}
+              service={service}
+              onClick={() => router.push(`/serviceManagement/${service.id}`)}
+              sessionData={sessionData}
+            />
+          ))}
+        </div>
+
+        {/* No Results Message */}
+        {filteredServices.length === 0 && (
+          <div className="text-center py-6">
+            <p className="text-gray-500 text-base">No services found matching your criteria.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ServiceManagementGrid;

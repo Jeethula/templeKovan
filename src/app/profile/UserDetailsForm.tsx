@@ -98,10 +98,7 @@ interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
 }
 
-// Add this helper function for generating random IDs
-const generateRandomId = () => {
-  return Math.floor(10000 + Math.random() * 90000).toString();
-};
+
 
 const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
   const [userDetails, setUserDetails] =
@@ -113,44 +110,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [email, setEmail] = useState<string>("");
   // const { user } = useAuth();
   const router = useRouter();
-  const validateUniqueId = (uniqueId: string): boolean => {
-    const regex = /^\d{4,5}$/;
-    return regex.test(uniqueId);
-  };
 
-  const [isUniqueIdVerified, setIsUniqueIdVerified] = useState<boolean>(false);
-  const [uniqueIdCheckMessage, setUniqueIdCheckMessage] = useState<string>("");
 
-  const handleUniqueIdCheck = async () => {
-    if (!validateUniqueId(userDetails.unique_id)) {
-      setUniqueIdCheckMessage("Invalid Unique ID format");
-      setIsUniqueIdVerified(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/checkuniqueid", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uniqueId: userDetails.unique_id }),
-      });
-
-      const data = await res.json();
-      if (data.exists) {
-        setUniqueIdCheckMessage("Unique ID already exists");
-        setIsUniqueIdVerified(false);
-      } else {
-        setUniqueIdCheckMessage("Unique ID is available");
-        setIsUniqueIdVerified(true);
-      }
-    } catch (error) {
-      console.error("Network error:", error);
-      setUniqueIdCheckMessage("Network error. Please try again.");
-      setIsUniqueIdVerified(false);
-    }
-  };
 
   const getData = async () => {
     const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
@@ -223,36 +184,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     fetchUserDetails();
   }, [router]);
 
-  // Add this function to automatically generate and verify unique ID
-  const generateUniqueId = async () => {
-    let isUnique = false;
-    let newId: string;
-    
-    while (!isUnique) {
-      newId = generateRandomId();
-      try {
-        const res = await fetch("/api/checkuniqueid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uniqueId: newId }),
-        });
-        const data = await res.json();
-        if (!data.exists) {
-          isUnique = true;
-          setUserDetails(prev => ({ ...prev, unique_id: newId }));
-          setIsUniqueIdVerified(true);
-        }
-      } catch (error) {
-        console.error("Error checking unique ID:", error);
-      }
-    }
-  };
 
-  useEffect(() => {
-    if (isEditable && !isSubmitted) {
-      generateUniqueId();
-    }
-  }, [isEditable, isSubmitted]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -357,10 +289,6 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     e.preventDefault();
     if (!isEditable) {
       toast.error('Please click the "Edit" button to edit your details.');
-      return;
-    }
-    if (!isUniqueIdVerified) {
-      toast.error("Please verify the Unique ID");
       return;
     }
     if (validateForm()) {
@@ -494,10 +422,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
               </div>
             </div>
 
-            {/* Comments Section */}
-            <div className="pt-2">
-              {renderField("comments", "Additional Comments", userDetails, handleChange, isEditable, errors, "textarea")}
-            </div>
+
 
             {/* Submit/Update Button */}
             {isEditable && (
