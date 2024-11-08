@@ -2,11 +2,13 @@ import prisma from '@/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
-    const { serviceDate, nameOfTheService } = await req.json();
+    const { serviceDate, nameOfTheServiceid } = await req.json()
+    console.log(serviceDate, nameOfTheServiceid);
+    
     if (!serviceDate) {
         return NextResponse.json({ error: 'Service date is required' }, { status: 400 });
     }
-    if (!nameOfTheService) {
+    if (!nameOfTheServiceid) {
         return NextResponse.json({ error: 'Name of the service is required' }, { status: 400 });
     }
     const serviceDateObj = new Date(serviceDate);
@@ -14,24 +16,24 @@ export async function POST(req: NextRequest) {
     const serviceDateString = serviceDateObj.toISOString().split('T')[0];
 
     try {
-        console.log(serviceDateObj, nameOfTheService);
+        console.log(serviceDateObj, nameOfTheServiceid);
         
         const count = await prisma.services.count({
             where: {
-                nameOfTheService,
+                nameOfTheServiceid,
                 serviceDate: new Date(serviceDateString),
             },
         });
         
         const serviceLimit = await prisma.serviceLimit.findMany({});
 
-        if (nameOfTheService === 'thirumanjanam') {
+        if (nameOfTheServiceid === 'thirumanjanam') {
             if (count < serviceLimit[0].thirumanjanam) {
                 return NextResponse.json({ isAvailable: true }, { status: 200 });
             } else {
                 return NextResponse.json({ isAvailable: false }, { status: 200 });
             }
-        } else if (nameOfTheService === 'abhisekam') {
+        } else if (nameOfTheServiceid === 'abhisekam') {
             if (count < serviceLimit[0].abhisekam) {
                 return NextResponse.json({ isAvailable: true }, { status: 200 });
             } else {

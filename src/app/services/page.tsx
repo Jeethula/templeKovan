@@ -44,6 +44,7 @@ const ServicesPage: React.FC = () => {
           .map((service) => (
             <ServiceCard
               key={service.id}
+              id={service.id}
               title={service.name}
               imageSrc={service.image}
               description={service.description}
