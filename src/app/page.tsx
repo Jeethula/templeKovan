@@ -1,13 +1,10 @@
 "use client";
 import { useAuth } from "./context/AuthContext";
 import { useEffect, useState } from "react";
-import { FaOm } from "react-icons/fa";
 import { useRouter } from "next/navigation"; // Import useRouter
-import ThirumanjanamModal from "@/components/modals/ThirumanjanamModal";
-import AbhisekamModal from "@/components/modals/AbisekamModal";
-import HomeServiceCard from "@/components/HomeServiceCard";
 
 import Link from "next/link";
+import Image from "next/image";
 
 interface Post {
   id: string;
@@ -24,16 +21,39 @@ interface Post {
   comments: any[];
 }
 
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
 export default function HomePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [latestPost, setLatestPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const handleSubmitSuccess = async () => {
-    //
+  const [services, setServices] = useState<Service[]>([]);
+const [servicesLoading, setServicesLoading] = useState(true);
+
+
+ useEffect(() => {
+  const fetchServices = async () => {
+    try {
+      const res = await fetch('/api/services/addservices');
+      if (!res.ok) throw new Error('Failed to fetch services');
+      const data = await res.json();
+      setServices(data.services);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    } finally {
+      setServicesLoading(false);
+    }
   };
 
+  fetchServices();
+ }, []);
 
   useEffect(() => {
     const fetchLatestPost = async () => {
@@ -117,6 +137,14 @@ export default function HomePage() {
     fetchLatestPost();
   }, [router, user]);
 
+  const handleContributeClick = () => {
+    router.push("/contributions");
+  };
+
+  const handleservices = () => {
+    router.push("/services");
+  }
+
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-start gap-y-3 px-3">
       {/* <h1 className="text-2xl font-semibold text-red-600 flex items-center gap-x-3 text-center">
@@ -128,21 +156,91 @@ export default function HomePage() {
          <h1>Good Morning,<span> Jeethu LA</span> </h1>
         </div>
       </div>
-      {/* <h1 className="text-xl font-semibold text-red-600 ">Sevas</h1> */}
-      <div className="flex gap-x-4 overflow-x-auto w-full  py-4">
-        <HomeServiceCard
-          title="Thirumanjanam"
-          imageSrc="https://i.ytimg.com/vi/OzEJnTs_bqU/maxresdefault.jpg"
-          description="Participate in the sacred bathing ritual of the deity."
-          modalComponent={<ThirumanjanamModal onSubmitSuccess={handleSubmitSuccess} />}
-        />
-        <HomeServiceCard
-          title="Abisekam"
-          imageSrc="https://chinnajeeyar.org/wp-content/uploads/2016/11/15032201_10154073675297205_4908543132323661187_n.jpg"
-          description="Take part in the divine anointment ceremony."
-          modalComponent={<AbhisekamModal onSubmitSuccess={handleSubmitSuccess} />}        />
+      {/* <div className="flex gap-x-4 overflow-x-auto w-full py-4">
+  {servicesLoading ? (
+    <div className="animate-pulse flex space-x-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-gray-200 rounded-lg w-64 h-48"></div>
+      ))}
+    </div>
+  ) : services.length > 0 ? (
+    services.map((service) => (
+      <div 
+        key={service.id}
+        className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-x-auto"
+      >
+           
+        {service.image? (
+          <>
+          <div className="relative h-32 w-full">
+  <Image
+    src={service.image}
+    alt={service.name}
+    layout="fill"
+    objectFit="cover"
+    className="h-28"
+  />
+  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
+    <h1 className="font-semibold text-lg text-white">{service.name}</h1>
+  </div>
+</div>
+          </>
+        ) : (
+          <div className="p-4">
+            <h3 className="font-semibold text-black text-lg mb-2">{service?.name}</h3>
+            <p className="text-gray-600 line-clamp-3">{service.description}</p>
+          </div>
+        )}
       </div>
-      <div className="text-white bg-[#663399] font-semibold text-lg text-center rounded-md w-full h-fit px-4 py-2 mx-4">
+    ))
+  ) : (
+    <div className="w-full text-center text-gray-500">
+      No services available
+    </div>
+  )}
+</div> */}
+<div className="flex gap-x-4 overflow-x-auto w-full py-4">
+  {servicesLoading ? (
+    <div className="animate-pulse flex space-x-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-gray-200 rounded-lg w-64 h-48"></div>
+      ))}
+    </div>
+  ) : services.length > 0 ? (
+    services.map((service) => (
+      <div 
+        key={service.id}
+        onClick={handleservices}
+        className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden"
+      >
+        {service.image ? (
+          <div className="relative h-32 w-full">
+            <Image
+              src={service.image}
+              alt={service.name}
+              layout="fill"
+              objectFit="cover"
+              className="h-28"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
+              <h1 className="font-semibold text-lg text-white">{service.name}</h1>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4">
+            <h3 className="font-semibold text-black text-lg mb-2">{service.name}</h3>
+            <p className="text-gray-600 line-clamp-3">{service.description}</p>
+          </div>
+        )}
+      </div>
+    ))
+  ) : (
+    <div className="w-full text-center text-gray-500">
+      No services available
+    </div>
+  )}
+</div>
+      <div onClick={handleContributeClick} className="text-white bg-[#663399] font-semibold text-lg text-center rounded-md w-full h-fit px-4 py-2 mx-4">
         Contribute
       </div>
             <div className="w-full px-4">
