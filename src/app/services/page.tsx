@@ -7,7 +7,7 @@ import AbisekamModal from '../../components/modals/AbisekamModal';
 
 const ServicesPage: React.FC = () => {
   const handleSubmitSuccess = async () => {
-    // Keep this for service submissions
+    //
   };
 
   return (

@@ -26,6 +26,7 @@ model User {
   jwtToken    String?     @default("")
   refreshToken String?    @default("")
   isfirstTimeLogin Boolean @default(true)
+  approvedServices    Services[]
 }
 
 model PersonalInfo {
@@ -48,24 +49,31 @@ model PersonalInfo {
   Services    Services[]
 }
 
-model ServiceName {
+model ServiceAdd {
   id String @id @default(cuid())
   name String
+  description String?
+  image String?
+  targetDate DateTime?
+  targetPrice Int?
+  minAmount Int?
+  maxCount Int?
   createdAt   DateTime  @default(now())
   services Services[]
 }
 
 model Services {
   id    String   @id @default(cuid())
-  nameOfTheServiceid String
-  nameOfTheService  ServiceName  @relation(fields: [nameOfTheServiceid], references: [id])
+  nameOfTheServiceid String 
+  nameOfTheService  ServiceAdd  @relation(fields: [nameOfTheServiceid], references: [id])
   description String
   image    String?
   paymentMode String?
   transactionId String?
   serviceDate DateTime? @db.Date
   posUserId String?
-  approvedBy String?
+  approverId String?
+  approvedBy User? @relation(fields: [approverId], references: [id])
   approvedAt DateTime?
   price       Int
   status      String @default("PENDING")
