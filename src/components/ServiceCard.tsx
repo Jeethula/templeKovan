@@ -1,20 +1,30 @@
-import { useState } from "react";
+
 import Image from "next/image";
 interface ServiceCardProps {
   title: string;
   imageSrc: string;
   description: string;
-  modalComponent: React.ReactNode;
+  minAmount?: number;
+  maxCount?: number;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, description, modalComponent }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  title,
+  imageSrc,
+  description,
+  minAmount,
+  maxCount
+}) => {
+
+  const handleOnClick = () => {
+    
+  }
 
   return (
     <>
       <div
         className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105"
-        onClick={() => setIsModalOpen(true)}
+        onClick={()=>handleOnClick()}
       >
         <h3 className="text-xl font-semibold p-4 text-center">{title}</h3>
         <div className="relative h-48">
@@ -27,23 +37,23 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, description,
           />
         </div>
         <p className="p-4 text-center">{description}</p>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          {/* Removed the Card wrapper here */}
-          <div className="bg-white p-8 rounded-lg max-w-md w-full">
-            <button
-              className="float-right text-gray-600 hover:text-gray-800"
-              onClick={() => setIsModalOpen(false)}
-            >
-              &times;
-            </button>
-            {/* Render the modal component directly */}
-            {modalComponent}
+        {(minAmount || maxCount) && (
+          <div className="space-y-2 mb-4">
+            {minAmount && (
+              <div className="flex items-center text-sm text-gray-700">
+                <span className="font-medium">Minimum Amount:</span>
+                <span className="ml-2">₹{minAmount}</span>
+              </div>
+            )}
+            {maxCount && (
+              <div className="flex items-center text-sm text-gray-700">
+                <span className="font-medium">Maximum Participants:</span>
+                <span className="ml-2">{maxCount}</span>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };
