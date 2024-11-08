@@ -77,7 +77,6 @@ export async function PUT(req: Request) {
   }
 }
 
-// DELETE
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -87,8 +86,11 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    await prisma.serviceAdd.delete({
-      where: { id }
+    await prisma.serviceAdd.update({
+        where: { id },
+        data: {
+          isActive: false
+        }
     });
 
     return NextResponse.json({ message: 'Service deleted successfully' });
