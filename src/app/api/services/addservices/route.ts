@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 
 // CREATE
+
+export async function GET(req: Request) {
+    try {
+        const services = await prisma.serviceAdd.findMany();
+        return NextResponse.json(services);
+    } catch (error) {
+        return NextResponse.json({ error: 'Error fetching services' }, { status: 500 });
+    }
+    }
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
