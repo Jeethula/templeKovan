@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { patchFetch } from 'next/dist/server/app-render/entry-base';
 
 interface FormData {
   description: string;
@@ -19,20 +20,21 @@ interface DetailsModalProps {
   service: string;
   date: Date;
   isOpen: boolean;
+  selectedMethod: string;
   onClose: () => void;
   onSubmitSuccess: () => void;
 }
 
-const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: DetailsModalProps) => {
+const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
-
+  
   const [formData, setFormData] = useState<FormData>({
     description: '',
     amount: '', 
     transactionId: '',
     image: null,
-    paymentMode: ''
+    paymentMode: '',
   });
 
   const [errors, setErrors] = useState({
@@ -40,7 +42,6 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
     amount: '', 
     transactionId: '',
     image: '',
-    paymentMode: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,10 +56,6 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
     setErrors(prev => ({ ...prev, [id]: '' }));
   };
 
-  const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, paymentMode: value }));
-    setErrors(prev => ({ ...prev, paymentMode: '' }));
-  };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,13 +79,11 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
       amount: '',
       transactionId: '',
       image: '',
-      paymentMode: ''
     };
 
     if (!formData.description) newErrors.description = 'Description is required';
     if (!formData.amount) newErrors.amount = 'Amount is required'; 
     if (!formData.transactionId) newErrors.transactionId = 'Transaction ID is required';
-    if (!formData.paymentMode) newErrors.paymentMode = 'Payment Mode is required';
     if(!formData.image) newErrors.image = 'Image is required';
     if (Object.keys(newErrors).some(key => newErrors[key as keyof typeof newErrors])) {
       setErrors(newErrors);
@@ -106,6 +101,7 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
         body: JSON.stringify({
           ...formData,
           serviceDate: date,
+          paymentMode: selectedMethod,
           nameOfTheService: service.toLowerCase(),
           userId
         }),
@@ -161,27 +157,6 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
               {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
             </div>
 
-            <div className="relative">
-              <Select onValueChange={handleSelectChange} value={formData.paymentMode}>
-                <SelectTrigger className={`block px-2.5 pb-2.5 pt-4 w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-                  errors.paymentMode ? 'border-red-500' : 'border-gray-300'
-                }`}>
-                  <SelectValue placeholder=" " />
-                </SelectTrigger>
-                <Label
-                  htmlFor="paymentMode"
-                  className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-                >
-                  Payment Mode
-                </Label>
-                <SelectContent>
-                  <SelectItem value="upi">UPI</SelectItem>
-                  <SelectItem value="neft">NEFT</SelectItem>
-                  <SelectItem value="netbanking">NetBanking</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.paymentMode && <p className="mt-1 text-xs text-red-500">{errors.paymentMode}</p>}
-            </div>
 
             <div className="relative">
               <Input
@@ -243,8 +218,7 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess }: Detai
             </div>
 
             <Button
-              type="submit"
-              className="w-full"
+              className="w-full bg-[rgb(102,51,153)] text-white"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

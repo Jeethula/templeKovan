@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes } from 'react-icons/fa';
 import TranslateComponent from './TranslateComponent';
 import { Bell } from 'lucide-react';
+import { LiaDonateSolid } from "react-icons/lia";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -35,6 +36,7 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: <FaHome className="text-lg" /> },
     { name: 'Profile', path: '/profile', icon: <FaUser className="text-lg" /> },
     { name: 'Announcement', path: '/blog', icon: <FaBlog className="text-lg" /> },
+    {name:'Contributions',path:'/contributions',icon:<LiaDonateSolid className="text-lg" />},
   ];
 
   const menuItems = [
@@ -136,7 +138,7 @@ const Navbar = () => {
 
             {/* Translation Component */}
             <div className="px-8 py-4 border-t border-[#663399]/20">
-              <TranslateComponent />
+              {/* <TranslateComponent /> */}
             </div>
           </div>
 

@@ -1,13 +1,16 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DetailsModal from '@/components/modals/DetailsModal';
-import { FaCopy, FaDownload } from 'react-icons/fa';
+import { FaDownload, FaCheck } from 'react-icons/fa';
+import { IoCopyOutline } from "react-icons/io5";
 
 type PaymentMethod = 'NEFT' | 'UPI' | 'QR';
 
 const DonationPage = () => {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [qrDownloaded, setQrDownloaded] = useState(false);
 
   const bankDetails = {
     accountName: "Sri Renuka Akkama Temple",
@@ -19,10 +22,30 @@ const DonationPage = () => {
     upiId: "temple@upi"
   };
 
-  const copyToClipboard = async (text: string) => {
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (copiedField) {
+      timeout = setTimeout(() => {
+        setCopiedField(null);
+      }, 2000);
+    }
+    return () => clearTimeout(timeout);
+  }, [copiedField]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (qrDownloaded) {
+      timeout = setTimeout(() => {
+        setQrDownloaded(false);
+      }, 2000);
+    }
+    return () => clearTimeout(timeout);
+  }, [qrDownloaded]);
+
+  const copyToClipboard = async (text: string, field: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert('Copied to clipboard!');
+      setCopiedField(field);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -35,6 +58,7 @@ const DonationPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setQrDownloaded(true);
   };
 
   return (
@@ -76,6 +100,7 @@ const DonationPage = () => {
 
             {/* Payment Details */}
             {selectedMethod && (
+              <div>
               <div className="mt-6 p-4 bg-[#fdf0f4] rounded-xl">
                 {selectedMethod === 'NEFT' && (
                   <div className="space-y-3">
@@ -83,12 +108,12 @@ const DonationPage = () => {
                       <div key={key} className="flex justify-between items-center">
                         <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
                         <div className="flex items-center space-x-2">
-                          <span className="font-">{value}</span>
+                          <span className="font-medium">{value}</span>
                           <button
-                            onClick={() => copyToClipboard(value)}
+                            onClick={() => copyToClipboard(value, key)}
                             className="p-2 text-[#663399] hover:bg-[#663399]/10 rounded-full"
                           >
-                            <FaCopy />
+                            {copiedField === key ? <FaCheck /> : <IoCopyOutline />}
                           </button>
                         </div>
                       </div>
@@ -102,10 +127,10 @@ const DonationPage = () => {
                     <div className="flex items-center space-x-2">
                       <span className="font-medium">{upiDetails.upiId}</span>
                       <button
-                        onClick={() => copyToClipboard(upiDetails.upiId)}
+                        onClick={() => copyToClipboard(upiDetails.upiId, 'upiId')}
                         className="p-2 text-[#663399] hover:bg-[#663399]/10 rounded-full"
                       >
-                        <FaCopy />
+                        {copiedField === 'upiId' ? <FaCheck /> : <IoCopyOutline />}
                       </button>
                     </div>
                   </div>
@@ -114,7 +139,7 @@ const DonationPage = () => {
                 {selectedMethod === 'QR' && (
                   <div className="flex flex-col items-center space-y-4">
                     <img
-                      src="/qr-code.png" // Add your QR code image path here
+                      src="/qr-code.png"
                       alt="Donation QR Code"
                       className="w-48 h-48 object-contain"
                     />
@@ -122,23 +147,28 @@ const DonationPage = () => {
                       onClick={handleDownloadQR}
                       className="flex items-center space-x-2 text-[#663399] hover:bg-[#663399]/10 px-4 py-2 rounded-lg"
                     >
-                      <FaDownload />
+                      {qrDownloaded ? <FaCheck /> : <FaDownload />}
                       <span>Save QR Code</span>
                     </button>
                   </div>
                 )}
-
+              </div>
+              <div className="w-full flex justify-end ">
                 <button
                   onClick={() => setShowModal(true)}
-                  className="w-full mt-6 h-12 bg-[#663399] hover:bg-[#663399]/90 text-white font-medium 
+                  className="mt-4 h-12 w-24 bg-[#663399] hover:bg-[#663399]/90 text-white font-medium px-2 py-2
                            rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                 >
-                  Complete Donation
+                  Proceed
                 </button>
               </div>
+
+              </div>
+
             )}
+
             {
-              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} service="Donation" date={new Date()} onSubmitSuccess={() => setShowModal(false)} />
+              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} service="Donation" date={new Date()} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} />
             }
           </div>
         </div>
