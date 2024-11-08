@@ -76,7 +76,7 @@ export default function HomePage() {
         console.error("Error fetching latest post:", error);
       }
     };
-    fetchUserDetails();
+    fetchUserDetails()
     fetchLatestPost();
   }, [router, user]);
 
