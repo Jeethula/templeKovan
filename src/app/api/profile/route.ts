@@ -15,9 +15,6 @@ export async function GET(){
                 pincode:true,
                 state:true,
                 country:true,
-                comments:true,
-                isApproved:true,
-                avatarUrl:true,
                 createdAt:true,
             },
             orderBy:{
@@ -63,9 +60,7 @@ export async function POST(req:Request){
                 phoneNumber:true,
                 state:true,
                 country:true,
-                comments:true,
-                isApproved:true,
-                avatarUrl:true,
+
                 user:{
                     select:{
                         id:true,
@@ -114,9 +109,6 @@ export async function PATCH(req: Request) {
                 pincode: body.pincode,
                 state: body.state,
                 country: body.country,
-                comments: body.comments,
-                isApproved: body.isApproved,
-                avatarUrl: body.avatarUrl,
             },
         });
 

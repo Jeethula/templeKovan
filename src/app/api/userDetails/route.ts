@@ -170,7 +170,7 @@ export async function PUT(req: Request) {
         city: oldUserDetails.city,
         salutation: oldUserDetails?.salutation,
         // comments: oldUserDetails?.comments,
-        // uniqueId: oldUserDetails?.uniqueId,
+        uniqueId: oldUserDetails?.uniqueId,
         personalInfoId: oldUserDetails?.id,
       },
     });

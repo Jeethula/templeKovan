@@ -31,7 +31,6 @@ export async function GET() {
                         personalInfo:{
                             select:{
                                 firstName:true,
-                                avatarUrl:true
                             }
                         }
                     }
