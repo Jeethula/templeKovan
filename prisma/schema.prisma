@@ -59,6 +59,7 @@ model ServiceAdd {
   targetPrice Int?
   minAmount Int?
   maxCount Int?
+  isActive Boolean @default(true)
   createdAt   DateTime  @default(now())
   services Services[]
 }
