@@ -27,6 +27,10 @@ interface DetailsModalProps {
 const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
+  console.log(date);
+  console.log("gello");
+  
+  
   
   const [formData, setFormData] = useState<FormData>({
     description: '',
@@ -105,8 +109,6 @@ const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, o
           userId
         }),
       });
-      const data=await response.json();
-      console.log(data);
       
       if (response.ok) {
         toast.success('Form submitted successfully!')

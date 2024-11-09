@@ -10,35 +10,40 @@ export async function POST(req: NextRequest) {
     if (!nameOfTheServiceId) {
         return NextResponse.json({ error: 'Name of the service is required' }, { status: 400 });
     }
-    const serviceDateObj = new Date(serviceDate);
-    serviceDateObj.setHours(0, 0, 0, 0);
-    const serviceDateString = serviceDateObj.toISOString().split('T')[0];
 
     try {
-        console.log(serviceDateObj, nameOfTheServiceId);
+        const startDate = new Date(serviceDate);
+        startDate.setHours(0, 0, 0, 0);
         
+        const endDate = new Date(serviceDate);
+        endDate.setHours(23, 59, 59, 999);
+
         const count = await prisma.services.count({
             where: {
                 nameOfTheServiceId,
-                serviceDate: new Date(serviceDateString),
+                serviceDate: {
+                    gte: startDate,
+                    lte: endDate
+                },
             },
         });
+
         const serviceLimit = await prisma.serviceAdd.findUnique({
-            where:{
-                id:nameOfTheServiceId
+            where: {
+                id: nameOfTheServiceId
             },
-            select:{
-                maxCount:true
+            select: {
+                maxCount: true
             }
-        })
+        });
+
         if (!serviceLimit || serviceLimit.maxCount === null) {
             return NextResponse.json({ error: 'Service limit not found' }, { status: 404 });
         }
-        if (count >= serviceLimit.maxCount)
-        {
-            return NextResponse.json({isAvailable:false}, { status: 200 });
-        }
-        return NextResponse.json({ isAvailable: true }, { status: 200})
+
+        return NextResponse.json({ 
+            isAvailable: count < serviceLimit.maxCount 
+        }, { status: 200 });
 
     } catch (error) {
         console.error('Error checking date availability:', error);

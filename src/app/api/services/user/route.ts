@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
                 description,
                 price: parseInt(amount),
                 image,
+                serviceDate: new Date(serviceDate),
                 paymentMode,
                 transactionId,
                 User: {
