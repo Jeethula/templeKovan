@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../app/context/AuthContext';
 import { useState, useEffect } from 'react';
-import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes } from 'react-icons/fa';
+import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes, FaPrayingHands } from 'react-icons/fa';
 import TranslateComponent from './TranslateComponent';
-import { Bell, House, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
+import { Bell, Calendar, House, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
 import { LiaDonateSolid } from "react-icons/lia";
 import { TfiAnnouncement } from "react-icons/tfi";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
+import { PiHandsPrayingDuotone } from 'react-icons/pi';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -42,7 +43,7 @@ const Navbar = () => {
   ];
 
   const menuItems = [
-    { name: 'Services', path: '/services', icon: <FaCog className="text-lg" /> },
+    { name: `Seva`, path: '/services', icon: <PiHandsPrayingDuotone className="text-lg" /> },
     { name: 'Add Profile', path: '/add', icon: <UserRoundPlus className="text-lg" /> },
     ...(role.includes('Admin') ? [{ name: 'User Management', path: '/userManagement', icon: <UserCog  className="text-lg" /> }] : []),
     ...(role.includes('approver') ? [
@@ -89,8 +90,13 @@ const Navbar = () => {
           {/* User Profile Section */}
           <div className="p-6 bg-[#663399]">
             <div className="text-white">
-              <div className="text-xl font-semibold mb-2">Welcome</div>
-              <div className="text-sm opacity-90">Your Temple Account</div>
+              <div className="text-xl font-semibold mb-2">
+                Welcome</div>
+              <div className='flex justify-between items-center ' >
+               <div className="text-sm opacity-90">Your Temple Account</div> 
+                <h2 className='font-normal flex gap-x-2 items-center'><Calendar size={15} /> {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</h2>
+
+              </div>
             </div>
           </div>
 

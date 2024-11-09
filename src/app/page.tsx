@@ -29,6 +29,15 @@ interface Service {
   image: string;
 }
 
+// First, define an interface for the contribution data
+interface Contribution {
+  transactionId: string;
+  price: number;
+  paymentMode: string;
+  createdAt: string;
+  status: string;
+}
+
 export default function HomePage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -37,9 +46,11 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
  const [servicesLoading, setServicesLoading] = useState(true);
- const [username, setUsername] = useState<string[]>([]);
  const [isposuser, setIsposuser] = useState<boolean>(false);
  const [quote, setQuote] = useState("");
+ // Then modify the state definition
+ const [recentContributions, setRecentContributions] = useState<Contribution[]>([]);
+
 
 
  useEffect(() => {
@@ -58,6 +69,21 @@ export default function HomePage() {
 
   fetchServices();
  }, []);
+
+ useEffect(() => {
+
+  const fetchRecentContributions = async () => {
+
+  const res = await fetch('/api/services/getRecentContributions',{
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = await res.json();
+  setRecentContributions(data.user);
+  }
+  fetchRecentContributions();
+
+  }, []);
 
   useEffect(() => {
     const fetchLatestPost = async () => {
@@ -100,7 +126,6 @@ export default function HomePage() {
 
         if (userFromStorage) {
           const user = JSON.parse(userFromStorage);
-          setUsername(user.firstName);
           const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(randomQuote);
           // if (user.isfirstTimeLogin) {
@@ -167,13 +192,14 @@ export default function HomePage() {
 
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2">
-      <div className="min-w-screen min-h-40 w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3">
-        <div className="flex justify-between ">
+      <div className="w-full">
+        <div className="min-w-screen min-h-40 w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3">
+          <div className="flex justify-between ">
         <div className="flex flex-col">
   <h1 className="text-xl font-semibold text-gray-800">
     {getGreeting()}
   </h1>
-  <h1 className="mt-2 text-gray-600 font-normal ">Welcome to Sri Renukka Akkama Temple's official app</h1>
+  <h1 className="mt-2 text-gray-600 text-md font-normal ">Welcome to Sri Renukka Akkama Temple's official place</h1>
 </div>
          {isposuser && 
          <div onClick={handlePosMode} className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md  bg-red-500 text-sm text-white font-medium">
@@ -228,7 +254,7 @@ export default function HomePage() {
 </div>
 <div
   onClick={handleContributeClick}
-  className="bg-purple-600 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 shadow-2xl"
+  className="bg-violet-500 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 shadow-2xl"
 >
   <div className="flex flex-col md:flex-row items-center gap-2">
     <div className="flex-1 text-white">
@@ -239,14 +265,44 @@ export default function HomePage() {
       <p className="mb-4 text-lg opacity-90">
         Even a small amount can help, as it can make a big impact in many ways
       </p>
-      <button className="bg-white text-purple-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
+      <button className="bg-white text-violet-600-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
         <FaUsers />
         Contribute now
       </button>
     </div>
   </div>
 </div>
-
+  <div className="mt-4">
+    <h1 className="text-black font-semibold text-xl mb-4">Recent Contribution</h1>
+    {recentContributions.length > 0 ? (
+      recentContributions.map((contribution) => (
+        <div key={contribution.transactionId} className="bg-white rounded-lg shadow-lg p-4 mb-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-lg font-semibold">Transaction ID: {contribution.transactionId}</p>
+              <p className="text-gray-600">Amount: ₹{contribution.price}</p>
+              <p className="text-gray-600">Payment Mode: {contribution.paymentMode}</p>
+              <p className="text-gray-600">Date: {new Date(contribution.createdAt).toLocaleDateString()}</p>
+            </div>
+            <div className="text-right">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                contribution.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
+                contribution.status === 'APPROVED' ? 'bg-green-100 text-green-800' : 
+                'bg-red-100 text-red-800'
+              }`}>
+                {contribution.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))
+    ) : (
+      <div className="bg-white rounded-lg shadow-lg p-4">
+        <p className="text-gray-500">No recent contributions available.</p>
+      </div>
+    )}
+  </div>
+</div>
       <h1 className="text-black font-semibold mt-4 text-xl  mb-4" >Latest Announcemet</h1>
             <div className="w-full px-1">
         {isLoading ? (

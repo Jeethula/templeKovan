@@ -37,11 +37,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   return (
     <>
-      <div
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105"
+            <div
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full"
         onClick={() => setIsModalOpen(true)}
       >
-        <div className="relative h-48">
+        <div className="relative h-32">
           <Image
             src={imageSrc}
             alt={title}
@@ -50,8 +50,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             className="gradient-mask-b-0"
           />
         </div>
-        <h3 className="text-xl font-semibold p-4 text-center">{title}</h3>
-        <p className="px-4 pb-4 text-center text-gray-600 line-clamp-2">{description}</p>
+        <h3 className="text-sm font-semibold py-2 px-3 text-center truncate">{title}</h3>
       </div>
 
       {/* Modal */}
