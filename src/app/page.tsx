@@ -2,7 +2,7 @@
 import { useAuth } from "./context/AuthContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter
-
+import { quotes }from "./data";
 import Link from "next/link";
 import Image from "next/image";
 import { FaHandHoldingHeart, FaUsers } from "react-icons/fa";
@@ -39,6 +39,7 @@ export default function HomePage() {
  const [servicesLoading, setServicesLoading] = useState(true);
  const [username, setUsername] = useState<string[]>([]);
  const [isposuser, setIsposuser] = useState<boolean>(false);
+ const [quote, setQuote] = useState("");
 
 
  useEffect(() => {
@@ -100,6 +101,8 @@ export default function HomePage() {
         if (userFromStorage) {
           const user = JSON.parse(userFromStorage);
           setUsername(user.firstName);
+          const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    setQuote(randomQuote);
           // if (user.isfirstTimeLogin) {
           //   router.push("/profile");
           // }
@@ -158,77 +161,30 @@ export default function HomePage() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return "Good Morning !";
+    if (hour < 16) return "Good Afternoon !";
+    return "Good Evening !";
   };
 
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2">
-      {/* <h1 className="text-2xl font-semibold text-red-600 flex items-center gap-x-3 text-center">
-        <FaOm />
-        Good Morning,
-      </h1> */}
       <div className="min-w-screen min-h-40 w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3">
         <div className="flex justify-between ">
         <div className="flex flex-col">
-  <h1 className="text-2xl font-semibold text-gray-800">
+  <h1 className="text-xl font-semibold text-gray-800">
     {getGreeting()}
   </h1>
-  
-</div>
+  <h1 className="mt-2 text-gray-600 font-normal  ">Welcome to Sri Renukka Akkama Temple's official app</h1>
+  <h1 className="mt-4 text-gray-700 font-medium">{quote}</h1>
 
+</div>
          {isposuser && 
-         <div onClick={handlePosMode} className="w-16 h-16 flex items-center text-center rounded-md  bg-red-500 text-sm text-white font-medium">
+         <div onClick={handlePosMode} className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md  bg-red-500 text-sm text-white font-medium">
            POS Mode
          </div>
          }
         </div>
       </div>
-      {/* <div className="flex gap-x-4 overflow-x-auto w-full py-4">
-  {servicesLoading ? (
-    <div className="animate-pulse flex space-x-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-gray-200 rounded-lg w-64 h-48"></div>
-      ))}
-    </div>
-  ) : services.length > 0 ? (
-    services.map((service) => (
-      <div 
-        key={service.id}
-        className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-x-auto"
-      >
-           
-        {service.image? (
-          <>
-          <div className="relative h-32 w-full">
-  <Image
-    src={service.image}
-    alt={service.name}
-    layout="fill"
-    objectFit="cover"
-    className="h-28"
-  />
-  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
-    <h1 className="font-semibold text-lg text-white">{service.name}</h1>
-  </div>
-</div>
-          </>
-        ) : (
-          <div className="p-4">
-            <h3 className="font-semibold text-black text-lg mb-2">{service?.name}</h3>
-            <p className="text-gray-600 line-clamp-3">{service.description}</p>
-          </div>
-        )}
-      </div>
-    ))
-  ) : (
-    <div className="w-full text-center text-gray-500">
-      No services available
-    </div>
-  )}
-</div> */}
-
   <div className="text-black font-semibold mt-4 text-xl">Quick Links</div>
 <div className="flex gap-x-4 overflow-x-auto w-full py-4">
   {servicesLoading ? (
@@ -274,7 +230,7 @@ export default function HomePage() {
 </div>
 <div
   onClick={handleContributeClick}
-  className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 shadow-2xl"
+  className="bg-purple-600 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 shadow-2xl"
 >
   <div className="flex flex-col md:flex-row items-center gap-2">
     <div className="flex-1 text-white">
@@ -282,36 +238,14 @@ export default function HomePage() {
         <FaHandHoldingHeart className="text-3xl animate-pulse" />
         <h2 className="text-xl font-semibold">Together make a difference</h2>
       </div>
-      
-      {/* <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="text-center">
-          <span className="block text-2xl font-bold">1000+</span>
-          <span className="text-sm opacity-90">Lives Impacted</span>
-        </div>
-        <div className="text-center">
-          <span className="block text-2xl font-bold">$50K</span>
-          <span className="text-sm opacity-90">Raised So Far</span>
-        </div>
-      </div> */}
-
       <p className="mb-4 text-lg opacity-90">
-      Even a small amount can help, as it can make a big impact in many ways      </p>
-      
-      <button className="bg-white text-purple-600 px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition-colors flex items-center gap-2">
+        Even a small amount can help, as it can make a big impact in many ways
+      </p>
+      <button className="bg-white text-purple-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
         <FaUsers />
         Contribute now
       </button>
     </div>
-
-    {/* <div className="w-48 h-48 relative">
-      <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
-      <div className="absolute inset-0 bg-white/40 rounded-full" />
-      <img
-        src="/donation-image.jpg"
-        alt="Impact"
-        className="w-full h-full object-cover rounded-full relative z-10"
-      />
-    </div> */}
   </div>
 </div>
 
@@ -326,10 +260,10 @@ export default function HomePage() {
             <p className="text-red-500">{error}</p>
           </div>
         ) : latestPost ? (
-          <div className="bg-white rounded-lg shadow-lg  p-4 mb-4">
+          <div className="bg-white rounded-xl shadow-lg  p-4 mb-4">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold text-lg">
+                <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold text-lg">
                   {latestPost.author.personalInfo.firstName.charAt(0).toUpperCase()}
                 </div>
                 <span className="font-semibold">{latestPost.author.personalInfo.firstName}</span>
