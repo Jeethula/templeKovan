@@ -4,9 +4,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../app/context/AuthContext';
 import { useState, useEffect } from 'react';
 import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes, FaPrayingHands } from 'react-icons/fa';
-import TranslateComponent from './TranslateComponent';
-import { Bell, Calendar, House, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
-import { LiaDonateSolid } from "react-icons/lia";
+import { CiSettings } from "react-icons/ci";
+import { Bell, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
+import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { TfiAnnouncement } from "react-icons/tfi";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import { PiHandsPrayingDuotone } from 'react-icons/pi';
@@ -37,20 +37,23 @@ const Navbar = () => {
 
   const mainNav = [
     { name: 'Home', path: '/', icon: <House className="text-lg" /> },
+    { name: `Seva`, path: '/services', icon: <PiHandsPrayingDuotone className="text-lg" /> },
     { name: 'Profile', path: '/profile', icon: <UserRound className="text-lg" /> },
     { name: 'Announcements', path: '/blog', icon: <TfiAnnouncement className="text-lg" fill='black' /> },
-    {name:'Contributions',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" />},
+    {name:'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" />},
   ];
 
   const menuItems = [
-    { name: `Seva`, path: '/services', icon: <PiHandsPrayingDuotone className="text-lg" /> },
+    { name: 'Transactions', path: '/transactions', icon: <CgArrowsExchangeAlt className="text-lg" /> },
     { name: 'Add Profile', path: '/add', icon: <UserRoundPlus className="text-lg" /> },
-    ...(role.includes('Admin') ? [{ name: 'User Management', path: '/userManagement', icon: <UserCog  className="text-lg" /> }] : []),
-    ...(role.includes('approver') ? [
-      { name: 'Service Management', path: '/serviceManagement', icon: <FaCog className="text-lg" /> },
-      { name: 'Service Limit', path: '/servicelimit', icon: <FaCog className="text-lg" /> }
+    ...(role.includes('Admin') ? [
+      { name: 'User Management', path: '/userManagement', icon: <LucideUserCog2  className="text-lg" /> },
+      { name: 'Seva Configuration  ', path: '/addSevas', icon: <CiSettings className="text-lg" /> },
     ] : []),
-    ...(role.includes('posuser') ? [{ name: 'POS User', path: '/posuser', icon: <FaCog className="text-lg" /> }] : []),
+    ...(role.includes('approver') ? [
+      { name: 'Seva Management', path: '/serviceManagement', icon: <LucideUserCheck2  className="text-lg" /> },
+    ] : []),
+    ...(role.includes('posuser') ? [{ name: 'POS User', path: '/posuser', icon: <LucideUsers2  className="text-lg" /> }] : []),
   ];
 
   return (
