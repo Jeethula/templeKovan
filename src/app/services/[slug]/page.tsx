@@ -241,7 +241,8 @@ const ServicePage = () => {
               <DetailsModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                service={slug as string}
+                nameOfTheServiceId={slug as string}
+                serviceName={service?.name||''}
                 date={serviceDate ? new Date(serviceDate) : new Date()}
                 onSubmitSuccess={() => setShowModal(false)}
                 selectedMethod={selectedMethod || 'NEFT'}

@@ -39,7 +39,7 @@ const ServicesPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-8 text-center">Our Services</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {services
-          .filter(service => service.isActive)
+          .filter(service => service.isActive&&service.name!='Contribution')
           .map((service) => (
             <ServiceCard
               key={service.id}

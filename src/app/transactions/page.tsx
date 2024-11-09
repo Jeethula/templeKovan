@@ -4,17 +4,221 @@ import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { Clock, Download, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { AiOutlinePrinter } from 'react-icons/ai';
+
+
+
 
 type Service = {
-  nameOfTheService: string;
+  id: string;
+  nameOfTheService: {
+    id: string;
+    name: string;
+    image?: string;
+  };
   description: string;
+  price: number;
+  image?: string;
   paymentMode: string;
   transactionId: string;
   serviceDate: Date;
-  amount: string;
-  approvedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  approvedBy:{
+    phone: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+    };
+  }
   status: string;
 };
+
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: '#FFF9F0',
+  },
+  headerSection: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  mainTitle: {
+    fontSize: 28,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#8B4513',
+    fontFamily: 'Helvetica',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  decorativeLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: '#8B4513',
+    marginBottom: 20,
+    opacity: 0.3,
+  },
+  contentContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    padding: 25,
+    border: '1px solid #D4AF37',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottom: '1px solid #F0E6D6',
+  },
+  label: {
+    width: '40%',
+    fontSize: 11,
+    color: '#8B4513',
+    fontFamily: 'Helvetica-Bold',
+  },
+  value: {
+    width: '60%',
+    fontSize: 11,
+    color: '#333',
+    fontFamily: 'Helvetica',
+  },
+  footer: {
+    marginTop: 30,
+    padding: 20,
+    borderTop: '2px solid #D4AF37',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 10,
+    color: '#8B4513',
+    textAlign: 'center',
+    fontFamily: 'Helvetica',
+    marginBottom: 5,
+  },
+  blessingText: {
+    fontSize: 14,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginTop: 15,
+  },
+  receiptTitle: {
+    fontSize: 16,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  ornament: {
+    fontSize: 24,
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+});
+
+const MyDocument: React.FC<{ 
+  rowData: Service; 
+  userData: { 
+    id: string; 
+    email: string; 
+    phone: string 
+  }; 
+  approvedByData:{
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }
+}> = ({ rowData, userData, approvedByData }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.headerSection}>
+        <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
+        <Text style={styles.subtitle}></Text>
+        <View style={styles.decorativeLine} />
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.ornament}>☸</Text>
+        <Text style={styles.receiptTitle}>Seva Receipt</Text>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Devotee ID</Text>
+          <Text style={styles.value}>{userData.id}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact Details</Text>
+          <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Name</Text>
+          <Text style={styles.value}>{rowData.nameOfTheService.name}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Description</Text>
+          <Text style={styles.value}>{rowData.description}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Date</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Offering Amount</Text>
+          <Text style={styles.value}>₹{rowData.price}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Payment Details</Text>
+          <Text style={styles.value}>
+            {rowData.paymentMode} | Trans. ID: {rowData.transactionId}
+          </Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approved By</Text>
+          <Text style={styles.value}>{approvedByData?.firstName} {approvedByData?.lastName}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approver Contact</Text>
+          <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+        </View>
+
+        <View style={[styles.row, { borderBottom: 'none' }]}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{rowData.status}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          This is a computer generated receipt. No signature required.
+        </Text>
+        <Text style={styles.footerText}>
+          For any queries, please contact the temple office.
+        </Text>
+        {/* <Text style={styles.blessingText}>
+          
+        </Text> */}
+      </View>
+    </Page>
+  </Document>
+);
+
 
 const TransactionsPage = () => {
   const [history, setHistory] = useState<Service[]>([]);
@@ -30,8 +234,10 @@ const TransactionsPage = () => {
     const userId: string = sessionData.id;
     const response = await fetch(`/api/services/user?userId=${userId}`);
     const data = await response.json();
-    setHistory(data.services.personalInfo.Services);
-    setFilteredHistory(data.services.personalInfo.Services);
+    console.log(data.services);
+    
+    setHistory(data.services.services);
+    setFilteredHistory(data.services.services);
   };
 
   const handleServiceChange = (value: string) => {
@@ -40,7 +246,7 @@ const TransactionsPage = () => {
       return;
     }
     const filtered = history.filter(service => 
-      service.nameOfTheService.toLowerCase() === value.toLowerCase()
+      service.nameOfTheService.name.toLowerCase() === value.toLowerCase()
     );
     setFilteredHistory(filtered);
   };
@@ -50,7 +256,7 @@ const TransactionsPage = () => {
     setSearchTerm(term);
     
     const filtered = history.filter(service => 
-      service.nameOfTheService.toLowerCase().includes(term) ||
+      service.nameOfTheService.name.toLowerCase().includes(term) ||
       service.transactionId.toLowerCase().includes(term) ||
       service.description.toLowerCase().includes(term)
     );
@@ -82,13 +288,30 @@ const TransactionsPage = () => {
         return null;
     }
   };
+  const handleDownload = (transaction:Service) => {  
+    const approvedByData = transaction.approvedBy ? {
+      firstName: transaction.approvedBy.personalInfo.firstName,
+      lastName: transaction.approvedBy.personalInfo.lastName,
+      phoneNumber: transaction.approvedBy.phone
+    } : { firstName: 'Not Approved Yet', lastName: '', phoneNumber: '' };
+
+    return (
+      <PDFDownloadLink 
+        document={<MyDocument rowData={transaction} userData={sessionData} approvedByData={approvedByData} />}
+        fileName="Service_Details.pdf"
+      >
+        <button className="text-blue-500 hover:text-blue-700">
+          <AiOutlinePrinter size={18} />
+        </button>
+      </PDFDownloadLink>)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 px-4 py-6">
-      <div className="max-w-lg mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-purple-800">Transactions</h1>
+          <h1 className="text-3xl font-bold text-purple-800">Transactions</h1>
           <p className="text-sm text-gray-600">View your service bookings</p>
         </div>
 
@@ -100,24 +323,26 @@ const TransactionsPage = () => {
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-purple-200 rounded-xl 
+              className="w-full pl-10 pr-4 py-2.5 text-sm border border-purple-200 rounded-xl 
                        focus:border-purple-400 focus:ring-2 focus:ring-purple-100 bg-white/80
                        backdrop-blur-sm transition-all duration-200"
             />
             <Search className="absolute left-3 top-3 h-4 w-4 text-purple-400" />
           </div>
 
-          <Select onValueChange={handleServiceChange}>
+            <Select onValueChange={handleServiceChange}>
             <SelectTrigger className="w-full border border-purple-200 text-sm">
               <SelectValue placeholder="Filter by service" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Services</SelectItem>
-              <SelectItem value="Donation">Donation</SelectItem>
-              <SelectItem value="Thirumanjanam">Thirumanjanam</SelectItem>
-              <SelectItem value="Abisekam">Abisekam</SelectItem>
+              {Array.from(new Set(history.map(service => service.nameOfTheService.name))).map(serviceName => (
+              <SelectItem key={serviceName} value={serviceName}>
+                {serviceName}
+              </SelectItem>
+              ))}
             </SelectContent>
-          </Select>
+            </Select>
         </div>
 
         {/* Transaction Cards */}
@@ -126,14 +351,14 @@ const TransactionsPage = () => {
             <div
               key={index}
               className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
-                       transition-all duration-300 h-[280px] overflow-hidden"
+                       transition-all duration-300 overflow-hidden"
             >
-              <div className="p-4 h-full flex flex-col justify-between">
+              <div className="p-4 flex flex-col justify-between">
                 {/* Card Header */}
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-base font-semibold text-purple-900 truncate">
-                      {transaction.nameOfTheService}
+                      {transaction.nameOfTheService.name}
                     </h3>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 
                                    border ${getStatusBadgeClass(transaction.status)}`}>
@@ -145,19 +370,37 @@ const TransactionsPage = () => {
                     {transaction.description}
                   </p>
                 </div>
+                {/* <div className="flex justify-center my-4">
+                  <img
+                    src={transaction.nameOfTheService.image || transaction.nameOfTheService.image}
+                    alt={transaction.nameOfTheService.name}
+                    className="w-full h-32 object-contain rounded-lg"
+                  />
+                </div> */}
 
                 {/* Transaction Details */}
                 <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <p className="text-gray-500">Date</p>
-                      <p className="font-medium text-gray-900">
-                        {new Date(transaction.serviceDate).toLocaleDateString()}
-                      </p>
+                      {transaction.nameOfTheService.name !== 'Contribution' ? (
+                        <>
+                          <p className="text-gray-500">Service Date</p>
+                          <p className="font-medium text-gray-900">
+                            {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-gray-500">Donation Date</p>
+                          <p className="font-medium text-gray-900">
+                            {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
+                          </p>
+                        </>
+                      )}
                     </div>
                     <div>
                       <p className="text-gray-500">Amount</p>
-                      <p className="font-medium text-gray-900">₹{transaction.amount}</p>
+                      <p className="font-medium text-gray-900">₹{transaction.price}</p>
                     </div>
                     <div className="col-span-2">
                       <p className="text-gray-500">Transaction ID</p>
@@ -173,7 +416,7 @@ const TransactionsPage = () => {
                   </div>
                   <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
                                    text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
-                                   rounded-full transition-colors duration-200">
+                                   rounded-full transition-colors duration-200" onClick={()=>handleDownload(transaction)}>
                     <Download className="w-3 h-3" />
                     Download Receipt
                   </button>
