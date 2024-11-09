@@ -22,7 +22,9 @@ const ServicesPage: React.FC = () => {
       try {
         const response = await fetch('/api/services/addservices');
         const data = await response.json();
-        setServices(data.filter((service: Service) => service.isActive));
+        console.log(data);
+        
+        setServices(data.services.filter((service: Service) => service.isActive));
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -31,9 +33,6 @@ const ServicesPage: React.FC = () => {
     fetchServices();
   }, []);
 
-  const handleSubmitSuccess = async () => {
-    //
-  };
 
   return (
     <div className="px-4 py-8 min-w-screen w-full min-h-screen bg-[#fdf0f4]">
