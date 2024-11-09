@@ -9,7 +9,24 @@ export async function GET(){
             },
             orderBy:{
                 createdAt:"desc"
-            }
+            },
+            select:{
+                price:true,
+                createdAt:true,
+                updatedAt:true,
+                User:{
+                    select:{
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                                lastName:true,
+                                city:true,
+                            }
+                        }
+                    }
+                }
+                
+            }   
         });
         return NextResponse.json({user});
     } catch (error) {
