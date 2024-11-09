@@ -1,22 +1,29 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import DetailsModal from '@/components/modals/DetailsModal';
 import { FaDownload, FaCheck } from 'react-icons/fa';
 import { IoCopyOutline } from "react-icons/io5";
-import { useSearchParams } from 'next/navigation';
 
 type PaymentMethod = 'NEFT' | 'UPI' | 'QR';
 
+type Service = {
+  id: string,
+  name: string,
+  description: string,
+  image: string,
+  targetDate: string | null,
+  targetPrice: number,
+  minAmount: number,
+  maxCount: number,
+  isActive: boolean
+}
+
 const ServicePage = () => {
   const { slug } = useParams();
-
-    const searchParams = useSearchParams();
-    const serviceDate = searchParams.get('date');
-  console.log(slug);
-  console.log(serviceDate);
-  
-  
+  const searchParams = useSearchParams();
+  const serviceDate = searchParams.get('date');
+  const [service, setService] = useState<Service | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -52,6 +59,19 @@ const ServicePage = () => {
     return () => clearTimeout(timeout);
   }, [qrDownloaded]);
 
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        const response = await fetch(`/api/services/getservice?serviceId=${slug}`);
+        const data = await response.json();
+        setService(data.service);
+      } catch (error) {
+        console.error('Failed to fetch service:', error);
+      }
+    };
+    fetchService();
+  }, [slug]);
+
   const copyToClipboard = async (text: string, field: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -76,14 +96,56 @@ const ServicePage = () => {
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-[#663399] mb-4">Support Our Temple</h1>
-          <p className="text-gray-700 mb-4">
-            Your generous donations help us maintain the temple, conduct religious ceremonies, 
-            and support our community initiatives. Every contribution makes a difference.
-          </p>
-          <h2 className="text-xl font-semibold text-[#663399] mb-2">How to Donate</h2>
+          {service ? (
+            <>
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-24 h-24 rounded-lg object-cover"
+                  />
+                  <div>
+                    <h1 className="text-3xl font-bold text-[#663399]">{service.name}</h1>
+                    <p className="text-gray-600 mt-1">{service.description}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                {service.targetPrice && (
+                  <div className="bg-[#fdf0f4] p-4 rounded-lg">
+                    <span className="text-sm text-gray-600">Target Amount</span>
+                    <p className="text-xl font-semibold text-[#663399]">₹{service.targetPrice}</p>
+                    </div>
+                  )}
+                  {service.minAmount && 
+                  <div className="bg-[#fdf0f4] p-4 rounded-lg">
+                    <span className="text-sm text-gray-600">Minimum Contribution</span>
+                    <p className="text-xl font-semibold text-[#663399]">₹{service.minAmount}</p>
+                  </div>}
+                  {service.targetDate && (
+                    <div className="bg-[#fdf0f4] p-4 rounded-lg">
+                      <span className="text-sm text-gray-600">Target Date</span>
+                      <p className="text-xl font-semibold text-[#663399]">{new Date(service.targetDate).toLocaleDateString()}</p>
+                    </div>
+                  )}
+                  {service.maxCount &&(
+                  <div className="bg-[#fdf0f4] p-4 rounded-lg">
+                    <span className="text-sm text-gray-600">Maximum Participants</span>
+                    <p className="text-xl font-semibold text-[#663399]">{service.maxCount}</p>
+                  </div>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center items-center h-48">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#663399]"></div>
+            </div>
+          )}
+          <h2 className="text-xl font-semibold text-[#663399] mb-2 mt-4">How to Donate</h2>
           <p className="text-gray-700">
-            Choose your preferred payment method below and follow the instructions. 
+            Choose your preferred payment method below and follow the instructions.
             After making the payment, please fill out the donation form for our records.
           </p>
         </div>
@@ -110,7 +172,6 @@ const ServicePage = () => {
 
             {/* Payment Details */}
             {selectedMethod && (
-              <div>
               <div className="mt-6 p-4 bg-[#fdf0f4] rounded-xl">
                 {selectedMethod === 'NEFT' && (
                   <div className="space-y-3">
@@ -163,23 +224,29 @@ const ServicePage = () => {
                   </div>
                 )}
               </div>
-              <div className="w-full flex justify-end ">
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="mt-4 h-12 w-24 bg-[#663399] hover:bg-[#663399]/90 text-white font-medium px-2 py-2
-                           rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
-                >
-                  Proceed
-                </button>
-              </div>
-
-              </div>
-
             )}
 
-            {
-              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} service={slug as string} date={new Date()} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} />
-            }
+            <div className="w-full flex justify-end">
+              <button
+                onClick={() => setShowModal(true)}
+                className="mt-4 h-12 w-24 bg-[#663399] hover:bg-[#663399]/90 text-white font-medium px-2 py-2
+                           rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                disabled={!selectedMethod}
+              >
+                Proceed
+              </button>
+            </div>
+
+            {showModal && (
+              <DetailsModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                service={slug as string}
+                date={serviceDate ? new Date(serviceDate) : new Date()}
+                onSubmitSuccess={() => setShowModal(false)}
+                selectedMethod={selectedMethod || 'NEFT'}
+              />
+            )}
           </div>
         </div>
       </div>

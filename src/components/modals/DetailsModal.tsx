@@ -100,11 +100,13 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selected
           ...formData,
           serviceDate: date,
           paymentMode: selectedMethod,
-          nameOfTheService: service.toLowerCase(),
+          nameOfTheServiceid:service,
           userId
         }),
       });
-
+      const data=await response.json();
+      console.log(data);
+      
       if (response.ok) {
         toast.success('Form submitted successfully!')
         setFormData({
