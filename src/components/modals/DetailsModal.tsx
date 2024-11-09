@@ -15,15 +15,16 @@ interface FormData {
 }
 
 interface DetailsModalProps {
-  service: string;
+  nameOfTheServiceId: string;
   date: Date;
   isOpen: boolean;
   selectedMethod: string;
+  serviceName: string;
   onClose: () => void;
   onSubmitSuccess: () => void;
 }
 
-const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
+const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
   
@@ -100,7 +101,7 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selected
           ...formData,
           serviceDate: date,
           paymentMode: selectedMethod,
-          nameOfTheServiceid:service,
+          nameOfTheServiceid:nameOfTheServiceId,
           userId
         }),
       });
@@ -135,7 +136,7 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selected
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <div>
-          <h1 className="text-2xl font-bold mb-5">{service} Details</h1>
+          <h1 className="text-2xl font-bold mb-5">{serviceName} Details</h1>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
@@ -246,7 +247,7 @@ const DetailsModal = ({ service, date, isOpen, onClose, onSubmitSuccess,selected
                   Submitting...
                 </span>
               ) : (
-                `Submit ${service}`
+                `Submit ${serviceName}`
               )}
             </Button>
           </form>

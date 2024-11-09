@@ -22,10 +22,29 @@ export async function GET(req:NextRequest)
                 services:{
                     select:{
                         id:true,
-                        nameOfTheService:true,
+                        nameOfTheService:{
+                            select:{
+                                id:true,
+                                name:true,
+                                image:true
+                            }
+                        },
                         description:true,
                         price:true,
                         image:true,
+                        status:true,
+                        approvedBy:{
+                            select:{
+                                phone:true,
+                                personalInfo:{
+                                    select:{
+                                        firstName:true,
+                                        lastName:true
+                                    }
+                                }
+                            }
+                        },
+                        serviceDate:true,
                         paymentMode:true,
                         transactionId:true,
                         createdAt:true,
@@ -66,7 +85,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "User not found", status: 404 });
         }
 
-        const serviceDateObj = new Date(serviceDate);
         const service = await prisma.services.create({
             data: {
                 nameOfTheService:{
