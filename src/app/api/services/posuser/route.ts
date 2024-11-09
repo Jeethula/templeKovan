@@ -63,7 +63,9 @@ export async function GET(req: NextRequest) {
 
 // api/services/posuser - POST create a service
 export async function POST(req: NextRequest) {
-    const {userId,nameOfTheService,description,price,image,paymentMode,transactionId,serviceDate,posUserId} = await req.json();
+    const {userId,nameOfTheServiceId,serviceDate,posUserId,price,description} = await req.json();
+    
+
 
     if(!userId)
     {
@@ -86,6 +88,7 @@ export async function POST(req: NextRequest) {
                 id:posUserId
             }
         })
+        
         if(!posUser)
         {
             return NextResponse.json({error:"POS User not found",status:404})
@@ -95,7 +98,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({error:"User not found",status:404})
         }
 
-        if(!posUser.role.includes('pos'))
+        if(!posUser.role.includes('posuser'))
         {
             return NextResponse.json({error:"POS User not found",status:404})
         }
@@ -104,15 +107,12 @@ export async function POST(req: NextRequest) {
             data:{
                 nameOfTheService:{
                     connect:{
-                        id:nameOfTheService
+                        id:nameOfTheServiceId
                     }
                 },
-                description,
                 price,
-                image,
-                paymentMode,
-                transactionId,
                 serviceDate,
+                description,
                 User:{
                     connect:{
                         id:userId
