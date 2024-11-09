@@ -60,12 +60,12 @@ FloatingLabelInput.displayName = 'FloatingLabelInput';
 
 const FloatingSelect = React.forwardRef<
   HTMLSelectElement,
-  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; onValueChange: (value: string) => void }
->(({ id, label, children, value, defaultValue, onValueChange }) => {
+  React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; onValueChange: (value: string) => void; disabled?: boolean }
+>(({ id, label, children, value, defaultValue, onValueChange, disabled }) => {
   return (
     <div className="relative">
-      <Select value={value?.toString()} onValueChange={onValueChange} defaultValue={defaultValue?.toString()}>
-        <SelectTrigger className="w-full text-black peer">
+      <Select value={value?.toString()} onValueChange={onValueChange} defaultValue={defaultValue?.toString()} disabled={disabled}>
+        <SelectTrigger className={`w-full text-black peer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
           <SelectValue placeholder=" " />
         </SelectTrigger>
         <SelectContent>
@@ -357,7 +357,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
             <h1 className="text-2xl font-bold text-[#663399]">
               Profile Details
             </h1>
-            <p className="text-sm text-gray-600">Complete your profile information</p>
+            <p className="text-sm text-gray-600"> Your complete profile information</p>
           </div>
 
           {/* Edit Button */}
@@ -379,6 +379,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Section - Salutation and First Name in same row */}
+            <div>
+              {renderField("unique_id", "Unique Id", userDetails, handleChange, isEditable, errors)}
+            </div>
             <div className="flex gap-3">
               <div className="w-1/3">
                 {renderField("salutation", "Salutation", userDetails, handleChange, isEditable, errors, "select", [

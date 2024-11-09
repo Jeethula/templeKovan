@@ -137,7 +137,6 @@ export default function HomePage() {
         const data = await res.json();
         if (data.posts && data.posts.length > 0) {
           setLatestPost(data.posts[0]); 
-          console.log("Latest post:", data.posts[0]);
         }
       } catch (error) {
         console.error("Error fetching latest post:", error);
@@ -174,9 +173,7 @@ export default function HomePage() {
   <h1 className="text-xl font-semibold text-gray-800">
     {getGreeting()}
   </h1>
-  <h1 className="mt-2 text-gray-600 font-normal  ">Welcome to Sri Renukka Akkama Temple's official app</h1>
-  <h1 className="mt-4 text-gray-700 font-medium">{quote}</h1>
-
+  <h1 className="mt-2 text-gray-600 font-normal ">Welcome to Sri Renukka Akkama Temple's official app</h1>
 </div>
          {isposuser && 
          <div onClick={handlePosMode} className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md  bg-red-500 text-sm text-white font-medium">
@@ -184,6 +181,7 @@ export default function HomePage() {
          </div>
          }
         </div>
+        <h1 className="mt-4 text-gray-800 font-medium bg-violet-100 p-2 rounded-md">"{quote}"</h1>
       </div>
   <div className="text-black font-semibold mt-4 text-xl">Quick Links</div>
 <div className="flex gap-x-4 overflow-x-auto w-full py-4">

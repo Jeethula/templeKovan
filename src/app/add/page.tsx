@@ -290,7 +290,7 @@ const UserDetailsForm: React.FC = () => {
               Add User
             </h1>
             <p className="text-sm text-gray-600">
-              Fill in the details of the new user who will be your referral
+              Fill in the details of the new user 
             </p>
           </div>
 
@@ -310,6 +310,10 @@ const UserDetailsForm: React.FC = () => {
               {errors.email && (
                 <p className="mt-1 text-xs text-red-500">{errors.email}</p>
               )}
+            </div>
+
+            <div>
+            {renderField("unique_id", "Unique ID")}
             </div>
 
             {/* Name Section */}
@@ -351,9 +355,9 @@ const UserDetailsForm: React.FC = () => {
             </div>
 
             {/* Comments Section */}
-            <div className="pt-2">
+            {/* <div className="pt-2">
               {renderField("comments", "Additional Comments", "textarea")}
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <button

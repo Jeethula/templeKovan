@@ -1,17 +1,25 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { MessageSquare, UserCircle2, Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
+import { Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
-import { PiMapPinFill, PiThumbsDownFill, PiThumbsUpFill } from "react-icons/pi";
-import { BsFileTextFill } from "react-icons/bs";
-import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaCircleUser } from "react-icons/fa6";
-import {  FaUserFriends } from "react-icons/fa";
+import { PiMapPinFill } from "react-icons/pi";
+import { toast } from 'react-toastify';
+import { BsWhatsapp } from "react-icons/bs";
 
 interface Post {
-  posts: Post[];
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  author: {
+    personalInfo: {
+      firstName: string;
+      avatarUrl: string;
+    };
+  };
+  likes: number;
+  comments: any[];
 }
 
 interface User {
@@ -26,6 +34,14 @@ interface User {
 interface PersonalInfo {
   uniqueId?: string;
   isApproved?: string;
+  firstName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  country?: string;
 }
 
 interface Profile {
@@ -45,12 +61,20 @@ interface Change {
   to: string | User | PersonalInfo | undefined;
 }
 
+const formatPhoneNumber = (phone: string) => {
+  // Remove any non-numeric characters
+  return phone.replace(/\D/g, '');
+};
+
 export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<Partial<PersonalInfo & { user?: Partial<User> }>>({});
 
   const fetchData = async () => {
     try {
@@ -106,11 +130,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         },
         body: JSON.stringify({
           userId: profile.user?.id,
-          ...(profile.personalInfo && typeof profile.personalInfo === 'object' ? profile.personalInfo : {}),
-          ...(profile.user && typeof profile.user === 'object' ? profile.user : {}),
           ...updatedData,
-          phone: updatedData.phone ?? profile.user?.phone,
-          email: updatedData.email ?? profile.user?.email,
           uniqueId: profile.personalInfo?.uniqueId ?? 0,
           isApproved: profile.personalInfo?.isApproved ?? "pending",
         }),
@@ -119,18 +139,19 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       const result = await response.json();
 
       if (response.ok) {
-        console.log(result.success);
         setProfile(prevProfile => ({
           ...(prevProfile ?? {}),
+          ...updatedData,
           personalInfo: { ...(prevProfile?.personalInfo ?? {}), ...result.userDetails },
           user: { ...(prevProfile?.user ?? {}), ...result.user },
         }));
-        window.location.reload();
+        toast.success('Profile updated successfully');
       } else {
-        console.error(result.error);
+        toast.error(result.error || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
     }
   };
 
@@ -154,11 +175,11 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     return changes;
   };
 
-  const ChangeHistoryItem = ({ change }: { change: Change }) => (
-    <p className="text-gray-700">
-      <span className="font-medium">{change.field}:</span> {JSON.stringify(change.from)} → {JSON.stringify(change.to)}
-    </p>
-  );
+  // const ChangeHistoryItem = ({ change }: { change: Change }) => (
+  //   <p className="text-gray-700">
+  //     <span className="font-medium">{change.field}:</span> {JSON.stringify(change.from)} → {JSON.stringify(change.to)}
+  //   </p>
+  // );
 
   const EditableSection = ({ section, fields, profile, onSave }: { section: string, fields: string[], profile: Profile, onSave: (section: string, values: {[key: string]: string}) => void }) => {
     const [editedValues, setEditedValues] = useState<{[key: string]: string}>({});
@@ -210,7 +231,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <h3 className="text-lg sm:text-xl font-semibold flex items-center text-[#663399] mr-4">
             {section === 'personalInfo' ? (
               <>
-                {/* <FaCircleUser size={24} className="mr-2" /> */}
                 Personal Information
               </>
             ) : (
@@ -246,11 +266,12 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               </div>
             ))}
             <div className="flex justify-end mt-4">
-              <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
-                Save
-              </button>
-              <button onClick={() => setEditedValues({})} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+             
+              <button onClick={() => setEditedValues({})} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg mr-2">
                 Cancel
+              </button>
+              <button onClick={handleSave} className="bg-green-600 hover:bg-green-600 text-white font-bold py-1 px-3 rounded-lg ">
+                Save
               </button>
             </div>
           </>
@@ -259,7 +280,27 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             {fields.map(field => (
               <p key={field} className="text-gray-700 mb-2 flex items-center">
                 {getIcon(field)}
-                {getValue(field)}
+                {field === 'phone' ? (
+                  <span className="flex items-center gap-2">
+                    <a
+                      href={`tel:${formatPhoneNumber(getValue(field))}`}
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {getValue(field)}
+                    </a>
+                    <a
+                      href={`https://wa.me/${formatPhoneNumber(getValue(field))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-600 hover:text-green-700"
+                      title="Chat on WhatsApp"
+                    >
+                      <BsWhatsapp size={20} />
+                    </a>
+                  </span>
+                ) : (
+                  getValue(field)
+                )}
               </p>
             ))}
           </>
@@ -287,82 +328,35 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <LoadingPageUi />
         ) : profile ? (
           <div className="space-y-6">
-            {/* Personal Information Card */}
-            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-semibold text-[#663399]">Personal Information</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Contact Information */}
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Full Name</label>
-                      <p className="text-lg font-medium text-gray-900">
-                        {typeof profile.firstName === 'string' ? profile.firstName : ''} {typeof profile.lastName === 'string' ? profile.lastName : ''}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
-                      <p className="text-lg text-gray-900">{profile.user?.email}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Phone</label>
-                      <p className="text-lg text-gray-900">{profile.user?.phone}</p>
-                    </div>
-                  </div>
+            {/* Personal Information Section */}
+            <EditableSection
+              section="personalInfo"
+              fields={[
+                'firstName',
+                'lastName',
+                'email',
+                'phone'
+              ]}
+              profile={profile}
+              onSave={handleEditSubmit}
+            />
 
-                  {/* Address Information */}
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Address</label>
-                      <p className="text-lg text-gray-900">{typeof profile.address1 === 'string' ? profile.address1 : ''}</p>
-                      <p className="text-lg text-gray-900">{typeof profile.address2 === 'string' ? profile.address2 : ''}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Location</label>
-                      <p className="text-lg text-gray-900">
-                        {typeof profile.city === 'string' ? profile.city : ''}, {typeof profile.state === 'string' ? profile.state : ''} {typeof profile.pincode === 'string' ? profile.pincode : ''}
-                      </p>
-                      <p className="text-lg text-gray-900">{typeof profile.country === 'string' ? profile.country : ''}</p>
-                    </div>
-                  </div>
-                </div>
+            {/* Address Information Section */}
+            <EditableSection
+              section="address"
+              fields={[
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'pincode',
+                'country'
+              ]}
+              profile={profile}
+              onSave={handleEditSubmit}
+            />
 
-                {/* Edit Button */}
-                <button
-                  onClick={() => handleEditSubmit('personalInfo', {})}
-                  className="mt-6 w-full sm:w-auto px-6 py-3 bg-[#663399] text-white rounded-xl
-                           hover:bg-[#663399]/90 transition-colors duration-200"
-                >
-                  Edit Profile
-                </button>
-              </div>
-            </div>
-
-            {/* Activity Stats Card */}
-            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
-              <h2 className="text-2xl font-semibold text-[#663399] mb-6">Activity Overview</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
-                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.posts?.length || 0}</p>
-                  <p className="text-gray-600">Posts</p>
-                </div>
-                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
-                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.likedPosts?.length || 0}</p>
-                  <p className="text-gray-600">Likes</p>
-                </div>
-                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
-                  <p className="text-2xl font-bold text-[#663399]">{profile.user?.dislikedPosts?.length || 0}</p>
-                  <p className="text-gray-600">Dislikes</p>
-                </div>
-                <div className="text-center p-4 bg-[#fdf0f4] rounded-xl">
-                  <p className="text-2xl font-bold text-[#663399]">{typeof profile.comments === 'string' ? profile.comments.length : 0}</p>
-                  <p className="text-gray-600">Comments</p>
-                </div>
-              </div>
-            </div>
-
-            {/* History Card */}
+            {/* History Section remains the same */}
             <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
               <h2 className="text-2xl font-semibold text-[#663399] mb-6">Profile History</h2>
               <div className="space-y-4">
@@ -375,12 +369,11 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                     return (
                       <div key={index} className="p-4 bg-[#fdf0f4] rounded-xl">
                         <p className="text-sm font-medium text-[#663399] mb-2">
-                          {new Date(historyItem.updatedAt).toLocaleString()}
+                          {historyItem.createdAt ? new Date(historyItem.createdAt).toLocaleString() : 'Date not available'}
                         </p>
                         {changes.map((change, idx) => (
                           <p key={idx} className="text-gray-700">
-                            Changed <span className="font-medium">{change.field}</span> from{' '}
-                            {JSON.stringify(change.from)} to {JSON.stringify(change.to)}
+                            Changed <span className="font-medium">{change.field}</span> 
                           </p>
                         ))}
                       </div>
