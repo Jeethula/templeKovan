@@ -26,7 +26,8 @@ model User {
   jwtToken    String?     @default("")
   refreshToken String?    @default("")
   isfirstTimeLogin Boolean @default(true)
-  approvedServices    Services[]
+  services   Services[]  @relation("UserServices")
+  approvedBy          Services[] @relation("ApprovedBy")
 }
 
 model PersonalInfo {
@@ -47,7 +48,6 @@ model PersonalInfo {
   user        User      @relation(fields: [userid], references: [id])
   userid      String    @unique
   History     PersonalInfoHistory[]
-  Services    Services[]
 }
 
 model ServiceAdd {
@@ -66,8 +66,8 @@ model ServiceAdd {
 
 model Services {
   id    String   @id @default(cuid())
-  nameOfTheServiceid String 
-  nameOfTheService  ServiceAdd  @relation(fields: [nameOfTheServiceid], references: [id])
+  nameOfTheServiceId String
+  nameOfTheService  ServiceAdd  @relation(fields: [nameOfTheServiceId], references: [id])
   description String
   image    String?
   paymentMode String?
@@ -75,14 +75,14 @@ model Services {
   serviceDate DateTime? @db.Date
   posUserId String?
   approverId String?
-  approvedBy User? @relation(fields: [approverId], references: [id])
+  approvedBy User? @relation("ApprovedBy", fields: [approverId], references: [id])
   approvedAt DateTime?
   price       Int
   status      String @default("PENDING")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  personalInfo PersonalInfo      @relation(fields: [personalInfoId], references: [id])
-  personalInfoId      String
+  User User    @relation("UserServices", fields: [userId], references: [id])
+  userId String
 }
 
 

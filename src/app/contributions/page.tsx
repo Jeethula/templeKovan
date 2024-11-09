@@ -168,7 +168,7 @@ const DonationPage = () => {
             )}
 
             {
-              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} service="Donation" date={new Date()} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} />
+              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} service="cm39vec3p0000ooi3pkdquuov" date={new Date()} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} />
             }
           </div>
         </div>

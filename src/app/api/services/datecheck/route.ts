@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     const { serviceDate, nameOfTheServiceid } = await req.json()
-    console.log(serviceDate, nameOfTheServiceid);
     
     if (!serviceDate) {
         return NextResponse.json({ error: 'Service date is required' }, { status: 400 });
