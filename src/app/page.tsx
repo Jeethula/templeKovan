@@ -295,7 +295,7 @@ export default function HomePage() {
             </div>
           )}
         </div>
-        <div className="relative h-[200px] overflow-hidden">
+        <div className="relative h-[200px] overflow-hidden" onClick={handleContributeClick}>
           <AnimatePresence mode="wait">
             {currentSlide === 0 ? (
               <motion.div

@@ -28,6 +28,8 @@ model User {
   isfirstTimeLogin Boolean @default(true)
   services   Services[]  @relation("UserServices")
   approvedBy          Services[] @relation("ApprovedBy")
+  posServices         Services[] @relation("PosServices")
+
 }
 
 model PersonalInfo {
@@ -73,7 +75,8 @@ model Services {
   paymentMode String?
   transactionId String?
   serviceDate DateTime? @db.Date
-  posUserId String?
+  posUserId String? 
+  posUser User? @relation("PosServices", fields: [posUserId], references: [id])
   approverId String?
   approvedBy User? @relation("ApprovedBy", fields: [approverId], references: [id])
   approvedAt DateTime?

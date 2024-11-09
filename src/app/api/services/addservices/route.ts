@@ -17,6 +17,9 @@ export async function GET(req:NextRequest) {
                 minAmount: true,
                 maxCount: true,
                 isActive: true,
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         });
         console.log(services);

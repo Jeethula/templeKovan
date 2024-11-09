@@ -215,8 +215,51 @@ const MyDocument: React.FC<{
   </Document>
 );
 
+// Add this component at the top of your file
+const TransactionSkeleton = () => (
+  <div className="bg-white rounded-xl border border-purple-100 shadow-sm animate-pulse">
+    <div className="p-4 space-y-4">
+      {/* Header Skeleton */}
+      <div className="flex justify-between items-start">
+        <div className="h-6 w-1/3 bg-gray-200 rounded"></div>
+        <div className="h-5 w-20 bg-gray-200 rounded-full"></div>
+      </div>
+      
+      {/* Description Skeleton */}
+      <div className="space-y-2">
+        <div className="h-3 w-full bg-gray-200 rounded"></div>
+        <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+      </div>
+
+      {/* Details Section Skeleton */}
+      <div className="bg-gray-50/80 rounded-lg p-3 space-y-3">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-2">
+            <div className="h-3 w-20 bg-gray-200 rounded"></div>
+            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-3 w-16 bg-gray-200 rounded"></div>
+            <div className="h-4 w-20 bg-gray-200 rounded"></div>
+          </div>
+          <div className="col-span-2 space-y-2">
+            <div className="h-3 w-24 bg-gray-200 rounded"></div>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Skeleton */}
+      <div className="space-y-2">
+        <div className="h-6 w-full bg-gray-200 rounded-full"></div>
+        <div className="h-8 w-full bg-gray-200 rounded-full"></div>
+      </div>
+    </div>
+  </div>
+);
 
 const TransactionsPage = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [history, setHistory] = useState<Service[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -227,13 +270,18 @@ const TransactionsPage = () => {
   }, []);
 
   const fetchHistory = async () => {
-    const userId: string = sessionData.id;
-    const response = await fetch(`/api/services/user?userId=${userId}`);
-    const data = await response.json();
-    console.log(data.services);
-    
-    setHistory(data.services.services);
-    setFilteredHistory(data.services.services);
+    try {
+      setIsLoading(true);
+      const userId: string = sessionData.id;
+      const response = await fetch(`/api/services/user?userId=${userId}`);
+      const data = await response.json();
+      setHistory(data.services.services);
+      setFilteredHistory(data.services.services);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleServiceChange = (value: string) => {
@@ -297,10 +345,9 @@ const TransactionsPage = () => {
         fileName="Service_Details.pdf"
       >
         <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
-                           text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
+                           text-xs font-medium  px-3 py-2 
                            rounded-full transition-colors duration-200">
           <Download className="w-3 h-3" />
-          Download Receipt
         </button>
       </PDFDownloadLink>
     );
@@ -347,80 +394,90 @@ const TransactionsPage = () => {
 
         {/* Transaction Cards */}
         <div className="space-y-4">
-          {filteredHistory.map((transaction, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
-                       transition-all duration-300 overflow-hidden"
-            >
-              <div className="p-4 flex flex-col justify-between">
-                {/* Card Header */}
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base font-semibold text-purple-900 truncate">
-                      {transaction.nameOfTheService.name}
-                    </h3>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 
-                                   border ${getStatusBadgeClass(transaction.status)}`}>
-                      <StatusIcon status={transaction.status} />
-                      {transaction.status}
-                    </span>
+          {isLoading ? (
+            // Show 3 skeleton cards while loading
+            [...Array(3)].map((_, index) => (
+              <TransactionSkeleton key={index} />
+            ))
+          ) : filteredHistory.length > 0 ? (
+            filteredHistory.map((transaction, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
+                         transition-all duration-300 overflow-hidden"
+              >
+                <div className="p-4 flex flex-col justify-between">
+                  {/* Card Header */}
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-base font-semibold text-purple-900 truncate">
+                        {transaction.nameOfTheService.name}
+                      </h3>
+                      <div className='flex gap-x-2'>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 
+                                     border ${getStatusBadgeClass(transaction.status)}`}>
+                        <StatusIcon status={transaction.status} />
+                        {transaction.status}
+                      </span>
+                      {handleDownload(transaction)}
+                      </div>
+                   
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-2">
+                      {transaction.description}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">
-                    {transaction.description}
-                  </p>
-                </div>
-                {/* <div className="flex justify-center my-4">
-                  <img
-                    src={transaction.nameOfTheService.image || transaction.nameOfTheService.image}
-                    alt={transaction.nameOfTheService.name}
-                    className="w-full h-32 object-contain rounded-lg"
-                  />
-                </div> */}
+                  {/* <div className="flex justify-center my-4">
+                    <img
+                      src={transaction.nameOfTheService.image || transaction.nameOfTheService.image}
+                      alt={transaction.nameOfTheService.name}
+                      className="w-full h-32 object-contain rounded-lg"
+                    />
+                  </div> */}
 
-                {/* Transaction Details */}
-                <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      {transaction.nameOfTheService.name !== 'Contribution' ? (
-                        <>
-                          <p className="text-gray-500">Service Date</p>
-                          <p className="font-medium text-gray-900">
-                            {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-gray-500">Donation Date</p>
-                          <p className="font-medium text-gray-900">
-                            {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Amount</p>
-                      <p className="font-medium text-gray-900">₹{transaction.price}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-gray-500">Transaction ID</p>
-                      <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
+                  {/* Transaction Details */}
+                  <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        {transaction.nameOfTheService.name !== 'Contribution' ? (
+                          <>
+                            <p className="text-gray-500">Service Date</p>
+                            <p className="font-medium text-gray-900">
+                              {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-gray-500">Donation Date</p>
+                            <p className="font-medium text-gray-900">
+                              {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Amount</p>
+                        <p className="font-medium text-gray-900">₹{transaction.price}</p>
+                      </div>
+                      <div className="col-span-2 grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-gray-500">Transaction ID</p>
+                          <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Paid via</p>
+                          <p className="font-medium text-gray-900">{transaction.paymentMode}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Card Footer */}
-                <div className="space-y-2">
-                  <div className="text-xs text-gray-600 bg-purple-50 px-3 py-1.5 rounded-full text-center">
-                    Paid via <span className="font-medium">{transaction.paymentMode}</span>
-                  </div>
-                  {handleDownload(transaction)}
+                  {/* Card Footer */}
+
                 </div>
               </div>
-            </div>
-          ))}
-
-          {filteredHistory.length === 0 && (
+            ))
+          ) : (
             <div className="text-center py-8 bg-white rounded-xl border border-purple-100">
               <p className="text-gray-500 text-sm">No transactions found</p>
             </div>

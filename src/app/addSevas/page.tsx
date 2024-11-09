@@ -181,19 +181,19 @@ export default function AddSevas() {
     return (
         <div className="min-h-screen bg-[#fdf0f4]">
             <div className="bg-[#663399] text-white p-6 fixed top-16 left-0 right-0 z-10 shadow-md">
-                <h1 className="text-2xl font-bold">Manage Services</h1>
+                <h1 className="text-2xl font-bold">Manage Seva</h1>
             </div>
             {/* Main Content */}
             <div className="pt-32 px-4 max-w-3xl mx-auto pb-20">
                 <div className="flex justify-end mb-6">
-                    <Button
+                    <button
                         onClick={openCreateModal}
                         className="flex items-center bg-[#663399] hover:bg-[#663399]/90 h-12 rounded-xl shadow-sm
                                      hover:shadow-md transition-all duration-200 text-white px-4 py-2"
                     >
                         <PlusCircle className="mr-2 h-5 w-5" />
                         Add New Service
-                    </Button>
+                    </button>
                 </div>
 
                 {/* Services List */}
