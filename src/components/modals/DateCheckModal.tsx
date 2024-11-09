@@ -51,7 +51,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ serviceDate,nameOfTheServiceid: id }),
+        body: JSON.stringify({ serviceDate,nameOfTheServiceId: id }),
       });
 
       const data = await response.json();

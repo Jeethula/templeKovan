@@ -33,34 +33,16 @@ export async function GET(req:NextRequest)
         const services=await prisma.services.findMany({
             select:{
                 id:true,
-                nameOfTheService:true,
-                description:true,
+                nameOfTheService:{
+                    select:{
+                        name:true,
+                    }
+                },
                 price:true,
-                image:true,
                 paymentMode:true,
                 transactionId:true,
                 status:true,
-                approvedAt:true,
-                approvedBy:true,
                 serviceDate:true,
-                personalInfo:{
-                    select:{
-                        id:true,
-                        firstName:true,
-                        lastName:true,
-                        address1:true,
-                        address2:true,
-                        city:true,
-                        state:true,
-                        country:true,
-                        pincode:true,
-                        avatarUrl:true,
-                        salutation:true,
-                        phoneNumber:true,
-                        userid:true
-
-                    }
-                }
             },
             orderBy:{
                 createdAt:"desc"
@@ -122,7 +104,6 @@ export async function POST(req:NextRequest)
         {
             return NextResponse.json({error:"Approver not found",status:404})
         }
-        console.log("Updating Status");
         
         await prisma.services.update({
             where:{
@@ -131,7 +112,11 @@ export async function POST(req:NextRequest)
             data:{
                 status:status,
                 approvedAt:new Date(),
-                approvedBy:approverId,
+                approvedBy:{
+                    connect:{
+                        id:approverId
+                    }
+                },
             }
         })
         console.log("Status Updated Successfully");

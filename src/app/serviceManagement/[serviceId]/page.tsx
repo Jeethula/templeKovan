@@ -7,30 +7,228 @@ import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Download } from 'lucide-react';
 
-interface PersonalInfo {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  country: string;
-  pincode: string;
-}
 
 interface ServiceDetails {
+  description: string
   id: string;
-  nameOfTheService: string;
+  nameOfTheService: {
+    name: string;
+  };
   price: number;
   serviceDate: string;
   image: string;
   transactionId: string;
   paymentMode: string;
   status: string;
-  personalInfo: PersonalInfo;
+  User: {
+    phone: string;
+    email: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+      address1: string;
+      address2: string;
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    };
+  };
+  approvedBy?: {
+    phone: string;
+    email: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+    };
+  };
 }
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: '#FFF9F0',
+  },
+  headerSection: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  mainTitle: {
+    fontSize: 28,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#8B4513',
+    fontFamily: 'Helvetica',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  decorativeLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: '#8B4513',
+    marginBottom: 20,
+    opacity: 0.3,
+  },
+  contentContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    padding: 25,
+    border: '1px solid #D4AF37',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottom: '1px solid #F0E6D6',
+  },
+  label: {
+    width: '40%',
+    fontSize: 11,
+    color: '#8B4513',
+    fontFamily: 'Helvetica-Bold',
+  },
+  value: {
+    width: '60%',
+    fontSize: 11,
+    color: '#333',
+    fontFamily: 'Helvetica',
+  },
+  footer: {
+    marginTop: 30,
+    padding: 20,
+    borderTop: '2px solid #D4AF37',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 10,
+    color: '#8B4513',
+    textAlign: 'center',
+    fontFamily: 'Helvetica',
+    marginBottom: 5,
+  },
+  blessingText: {
+    fontSize: 14,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginTop: 15,
+  },
+  receiptTitle: {
+    fontSize: 16,
+    color: '#8B0000',
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  ornament: {
+    fontSize: 24,
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+});
+
+const MyDocument: React.FC<{ 
+  rowData: ServiceDetails; 
+  userData: { 
+    id: string; 
+    email: string; 
+    phone: string 
+  }; 
+  approvedByData:{
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }
+}> = ({ rowData, userData, approvedByData }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.headerSection}>
+        <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
+        <Text style={styles.subtitle}></Text>
+        <View style={styles.decorativeLine} />
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.ornament}>☸</Text>
+        <Text style={styles.receiptTitle}>Seva Receipt</Text>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Devotee ID</Text>
+          <Text style={styles.value}>{userData.id}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact Details</Text>
+          <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Name</Text>
+          <Text style={styles.value}>{rowData.nameOfTheService.name}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Description</Text>
+          <Text style={styles.value}>{rowData.description}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Date</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Offering Amount</Text>
+          <Text style={styles.value}>₹{rowData.price}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Payment Details</Text>
+          <Text style={styles.value}>
+            {rowData.paymentMode} | Trans. ID: {rowData.transactionId}
+          </Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approved By</Text>
+          <Text style={styles.value}>{approvedByData?.firstName} {approvedByData?.lastName}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Approver Contact</Text>
+          <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+        </View>
+
+        <View style={[styles.row, { borderBottom: 'none' }]}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{rowData.status}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          This is a computer generated receipt. No signature required.
+        </Text>
+        <Text style={styles.footerText}>
+          For any queries, please contact the temple office.
+        </Text>
+        {/* <Text style={styles.blessingText}>
+          
+        </Text> */}
+      </View>
+    </Page>
+  </Document>
+);
 
 const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) => {
   const [service, setService] = useState<ServiceDetails | null>(null);
@@ -80,11 +278,10 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status, approverId: userId, serviceId }),
+        body: JSON.stringify({ status, approverId: userId, serviceId}),
       });
-
       const data = await response.json();
-
+      
       if (response.ok) {
         toast.success(`Service ${status.toLowerCase()} successfully!`);
         router.push('/serviceManagement');
@@ -120,10 +317,21 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
           {/* Main Content */}
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             {/* Service Title */}
-            <div className="p-6 bg-[#663399] text-white">
-              <h1 className="text-2xl font-bold">{service.nameOfTheService}</h1>
-              <div className="mt-2 inline-block px-3 py-1 rounded-full bg-white/20 text-sm">
-                Status: {service.status}
+            <div className="p-8 bg-gradient-to-r from-[#663399] to-[#8B5FBF] text-white">
+              <div className="flex flex-col gap-3">
+                <h1 className="text-3xl font-semibold tracking-tight">
+                  {service.nameOfTheService.name}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <span className={`
+                  px-4 py-1.5 rounded-full text-sm font-medium
+                  ${service.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-100' : 
+                    service.status === 'REJECTED' ? 'bg-red-500/20 text-red-100' : 
+                    'bg-yellow-500/20 text-yellow-100'}
+                  `}>
+                  {service.status}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -167,6 +375,46 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                     <span>Payment Mode</span>
                     <span>{service.paymentMode}</span>
                   </div>
+                  
+                  {service.status === "APPROVED" && service.approvedBy && (
+                    <>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>Approved By</span>
+                        <span>{service.approvedBy.personalInfo.firstName} {service.approvedBy.personalInfo.lastName}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>Approver Contact</span>
+                        <span>{service.approvedBy.phone}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>Approver Email</span>
+                        <span>{service.approvedBy.email}</span>
+                      </div>
+                      <div className="mt-4">
+                        <PDFDownloadLink 
+                          document={
+                            <MyDocument 
+                              rowData={service} 
+                              userData={sessionData}
+                              approvedByData={{
+                                firstName: service.approvedBy.personalInfo.firstName,
+                                lastName: service.approvedBy.personalInfo.lastName,
+                                phoneNumber: service.approvedBy.phone
+                              }}
+                            />
+                          }
+                          fileName="Service_Details.pdf"
+                        >
+                          <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
+                                         text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
+                                         rounded-full transition-colors duration-200">
+                            <Download className="w-3 h-3" />
+                            Download Receipt
+                          </button>
+                        </PDFDownloadLink>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -176,19 +424,23 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                 <div className="grid gap-3 text-gray-700">
                   <div className="flex justify-between py-2 border-b border-gray-100">
                     <span>Name</span>
-                    <span>{service.personalInfo.firstName} {service.personalInfo.lastName}</span>
+                    <span>{service.User.personalInfo.firstName} {service.User.personalInfo.lastName}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-gray-100">
                     <span>Phone</span>
-                    <span>{service.personalInfo.phoneNumber}</span>
+                    <span>{service.User.phone}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span>Email</span>
+                    <span>{service.User.email}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-gray-100">
                     <span>Address</span>
                     <span className="text-right">
-                      {service.personalInfo.address1}<br />
-                      {service.personalInfo.address2}<br />
-                      {service.personalInfo.city}, {service.personalInfo.state}<br />
-                      {service.personalInfo.country} - {service.personalInfo.pincode}
+                      {service.User.personalInfo.address1}<br />
+                      {service.User.personalInfo.address2}<br />
+                      {service.User.personalInfo.city}, {service.User.personalInfo.state}<br />
+                      {service.User.personalInfo.country} - {service.User.personalInfo.pincode}
                     </span>
                   </div>
                 </div>
