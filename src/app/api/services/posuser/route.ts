@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/utils/prisma';
+import { connect } from 'http2';
 
 
 //fetch all the user details 
@@ -42,7 +43,6 @@ export async function GET(req: NextRequest) {
                         state:true,
                         country:true,
                         pincode:true,
-                        avatarUrl:true,
                         salutation:true,
                     }
                 }
@@ -100,93 +100,32 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({error:"POS User not found",status:404})
         }
 
-        if(nameOfTheService==='Thirumanjanam')
-        {
-            if(!serviceDate)
-            {
-                return NextResponse.json({error:"Service Date is required",status:400})
-            }
-            const service=await prisma.user.update({
-                where:{
-                    id:userId
-                },
-                data:{
-                    personalInfo:{
-                        update:{
-                            Services:{
-                                create:{
-                                    nameOfTheService,
-                                    description,
-                                    price,
-                                    posUserId,
-                                    image,
-                                    paymentMode,
-                                    transactionId,
-                                    serviceDate
-                                }
-                            }
-                        }
+        const service=await prisma.services.create({
+            data:{
+                nameOfTheService:{
+                    connect:{
+                        id:nameOfTheService
                     }
-                }
-            })
-            return NextResponse.json({service:service,status:200})
-        }
-
-        if(nameOfTheService==='Abhishekam')
-        {
-                const service=await prisma.user.update({
-                    where:{
+                },
+                description,
+                price,
+                image,
+                paymentMode,
+                transactionId,
+                serviceDate,
+                User:{
+                    connect:{
                         id:userId
-                    },
-                    data:{
-                        personalInfo:{
-                            update:{
-                                Services:{
-                                    create:{
-                                        nameOfTheService,
-                                        description,
-                                        price,
-                                        image,
-                                        paymentMode,
-                                        transactionId,
-                                        serviceDate
-                                    }
-                                }
-                            }
-                        }
                     }
-                })
-                return NextResponse.json({service:service,status:200})
-        }
-
-        if(nameOfTheService==='generalDonation')
-        {
-            const service=await prisma.user.update({
-                where:{
-                    id:userId
                 },
-                data:{
-                    personalInfo:{
-                        update:{
-                            Services:{
-                                create:{
-                                    nameOfTheService,
-                                    description,
-                                    price,
-                                    posUserId,
-                                    image,
-                                    paymentMode,
-                                    transactionId,
-                                    serviceDate
-                                }
-                            }
-                        }
+                posUser:{
+                    connect:{
+                        id:posUserId
                     }
                 }
-            })
-            return NextResponse.json({service:service,status:200})
-        }
-        return NextResponse.json({error:"Service not found",status:404})
+            }
+        })
+        return NextResponse.json({service:service,status:200})
     }
     catch(e)
     {
