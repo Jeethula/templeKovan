@@ -5,10 +5,6 @@ import { RxCross1 } from 'react-icons/rx';
 import { Clock, Download, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { AiOutlinePrinter } from 'react-icons/ai';
-
-
-
 
 type Service = {
   id: string;
@@ -300,11 +296,15 @@ const TransactionsPage = () => {
         document={<MyDocument rowData={transaction} userData={sessionData} approvedByData={approvedByData} />}
         fileName="Service_Details.pdf"
       >
-        <button className="text-blue-500 hover:text-blue-700">
-          <AiOutlinePrinter size={18} />
+        <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
+                           text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
+                           rounded-full transition-colors duration-200">
+          <Download className="w-3 h-3" />
+          Download Receipt
         </button>
-      </PDFDownloadLink>)
-  }
+      </PDFDownloadLink>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 px-4 py-6">
@@ -414,12 +414,7 @@ const TransactionsPage = () => {
                   <div className="text-xs text-gray-600 bg-purple-50 px-3 py-1.5 rounded-full text-center">
                     Paid via <span className="font-medium">{transaction.paymentMode}</span>
                   </div>
-                  <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
-                                   text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
-                                   rounded-full transition-colors duration-200" onClick={()=>handleDownload(transaction)}>
-                    <Download className="w-3 h-3" />
-                    Download Receipt
-                  </button>
+                  {handleDownload(transaction)}
                 </div>
               </div>
             </div>

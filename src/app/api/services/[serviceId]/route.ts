@@ -16,27 +16,48 @@ export async function GET(req: NextRequest,{ params }: { params: Params })
             },
             select:{
                 id:true,
-                nameOfTheService:true,
+                nameOfTheService:{
+                    select:{
+                        name:true,
+                    }
+                },
                 price:true,
+                description:true,
                 serviceDate:true,
                 image:true,
-                approvedBy:true,
+                approvedBy:{
+                    select:{
+                            phone:true,
+                            email:true,
+                            personalInfo:{
+                                select:{
+                                    firstName:true,
+                                    lastName:true,
+                                }
+                            }
+                        }
+                    },
+                
                 transactionId:true,
                 paymentMode:true,
                 status:true,
-                personalInfo:{
+                User:{
                     select:{
-                        firstName:true,
-                        lastName:true,
-                        phoneNumber:true,
-                        address1:true,
-                        address2:true,
-                        city:true,
-                        state:true,
-                        country:true,
-                        pincode:true,
-
+                        phone:true,
+                        email:true,
+                    personalInfo:{
+                        select:{
+                            firstName:true,
+                            lastName:true,
+                            address1:true,
+                            address2:true,
+                            city:true,
+                            state:true,
+                            country:true,
+                            pincode:true
+                        }
                     }
+                }
                 }
             }
         })
