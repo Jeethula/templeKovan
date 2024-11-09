@@ -267,13 +267,13 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
           >
             <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-2">
               <div className="flex items-center w-36 justify-start gap-3">
-                <Image
+                {/* <Image
                   src={post?.author?.personalInfo?.avatarUrl || "/user.svg"}
                   alt="User profile picture"
                   width={30}
                   height={30}
                   className="rounded-full"
-                />
+                /> */}
                 <h2 className="text-lg font-semibold text-gray-500">
                   {post?.author?.personalInfo?.firstName}
                 </h2>
@@ -316,7 +316,6 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
             </div>
 
             <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-              <div className="flex gap-x-4 items-center">
                 <div className="flex items-center gap-x-1">
                   <button onClick={() => handleInteraction(post.id, "like")}>
                     {post.userInteraction === "like" ? (
@@ -327,7 +326,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                   </button>
                   <p className="text-xl">{post.likes}</p>
                 </div>
-                <div className="flex items-center gap-x-1">
+                {/* <div className="flex items-center gap-x-1">
                   <button onClick={() => handleInteraction(post.id, "dislike")}>
                     {post.userInteraction === "dislike" ? (
                       <BiSolidDislike className="size-6" fill="red" />
@@ -336,23 +335,22 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                     )}
                   </button>
                   <p>{post.dislikes}</p>
-                </div>
+                </div> */}
                 
                 <div className="flex items-center gap-x-1">
                   <button className="flex items-center gap-x-1" onClick={() => {handleShare(`${process.env.NEXT_PUBLIC_API_URL}/${post.id}`)}}>
                     <Share2 />  share
                   </button>
                 </div>
-              </div>
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <Link href={`/blog/${post.id}`}>
                   <p className="text-gray-400 text-base cursor-pointer">
                     {post.comments.length} comments
                   </p>
                 </Link>
-              </div>
+              </div> */}
             </div>
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <input
                 type="text"
                 onChange={(e) => handleCommentChange(e, post.id)} 
@@ -370,7 +368,7 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
                   Add Comment
                 </button>
               )}
-            </div>
+            </div> */}
           </div>
         ))}
       </div>

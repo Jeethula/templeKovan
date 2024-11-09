@@ -22,6 +22,7 @@ const ServicesPage: React.FC = () => {
       try {
         const response = await fetch('/api/services/addservices');
         const data = await response.json();
+        console.log(data,"hjhjh")
         setServices(data.filter((service: Service) => service.isActive));
       } catch (error) {
         console.error('Error fetching services:', error);
