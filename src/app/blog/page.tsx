@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
 import toast from "react-hot-toast";
 import withProfileCheck from "@/components/withProfileCheck";
-import {  Share2 } from "lucide-react";
+import {  Heart, Share2 } from "lucide-react";
 import { handleShare } from "@/utils";
 
 function Posts() {
@@ -19,6 +19,7 @@ function Posts() {
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({}); 
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const role = sessionData.role;
   const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
@@ -238,22 +239,21 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
   return (
     <div className="bg-[#fdf0f4] h-full min-h-screen">
       <div className=" lg:mx-[20%] lg:w-[60%] w-full h-full sm:p-10 p-5">
-        <div className="flex justify-between items-center pt-5 mb-6 gap-x-5">
+       { role.includes("blogAdmin") && <div className="flex items-center pt-5 mb-6 gap-x-3">
           <input
             type="text"
             onChange={handleChange}
             value={search}
-            placeholder="Search Posts"
+            placeholder="Search Anouncements"
             className=" w-full  h-10 px-3 py-2 border border-gray-400 rounded-md placeholder:text-gray-400"
           />
-          <Link
+            <Link
             href="/blog/write"
-            className="bg-red-500 hover:bg-red-600 text-nowrap  rounded-lg text-white font-semibold  items-center flex justify-center gap-x-2 w-fit h-fit p-2"
-          >
-            <IoMdAdd />
-            Create Post
-          </Link>
-        </div>
+            className="bg-gray-200 rounded-full p-3 text-black font-semibold flex items-center justify-center w-10 h-10 hover:bg-gray-400"
+            >
+            <IoMdAdd size={25} /> 
+            </Link>
+        </div>}
         {loading && <LoadingUI />}
         {filteredPosts.length === 0 && !loading && (
           <div className="text-center  text-gray-600 text-2xl mt-10">
@@ -315,27 +315,20 @@ const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: str
               </div>
             </div>
 
-            <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+            <div className="flex justify-between items-center pb-2">
                 <div className="flex items-center gap-x-1">
                   <button onClick={() => handleInteraction(post.id, "like")}>
                     {post.userInteraction === "like" ? (
-                      <BiSolidLike className="size-6" fill="green" />
+                      <Heart className="size-6" fill="red" stroke="red" />
                     ) : (
-                      <BiLike className="size-6" fill="green" />
+                      <Heart className="size-6" stroke="red" />
                     )}
                   </button>
-                  <p className="text-xl">{post.likes}</p>
+                  { post.likes <= 0 ? 
+                  <p className="text-xl">0</p>
+                 : <p className="text-xl">{post.likes}</p>
+                    }
                 </div>
-                {/* <div className="flex items-center gap-x-1">
-                  <button onClick={() => handleInteraction(post.id, "dislike")}>
-                    {post.userInteraction === "dislike" ? (
-                      <BiSolidDislike className="size-6" fill="red" />
-                    ) : (
-                      <BiDislike className="size-6" fill="red" />
-                    )}
-                  </button>
-                  <p>{post.dislikes}</p>
-                </div> */}
                 
                 <div className="flex items-center gap-x-1">
                   <button className="flex items-center gap-x-1" onClick={() => {handleShare(`${process.env.NEXT_PUBLIC_API_URL}/${post.id}`)}}>

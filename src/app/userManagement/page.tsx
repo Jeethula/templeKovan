@@ -7,6 +7,7 @@ import { RxCross1 } from 'react-icons/rx';
 import { FaUserCog, FaSearch } from 'react-icons/fa';
 import { MdEmail, MdPhone } from 'react-icons/md';
 import { HiLocationMarker } from 'react-icons/hi';
+import { IoLogoWhatsapp } from 'react-icons/io';
 
 type PersonalInfo = {
   userid: string;
@@ -45,7 +46,17 @@ const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user,
           {user.Phone ? (
             <div className="flex items-center space-x-2 text-gray-600">
               <MdPhone className="text-[#663399] shrink-0 w-4 h-4" />
-              <span className="text-sm truncate">{user.Phone}</span>
+              <a href={`tel:${user.Phone}`} className="text-sm truncate hover:text-[#663399]">
+                {user.Phone}
+              </a>
+              <a 
+                href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-green-500 hover:text-green-600"
+              >
+                <IoLogoWhatsapp className="w-4 h-4" fill='green' />
+              </a>
             </div>
           ) : user.email && (
             <div className="flex items-center space-x-2 text-gray-600">
@@ -70,13 +81,44 @@ const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user,
   </div>
 );
 
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-pulse">
+    <div className="flex items-start space-x-3">
+      <div className="w-10 h-10 bg-gray-200 rounded-full shrink-0" />
+      <div className="flex-1 space-y-3">
+        {/* Name */}
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        
+        {/* Contact Info */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-gray-200 rounded" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+          </div>
+          
+          {/* Address */}
+          <div className="flex space-x-2">
+            <div className="w-4 h-4 bg-gray-200 rounded" />
+            <div className="space-y-1 flex-1">
+              <div className="h-3 bg-gray-200 rounded w-full" />
+              <div className="h-3 bg-gray-200 rounded w-4/5" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const PersonalInfoGrid: React.FC = () => {
   const router = useRouter();
   const [userData, setUserData] = useState<PersonalInfo[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // Add this line
 
   const fetchData = async () => {
     try {
+      setIsLoading(true); // Add this line
       const res = await fetch('/api/profile', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -95,6 +137,8 @@ const PersonalInfoGrid: React.FC = () => {
       setUserData(combinedData);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false); // Add this line
     }
   };
 
@@ -141,21 +185,25 @@ const PersonalInfoGrid: React.FC = () => {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 gap-3">
-          {filteredUsers.map((user) => (
-            <UserCard
-              key={user.userid}
-              user={user}
-              onClick={() => router.push(`userManagement/${user.userid}`)}
-            />
-          ))}
+          {isLoading ? (
+            // Show 3 skeleton cards while loading
+            [...Array(3)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <UserCard
+                key={user.userid}
+                user={user}
+                onClick={() => router.push(`userManagement/${user.userid}`)}
+              />
+            ))
+          ) : searchTerm ? (
+            <div className="text-center py-6">
+              <p className="text-gray-500 text-base">No users found matching your search.</p>
+            </div>
+          ) : null}
         </div>
-
-        {/* No Results Message */}
-        {filteredUsers.length === 0 && searchTerm && (
-          <div className="text-center py-6">
-            <p className="text-gray-500 text-base">No users found matching your search.</p>
-          </div>
-        )}
       </div>
     </div>
   );
