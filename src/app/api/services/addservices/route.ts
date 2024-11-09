@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 
-export async function GET() {
+export async function GET(req:NextRequest) {
     try {
         const services = await prisma.serviceAdd.findMany({
             where: {
@@ -19,6 +19,7 @@ export async function GET() {
                 isActive: true,
             }
         });
+        console.log(services);
         
         return NextResponse.json({ 
             success: true,

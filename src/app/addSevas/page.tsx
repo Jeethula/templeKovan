@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import toast from "react-hot-toast";
-import Navbar from "@/components/Navbar"; // Import Navbar component
 
 interface Service {
     id: string;
@@ -47,8 +46,8 @@ export default function AddSevas() {
             const response = await fetch('/api/services/addservices');
             if (!response.ok) throw new Error('Failed to fetch services');
             const data = await response.json();
-            // Filter only active services
-            setServices(data.filter((service: Service) => service.isActive));
+            console.log(data);
+            setServices(data.services)
         } catch (error) {
             toast.error('Error fetching services');
         }
