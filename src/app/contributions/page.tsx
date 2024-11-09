@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import DetailsModal from '@/components/modals/DetailsModal';
 import { FaDownload, FaCheck } from 'react-icons/fa';
 import { IoCopyOutline } from "react-icons/io5";
+import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 
 type PaymentMethod = 'NEFT' | 'UPI' | 'QR';
 
@@ -65,16 +66,20 @@ const DonationPage = () => {
     <div className="min-h-screen bg-[#fdf0f4] p-4 sm:p-6 lg:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
+      <h1 className="text-xl flex gap-x-3 font-semibold mb-4 text-[#663399] justify-center items-center"><RiMoneyRupeeCircleLine/> Contribution</h1>
         <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-[#663399] mb-4">Support Our Temple</h1>
+          {/* <h1 className="text-2xl font-bold text-[#663399] mb-4">Support Our Temple</h1>
           <p className="text-gray-700 mb-4">
             Your generous donations help us maintain the temple, conduct religious ceremonies, 
             and support our community initiatives. Every contribution makes a difference.
-          </p>
-          <h2 className="text-xl font-semibold text-[#663399] mb-2">How to Donate</h2>
+          </p> */}
+          <h2 className="text-xl font-semibold text-[#663399] mb-2">How to Contribute</h2>
           <p className="text-gray-700">
-            Choose your preferred payment method below and follow the instructions. 
-            After making the payment, please fill out the donation form for our records.
+          1.Select the preferred payment method below.<br></br>
+          2.Pay the amount to the given details.<br></br>
+          3.After successful payment, click Proceed to Next.<br></br>
+          4.Take a screenshot and note the transaction ID.<br></br>
+          5.Once you submit the details, the admin will verify it.
           </p>
         </div>
 
