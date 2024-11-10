@@ -66,7 +66,7 @@ const DonationPage = () => {
     <div className="min-h-screen bg-[#fdf0f4] p-4 sm:p-6 lg:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
-      <h1 className="text-xl flex gap-x-3 font-semibold mb-4 text-[#663399] justify-center items-center"><RiMoneyRupeeCircleLine/> Contribution</h1>
+      <h1 className="text-xl flex gap-x-3 font-semibold mb-4 text-[#663399] justify-center items-center"><RiMoneyRupeeCircleLine size={25}/> Contribution</h1>
         <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-6 mb-6">
           {/* <h1 className="text-2xl font-bold text-[#663399] mb-4">Support Our Temple</h1>
           <p className="text-gray-700 mb-4">

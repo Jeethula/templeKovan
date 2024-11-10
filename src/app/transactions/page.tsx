@@ -420,7 +420,7 @@ const TransactionsPage = () => {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-purple-800">Transactions</h1>
-          <p className="text-sm text-gray-600">View your service bookings</p>
+          <p className="text-sm text-gray-600">View all your history of transactions.</p>
         </div>
 
         {/* Filters */}
