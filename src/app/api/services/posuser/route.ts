@@ -122,7 +122,50 @@ export async function POST(req: NextRequest) {
                 }
             }
         })
-        return NextResponse.json({service:service,status:200})
+
+        const serviceDetails=await prisma.services.findUnique({
+            where:{
+                id:service.id
+            },
+            select:{
+                id:true,
+                nameOfTheService:{
+                    select:{
+                        name:true
+                    }
+                },
+                price:true,
+                serviceDate:true,
+                description:true,
+                status:true,
+                User:{
+                    select:{
+                        id:true,
+                        email:true,
+                        phone:true,
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                                lastName:true,
+                            }
+                        }
+                    }
+                },
+                posUser:{
+                    select:{
+                        id:true,
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                                lastName:true,
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        return NextResponse.json({service:serviceDetails,status:200})
     }
     catch(e)
     {

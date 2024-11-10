@@ -15,6 +15,7 @@ interface DateCheckModalProps {
   title: string;
   id: string;
   open: boolean;
+  minAmount:number;
   userId: string;
   onClose: () => void;
 }
@@ -23,6 +24,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
   title, 
   id, 
   open, 
+  minAmount,
   onClose, 
   userId 
 }) => {
@@ -167,8 +169,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
             serviceName={title}
             date={new Date(serviceDate)}
             userId={userId}
-            isOpen={showDetailsModal}
-            onClose={handleDetailsModalClose}
+            minAmount={minAmount}
             nameOfTheServiceId={id}
             onSubmitSuccess={handleDetailsModalClose}
           />
