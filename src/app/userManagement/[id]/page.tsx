@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill } from "react-icons/pi";
-import { toast } from 'react-toastify';
 import { BsWhatsapp } from "react-icons/bs";
+import toast from "react-hot-toast";
 
 interface Post {
   id: string;
