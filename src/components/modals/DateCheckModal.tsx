@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import toast from 'react-hot-toast';
+import { Calendar } from '../ui/calendar';
 
 interface DateCheckModalProps {
   title: string;
@@ -19,46 +20,47 @@ interface DateCheckModalProps {
 }
 
 const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClose }) => {
-  const [serviceDate, setServiceDate] = useState('');
+  const [serviceDate, setServiceDate] = useState<Date | undefined>(undefined);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   console.log(id);
   console.log(title);
   
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setServiceDate(e.target.value);
-    setError('');
-  };
+  // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setServiceDate(new Date(e.target.value));
+  //   setError('');
+  // };
    
     
 
   const checkAvailability = async (): Promise<void> => {
     setIsLoading(true); 
     try {
-      const selectedDate = new Date(serviceDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); 
-  
-      if (selectedDate < today) {
-        setError('The selected date is in the past');
-        toast.error('Selected date is not valid');
+      if (!serviceDate) {
+        setError('Please select a date');
         setIsLoading(false);
         return;
       }
+
+      const formattedDate = serviceDate.toISOString().split('T')[0];
+      const requestBody = { 
+        serviceDate: formattedDate, 
+        nameOfTheServiceId: id 
+      };
+
       const response = await fetch('/api/services/datecheck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ serviceDate,nameOfTheServiceId: id }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
       if (data.isAvailable) {
-        const selectedDate = new Date(serviceDate)
+        const selectedDate = new Date(serviceDate);
         router.push(`/services/${id}?date=${selectedDate.toISOString()}`);
-        
       } else {
         setError('The selected date is not available');
       }
@@ -78,27 +80,30 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <div className="relative">
-            <Input
-              type="date"
-              id="serviceDate"
-              value={serviceDate}
-              onChange={handleDateChange}
-              placeholder=" "
-              className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-                error ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            <Label
-              htmlFor="serviceDate"
-              className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-            >
-              Service Date
-            </Label>
-            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-          </div>
+            <div className="relative">
+            <div className="grid justify-center"> {/* Add this wrapper div */}
+              <Calendar
+                mode="single"
+                selected={serviceDate}
+                onSelect={(date: Date | undefined) => {
+                  setServiceDate(date);
+                  if (date) {
+                    const formattedDate = date.toISOString().split('T')[0];
+                    setError('');
+                  }
+                }}
+                disabled={(date) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date < today;
+                }}
+                className="rounded-md border w-full" // Add w-full
+              />
+              {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+            </div>
+            </div>
 
-          <Button onClick={checkAvailability} className="w-full" disabled={isLoading}>
+          <Button onClick={checkAvailability} className="w-full bg-[#663399] hover:bg-[#663399]" disabled={isLoading}>
             {isLoading ? (
               <span className="flex items-center justify-center">
                 <svg

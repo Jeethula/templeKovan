@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import DetailsModal from '@/components/modals/DetailsModal';
 import { FaDownload, FaCheck } from 'react-icons/fa';
 import { IoCopyOutline } from "react-icons/io5";
@@ -28,6 +28,7 @@ const ServicePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [qrDownloaded, setQrDownloaded] = useState(false);
+  const router = useRouter();
 
   const bankDetails = {
     accountName: "Sri Renuka Akkama Temple",
@@ -244,7 +245,10 @@ const ServicePage = () => {
                 nameOfTheServiceId={slug as string}
                 serviceName={service?.name||''}
                 date={serviceDate ? new Date(serviceDate) : new Date()}
-                onSubmitSuccess={() => setShowModal(false)}
+                onSubmitSuccess={() => {
+                  setShowModal(false);
+                  router.push('/transactions');
+                }}
                 selectedMethod={selectedMethod || 'NEFT'}
               />
             )}

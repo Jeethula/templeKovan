@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/utils/prisma';
-import { connect } from 'http2';
-
 
 //fetch all the user details 
 export async function GET(req: NextRequest) {
@@ -65,8 +63,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const {userId,nameOfTheServiceId,serviceDate,posUserId,price,description} = await req.json();
     
-
-
     if(!userId)
     {
         return NextResponse.json({error:"User ID is required",status:400})
@@ -113,6 +109,7 @@ export async function POST(req: NextRequest) {
                 price,
                 serviceDate,
                 description,
+                status:"APPROVED",
                 User:{
                     connect:{
                         id:userId

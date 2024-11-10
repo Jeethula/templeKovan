@@ -23,11 +23,39 @@ interface User {
   personalInfo: PersonalInfo | null;
 }
 
+const SkeletonUserCard = () => (
+  <div className="p-4 border-b border-gray-100 flex items-center space-x-4 animate-pulse">
+    <div className="flex-shrink-0">
+      <div className="w-12 h-12 rounded-full bg-gray-200" />
+    </div>
+    <div className="flex-grow">
+      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+      <div className="h-3 bg-gray-200 rounded w-1/4" />
+    </div>
+  </div>
+);
+
+const SkeletonUserDetails = () => (
+  <div className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+    <div className="h-6 bg-gray-200 rounded w-1/4 mb-4" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="border-b border-gray-100 pb-2">
+          <div className="h-3 bg-gray-200 rounded w-1/4 mb-2" />
+          <div className="h-4 bg-gray-200 rounded w-3/4" />
+        </div>
+      ))}
+    </div>
+    <div className="mt-4 h-10 bg-gray-200 rounded" />
+  </div>
+);
+
 const PosUserPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const userSession = JSON.parse(sessionStorage.getItem('user') || '{}');
   const userId = userSession.id;
@@ -39,6 +67,7 @@ const PosUserPage = () => {
       return;
     }
     const fetchUsers = async () => {
+      setIsLoading(true);
       try {
         const res = await fetch(`/api/services/posuser/?posUserId=${userId}`);
         if (!res.ok) {
@@ -48,6 +77,8 @@ const PosUserPage = () => {
         setUsers(data.users);
       } catch (error) {
         setError((error as Error).message);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchUsers();
@@ -89,6 +120,7 @@ const PosUserPage = () => {
                      bg-white shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={isLoading}
           />
           <svg
             className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
@@ -111,7 +143,9 @@ const PosUserPage = () => {
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
           <div className="max-h-96 overflow-y-auto">
-            {filteredUsers.length === 0 ? (
+            {isLoading ? (
+              [...Array(5)].map((_, i) => <SkeletonUserCard key={i} />)
+            ) : filteredUsers.length === 0 ? (
               <p className="text-center p-6 text-gray-600">No users found.</p>
             ) : (
               filteredUsers.map((user) => (
@@ -146,46 +180,50 @@ const PosUserPage = () => {
           </div>
         </div>
 
-        {selectedUser && selectedUser.personalInfo && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Full Name</p>
-                  <p className="text-gray-900">
-                    {selectedUser.personalInfo.salutation} {selectedUser.personalInfo.firstName} {selectedUser.personalInfo.lastName}
-                  </p>
+        {isLoading ? (
+          <SkeletonUserDetails />
+        ) : (
+          selectedUser && selectedUser.personalInfo && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border-b border-gray-100 pb-2">
+                    <p className="text-sm text-gray-500">Full Name</p>
+                    <p className="text-gray-900">
+                      {selectedUser.personalInfo.salutation} {selectedUser.personalInfo.firstName} {selectedUser.personalInfo.lastName}
+                    </p>
+                  </div>
+                  <div className="border-b border-gray-100 pb-2">
+                    <p className="text-sm text-gray-500">Phone</p>
+                    <p className="text-gray-900">{selectedUser.phone}</p>
+                  </div>
+                  <div className="border-b border-gray-100 pb-2">
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-gray-900">{selectedUser.email}</p>
+                  </div>
+                  <div className="border-b border-gray-100 pb-2">
+                    <p className="text-sm text-gray-500">Address</p>
+                    <p className="text-gray-900">
+                      {selectedUser.personalInfo.address1}
+                      {selectedUser.personalInfo.address2 && <>, {selectedUser.personalInfo.address2}</>}
+                      {`, ${selectedUser.personalInfo.city}, ${selectedUser.personalInfo.state}`}
+                      {`, ${selectedUser.personalInfo.country} - ${selectedUser.personalInfo.pincode}`}
+                    </p>
+                  </div>
                 </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="text-gray-900">{selectedUser.phone}</p>
-                </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-gray-900">{selectedUser.email}</p>
-                </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Address</p>
-                  <p className="text-gray-900">
-                    {selectedUser.personalInfo.address1}
-                    {selectedUser.personalInfo.address2 && <>, {selectedUser.personalInfo.address2}</>}
-                    {`, ${selectedUser.personalInfo.city}, ${selectedUser.personalInfo.state}`}
-                    {`, ${selectedUser.personalInfo.country} - ${selectedUser.personalInfo.pincode}`}
-                  </p>
-                </div>
-              </div>
-              <button
-                className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
+                <button
+                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
                          font-medium py-2 px-4 rounded-lg transition-colors 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 
                          focus:ring-offset-2 shadow-sm"
-                onClick={() => goToService(selectedUser.id)}
-              >
-                Go to Service
-              </button>
+                  onClick={() => goToService(selectedUser.id)}
+                >
+                  Go to Service
+                </button>
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>

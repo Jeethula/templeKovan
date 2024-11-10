@@ -5,11 +5,12 @@ import { useAuth } from '../app/context/AuthContext';
 import { useState, useEffect } from 'react';
 import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes, FaPrayingHands } from 'react-icons/fa';
 import { CiSettings } from "react-icons/ci";
-import { Bell, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
+import { Bell, BookDown, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, Settings, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
 import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { TfiAnnouncement } from "react-icons/tfi";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
-import { PiHandsPrayingDuotone } from 'react-icons/pi';
+import { PiHandsPrayingBold, PiHandsPrayingDuotone } from 'react-icons/pi';
+import { HiOutlineSpeakerphone } from 'react-icons/hi';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -37,18 +38,19 @@ const Navbar = () => {
 
   const mainNav = [
     { name: 'Home', path: '/', icon: <House className="text-lg" /> },
-    { name: `Seva`, path: '/services', icon: <PiHandsPrayingDuotone className="text-lg" /> },
+    { name: `Seva`, path: '/services', icon: <PiHandsPrayingBold  size={23} className="text-lg " /> },
     { name: 'Profile', path: '/profile', icon: <UserRound className="text-lg" /> },
-    { name: 'Announcements', path: '/blog', icon: <TfiAnnouncement className="text-lg" fill='black' /> },
-    {name:'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" />},
+    { name: 'Announcements', path: '/blog', icon: <HiOutlineSpeakerphone className="text-lg" size={23} stroke='black' /> },
+    {name:'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" size={23}  />},
   ];
 
   const menuItems = [
-    { name: 'Transactions', path: '/transactions', icon: <CgArrowsExchangeAlt className="text-lg" /> },
+    { name: 'Transactions', path: '/transactions', icon: <CgArrowsExchangeAlt className="text-lg" size={25} /> },
     { name: 'Add Profile', path: '/add', icon: <UserRoundPlus className="text-lg" /> },
     ...(role.includes('Admin') ? [
       { name: 'User Management', path: '/userManagement', icon: <LucideUserCog2  className="text-lg" /> },
-      { name: 'Seva Configuration  ', path: '/addSevas', icon: <CiSettings className="text-lg" /> },
+      { name: 'Seva Configuration  ', path: '/addSevas', icon: <Settings  className="text-lg" /> },
+      { name: 'Reports', path: '/reports', icon: <BookDown  className="text-lg"  /> },
     ] : []),
     ...(role.includes('approver') ? [
       { name: 'Seva Management', path: '/serviceManagement', icon: <LucideUserCheck2  className="text-lg" /> },
@@ -74,7 +76,7 @@ const Navbar = () => {
 
             <div className="flex-shrink-0" onClick={handleAnnouncement}>
               <span className="text-2xl font-bold text-white">
-              <TfiAnnouncement />
+              {/* <HiOutlineSpeakerphone /> */}
               </span>
             </div>
           </div>

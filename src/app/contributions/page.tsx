@@ -74,13 +74,20 @@ const DonationPage = () => {
             and support our community initiatives. Every contribution makes a difference.
           </p> */}
           <h2 className="text-xl font-semibold text-[#663399] mb-2">How to Contribute</h2>
-          <p className="text-gray-700">
-          1.Select the preferred payment method below.<br></br>
-          2.Pay the amount to the given details.<br></br>
-          3.After successful payment, click Proceed to Next.<br></br>
-          4.Take a screenshot and note the transaction ID.<br></br>
-          5.Once you submit the details, the admin will verify it.
-          </p>
+            <div className="space-y-2">
+            {[
+              'Select the preferred payment method below.',
+              'Pay the amount to the given details.',
+              'After successful payment, click Proceed to Next.',
+              'Take a screenshot and note the transaction ID.',
+              'Once you submit the details, the admin will verify it.'
+            ].map((step, index) => (
+              <div key={index} className="flex items-start space-x-2">
+              <span className="font-medium text-[#663399] min-w-[24px]">{index + 1}.</span>
+              <p className="text-gray-700">{step}</p>
+              </div>
+            ))}
+            </div>
         </div>
 
         {/* Payment Options */}

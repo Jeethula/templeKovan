@@ -49,6 +49,9 @@ export async function GET(req:NextRequest)
                         transactionId:true,
                         createdAt:true,
                         updatedAt:true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
                     }
                 }
             }

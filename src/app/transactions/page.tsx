@@ -5,6 +5,8 @@ import { RxCross1 } from 'react-icons/rx';
 import { Clock, Download, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 type Service = {
   id: string;
@@ -264,6 +266,8 @@ const TransactionsPage = () => {
   const [filteredHistory, setFilteredHistory] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     fetchHistory();
@@ -285,6 +289,7 @@ const TransactionsPage = () => {
   };
 
   const handleServiceChange = (value: string) => {
+    setCurrentPage(1); // Reset to first page
     if (value === "All") {
       setFilteredHistory(history);
       return;
@@ -299,12 +304,68 @@ const TransactionsPage = () => {
     const term = event.target.value.toLowerCase();
     setSearchTerm(term);
     
+    // Filter the complete history dataset
     const filtered = history.filter(service => 
       service.nameOfTheService.name.toLowerCase().includes(term) ||
       service.transactionId.toLowerCase().includes(term) ||
-      service.description.toLowerCase().includes(term)
+      service.description.toLowerCase().includes(term) ||
+      service.status.toLowerCase().includes(term) ||
+      service.paymentMode.toLowerCase().includes(term) ||
+      new Date(service.serviceDate).toLocaleDateString().toLowerCase().includes(term) ||
+      service.price.toString().includes(term)
     );
+    
+    // Update filtered results and reset to first page
     setFilteredHistory(filtered);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+  const paginatedTransactions = filteredHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const Pagination = () => {
+    return (
+      <div className="flex items-center justify-center space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="text-sm text-gray-600">
+          Page {currentPage} of {totalPages}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -400,83 +461,86 @@ const TransactionsPage = () => {
               <TransactionSkeleton key={index} />
             ))
           ) : filteredHistory.length > 0 ? (
-            filteredHistory.map((transaction, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
-                         transition-all duration-300 overflow-hidden"
-              >
-                <div className="p-4 flex flex-col justify-between">
-                  {/* Card Header */}
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-base font-semibold text-purple-900 truncate">
-                        {transaction.nameOfTheService.name}
-                      </h3>
-                      <div className='flex gap-x-2'>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 
-                                     border ${getStatusBadgeClass(transaction.status)}`}>
-                        <StatusIcon status={transaction.status} />
-                        {transaction.status}
-                      </span>
-                      {handleDownload(transaction)}
+            <>
+              {paginatedTransactions.map((transaction, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
+                           transition-all duration-300 overflow-hidden"
+                >
+                  <div className="p-4 flex flex-col justify-between">
+                    {/* Card Header */}
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-base font-semibold text-purple-900 truncate">
+                          {transaction.nameOfTheService.name}
+                        </h3>
+                        <div className='flex gap-x-2'>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 
+                                       border ${getStatusBadgeClass(transaction.status)}`}>
+                          <StatusIcon status={transaction.status} />
+                          {transaction.status}
+                        </span>
+                        {handleDownload(transaction)}
+                        </div>
+                     
                       </div>
-                   
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {transaction.description}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {transaction.description}
-                    </p>
-                  </div>
-                  {/* <div className="flex justify-center my-4">
-                    <img
-                      src={transaction.nameOfTheService.image || transaction.nameOfTheService.image}
-                      alt={transaction.nameOfTheService.name}
-                      className="w-full h-32 object-contain rounded-lg"
-                    />
-                  </div> */}
+                    {/* <div className="flex justify-center my-4">
+                      <img
+                        src={transaction.nameOfTheService.image || transaction.nameOfTheService.image}
+                        alt={transaction.nameOfTheService.name}
+                        className="w-full h-32 object-contain rounded-lg"
+                      />
+                    </div> */}
 
-                  {/* Transaction Details */}
-                  <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        {transaction.nameOfTheService.name !== 'Contribution' ? (
-                          <>
-                            <p className="text-gray-500">Service Date</p>
-                            <p className="font-medium text-gray-900">
-                              {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="text-gray-500">Donation Date</p>
-                            <p className="font-medium text-gray-900">
-                              {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Amount</p>
-                        <p className="font-medium text-gray-900">₹{transaction.price}</p>
-                      </div>
-                      <div className="col-span-2 grid grid-cols-2 gap-2">
+                    {/* Transaction Details */}
+                    <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <p className="text-gray-500">Transaction ID</p>
-                          <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
+                          {transaction.nameOfTheService.name !== 'Contribution' ? (
+                            <>
+                              <p className="text-gray-500">Service Date</p>
+                              <p className="font-medium text-gray-900">
+                                {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-gray-500">Donation Date</p>
+                              <p className="font-medium text-gray-900">
+                                {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
+                              </p>
+                            </>
+                          )}
                         </div>
                         <div>
-                          <p className="text-gray-500">Paid via</p>
-                          <p className="font-medium text-gray-900">{transaction.paymentMode}</p>
+                          <p className="text-gray-500">Amount</p>
+                          <p className="font-medium text-gray-900">₹{transaction.price}</p>
+                        </div>
+                        <div className="col-span-2 grid grid-cols-2 gap-2">
+                          <div>
+                            <p className="text-gray-500">Transaction ID</p>
+                            <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Paid via</p>
+                            <p className="font-medium text-gray-900">{transaction.paymentMode}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {/* Card Footer */}
+
                   </div>
-
-                  {/* Card Footer */}
-
                 </div>
-              </div>
-            ))
+              ))}
+              <Pagination />
+            </>
           ) : (
             <div className="text-center py-8 bg-white rounded-xl border border-purple-100">
               <p className="text-gray-500 text-sm">No transactions found</p>

@@ -337,7 +337,7 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
 
             {/* Image Section */}
             <div className="p-4">
-              {service.image ? (
+              {service.image && (
                 <div className="relative h-[600px] w-full rounded-xl overflow-hidden">
                   <Image
                     src={service.image}
@@ -347,11 +347,12 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                     className="rounded-xl"
                   />
                 </div>
-              ) : (
-                <div className="h-[600px] rounded-xl bg-gray-100 flex items-center justify-center">
-                  <p className="text-gray-500">No Image Available</p>
-                </div>
               )}
+              {/* // ) : (
+              //   <div className="h-[600px] rounded-xl bg-gray-100 flex items-center justify-center">
+              //     <p className="text-gray-500">No Image Available</p>
+              //   </div>
+              // )} */}
             </div>
 
             {/* Service Details */}

@@ -38,7 +38,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   return (
     <>
             <div
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full"
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-[300px] mx-auto  "
         onClick={() => setIsModalOpen(true)}
       >
         <div className="relative h-32">
@@ -102,7 +102,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               )}
 
               <button
-                className="mt-6 w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                className="mt-6 w-full bg-violet-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                 onClick={() => handleBook()}
 
               >
