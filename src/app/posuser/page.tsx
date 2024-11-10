@@ -247,9 +247,8 @@ const PosUserPage = () => {
                     serviceName={"Contribution"}
                     date={new Date()}
                     userId={selectedUser.id}
-                    isOpen={showDetailsModal}
-                    onClose={() => setShowDetailsModal(false)}
                     nameOfTheServiceId={"cm39vec3p0000ooi3pkdquuov"}
+                    minAmount={0}
                     onSubmitSuccess={() => setShowDetailsModal(false)}
                   />
                 </DialogContent>
