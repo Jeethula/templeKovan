@@ -114,6 +114,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         title={title}
         id={id}
         userId={userId}
+        minAmount={minAmount||0}
         open={isDateCheckModalOpen}
         onClose={() => setIsDateCheckModalOpen(false)}
       />
@@ -126,10 +127,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DetailsModal
             serviceName={title}
-            date={new Date()} // Current date for services without maxCount
+            date={new Date()} 
             userId={userId}
-            isOpen={showDetailsModal}
-            onClose={() => setShowDetailsModal(false)}
+            minAmount={minAmount||0}
             nameOfTheServiceId={id}
             onSubmitSuccess={() => setShowDetailsModal(false)}
           />
