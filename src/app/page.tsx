@@ -79,6 +79,8 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
       });
       const data = await res.json();
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      setQuote(randomQuote);
       setRecentName(data.user.User.personalInfo.firstName);
       setRecentPrice(data.user.price);
       setRecentDate(new Date(data.user.createdAt).toLocaleDateString());
@@ -130,8 +132,6 @@ export default function HomePage() {
 
         if (userFromStorage) {
           const user = JSON.parse(userFromStorage);
-          const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-          setQuote(randomQuote);
           // if (user.isfirstTimeLogin) {
           //   router.push("/profile");
           // }

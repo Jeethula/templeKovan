@@ -402,7 +402,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import LoadingPageUi from "@/components/LoadingPageUi";
-import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
+// import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
 import toast from "react-hot-toast";
 
 interface Comment {
@@ -440,13 +440,13 @@ interface Post {
 
 function Post({ params }: { params: { id: string } }) {
   const [post, setPost] = useState<Post | null>(null);
-  const [comment, setComment] = useState<string>("");
+  // const [comment, setComment] = useState<string>("");
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
   const role: string = sessionData.role;
-  const [error, setError] = useState<{ comment: string }>({ comment: "" });
+  // const [ setError] = useState<{ comment: string }>({ comment: "" });
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  // const [ setLoading] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState<string>("");
   const [editedContent, setEditedContent] = useState<string>("");
@@ -486,117 +486,118 @@ function Post({ params }: { params: { id: string } }) {
     fetchData();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setComment(e.target.value);
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   setComment(e.target.value);
+  // };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment) {
-      setError({ comment: "Comment is required" });
-      return;
-    }
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!comment) {
+  //     // setError({ comment: "Comment is required" });
+  //     return;
+  //   }
 
-    setLoading(true);
-    try {
-      const response = await fetch("/api/comment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: comment,
-          post_id: post?.id,
-          user_id: userId,
-        }),
-      });
-      if (response.ok) {
-        toast.success("Comment added successfully!");
-        setComment("");
-        await fetchData();
-      } else {
-        toast.error("Failed to add comment. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error submitting comment:", error);
-      toast.error("Network error. Please check your connection and try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   // setLoading(true);
+  //   try {
+  //     const response = await fetch("/api/comment", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         content: comment,
+  //         post_id: post?.id,
+  //         user_id: userId,
+  //       }),
+  //     });
+  //     if (response.ok) {
+  //       toast.success("Comment added successfully!");
+  //       setComment("");
+  //       await fetchData();
+  //     } else {
+  //       toast.error("Failed to add comment. Please try again.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting comment:", error);
+  //     toast.error("Network error. Please check your connection and try again.");
+  //   } finally {
+  //     console.log("Comment added successfully!");
+  //     // setLoading(false);
+  //   }
+  // };
 
-  const handleInteraction = async (interactionType: "like" | "dislike") => {
-    if (!post) return;
+  // const handleInteraction = async (interactionType: "like" | "dislike") => {
+  //   if (!post) return;
 
-    let endpoint1 = "",
-      endpoint2 = "",
-      newInteraction: "like" | "dislike" | "none" = "none";
-    let likesChange = 0,
-      dislikesChange = 0;
+  //   let endpoint1 = "",
+  //     endpoint2 = "",
+  //     newInteraction: "like" | "dislike" | "none" = "none";
+  //   let likesChange = 0,
+  //     dislikesChange = 0;
 
-    if (interactionType === "like") {
-      if (post.userInteraction === "like") {
-        endpoint1 = "/api/post/like/decrement";
-        newInteraction = "none";
-        likesChange = -1;
-      } else {
-        endpoint1 = "/api/post/like/increment";
-        if (post.userInteraction === "dislike") {
-          endpoint2 = "/api/post/dislike/decrement";
-        }
-        newInteraction = "like";
-        likesChange = 1;
-        if (post.userInteraction === "dislike") dislikesChange = -1;
-      }
-    } else {
-      if (post.userInteraction === "dislike") {
-        endpoint1 = "/api/post/dislike/decrement";
-        newInteraction = "none";
-        dislikesChange = -1;
-      } else {
-        endpoint1 = "/api/post/dislike/increment";
-        if (post.userInteraction === "like") {
-          endpoint2 = "/api/post/like/decrement";
-        }
-        newInteraction = "dislike";
-        dislikesChange = 1;
-        if (post.userInteraction === "like") likesChange = -1;
-      }
-    }
+  //   if (interactionType === "like") {
+  //     if (post.userInteraction === "like") {
+  //       endpoint1 = "/api/post/like/decrement";
+  //       newInteraction = "none";
+  //       likesChange = -1;
+  //     } else {
+  //       endpoint1 = "/api/post/like/increment";
+  //       if (post.userInteraction === "dislike") {
+  //         endpoint2 = "/api/post/dislike/decrement";
+  //       }
+  //       newInteraction = "like";
+  //       likesChange = 1;
+  //       if (post.userInteraction === "dislike") dislikesChange = -1;
+  //     }
+  //   } else {
+  //     if (post.userInteraction === "dislike") {
+  //       endpoint1 = "/api/post/dislike/decrement";
+  //       newInteraction = "none";
+  //       dislikesChange = -1;
+  //     } else {
+  //       endpoint1 = "/api/post/dislike/increment";
+  //       if (post.userInteraction === "like") {
+  //         endpoint2 = "/api/post/like/decrement";
+  //       }
+  //       newInteraction = "dislike";
+  //       dislikesChange = 1;
+  //       if (post.userInteraction === "like") likesChange = -1;
+  //     }
+  //   }
 
-    setPost(
-      (prevPost) =>
-        prevPost && {
-          ...prevPost,
-          likes: prevPost.likes + likesChange,
-          dislikes: prevPost.dislikes + dislikesChange,
-          userInteraction: newInteraction,
-          liked_by:
-            newInteraction === "like"
-              ? [...prevPost.likedBy, { id: userId }]
-              : prevPost.likedBy.filter((user) => user.id !== userId),
-          disliked_by:
-            newInteraction === "dislike"
-              ? [...prevPost.dislikedBy, { id: userId }]
-              : prevPost.dislikedBy.filter((user) => user.id !== userId),
-        }
-    );
+  //   setPost(
+  //     (prevPost) =>
+  //       prevPost && {
+  //         ...prevPost,
+  //         likes: prevPost.likes + likesChange,
+  //         dislikes: prevPost.dislikes + dislikesChange,
+  //         userInteraction: newInteraction,
+  //         liked_by:
+  //           newInteraction === "like"
+  //             ? [...prevPost.likedBy, { id: userId }]
+  //             : prevPost.likedBy.filter((user) => user.id !== userId),
+  //         disliked_by:
+  //           newInteraction === "dislike"
+  //             ? [...prevPost.dislikedBy, { id: userId }]
+  //             : prevPost.dislikedBy.filter((user) => user.id !== userId),
+  //       }
+  //   );
 
-    try {
-      await fetch(endpoint1, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: post?.id, user_id: userId }),
-      });
-      if (endpoint2) {
-        await fetch(endpoint2, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ post_id: post?.id, user_id: userId }),
-        });
-      }
-    } catch (error) {
-      console.error("Error updating interaction:", error);
-    }
-  };
+  //   try {
+  //     await fetch(endpoint1, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ post_id: post?.id, user_id: userId }),
+  //     });
+  //     if (endpoint2) {
+  //       await fetch(endpoint2, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ post_id: post?.id, user_id: userId }),
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating interaction:", error);
+  //   }
+  // };
 
   const getRelativeTime = (isoDate: string) => {
     const now = new Date();
@@ -633,7 +634,8 @@ function Post({ params }: { params: { id: string } }) {
       console.error("Error deleting post:", error);
       toast.error("Network error. Please check your connection and try again.");
     } finally {
-      setLoading(false);
+      console.log("Post deleted successfully!");
+      // setLoading(false);
     }
   };
 
@@ -666,7 +668,8 @@ function Post({ params }: { params: { id: string } }) {
       console.error("Error updating post:", error);
       toast.error("Network error. Please check your connection and try again.");
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      console.log("Post updated successfully!");
     }
   };
 
@@ -683,14 +686,14 @@ function Post({ params }: { params: { id: string } }) {
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen p-5">
       <div className="mb-7 flex justify-between items-center pt-3 lg:mx-60 md:mx-40  ">
         <Link
-          className="hover:underline text-orange-600  flex items-center gap-1"
+          className="hover:underline text-red-600  flex items-center gap-1"
           href="/blog"
         >
           <FaArrowLeft className="size-4" /> Back to Posts
         </Link>
         <div className="flex gap-2">
           {(post?.author.id == userId ||
-            role == "Admin") && (
+            role == "blogAdmin") && (
               <>
                 <button
                   onClick={handleEdit}
@@ -712,15 +715,11 @@ function Post({ params }: { params: { id: string } }) {
         <div className="bg-white rounded-xl p-4 lg:mx-60 md:mx-40 mb-5 pt-5">
           <div className="flex justify-between items-center border-b border-gray-400 pb-4 mb-4">
             <div className="flex items-center w-36 justify-start gap-3">
-            <Image
-            src={post?.author.personalInfo.avatarUrl}
-            alt="avatar image"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
+              <div className="w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-white font-semibold">
+              {post.author.personalInfo.firstName.charAt(0).toUpperCase()}
+              </div>
               <h2 className="text-xl font-semibold">
-                {post.author.personalInfo.firstName}
+              {post.author.personalInfo.firstName}
               </h2>
             </div>
             <div>
@@ -741,17 +740,18 @@ function Post({ params }: { params: { id: string } }) {
                 className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:outline-none h-24 mb-4"
               ></textarea>
               <div className="flex justify-end gap-2">
-                <button
-                  onClick={handleSaveEdit}
-                  className="bg-green-500 text-white rounded-md px-3 py-2 font-semibold"
-                >
-                  Save
-                </button>
+                
                 <button
                   onClick={handleCancelEdit}
                   className="bg-gray-500 text-white rounded-md px-3 py-2 font-semibold"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="bg-green-600 text-white rounded-md px-3 py-2 font-semibold"
+                >
+                  Save
                 </button>
               </div>
             </>
@@ -770,7 +770,7 @@ function Post({ params }: { params: { id: string } }) {
                 </div>
               )}
               <p className="mb-4">{post.content}</p>
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <div className="flex gap-x-4 items-center">
                   <div className="flex items-center gap-x-1">
                     <button onClick={() => handleInteraction("like")}>
@@ -793,11 +793,11 @@ function Post({ params }: { params: { id: string } }) {
                     <p className="text-xl">{post.dislikes}</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </>
           )}
 
-          <div className="mb-5 mt-8">
+          {/* <div className="mb-5 mt-8">
             <form onSubmit={handleSubmit}>
               <textarea
                 className={`w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:outline-none h-24 ${
@@ -834,10 +834,10 @@ function Post({ params }: { params: { id: string } }) {
                 )}
               </button>
             </form>
-          </div>
+          </div> */}
         </div>
 
-        <div className="w-full lg:mx-60 md:mx-40 mb-5 pt-5">
+        {/* <div className="w-full lg:mx-60 md:mx-40 mb-5 pt-5">
           <h2 className="text-xl font-semibold mb-4">Comments</h2>
           {post.comments &&
             post.comments.map((comment, index) => (
@@ -867,7 +867,7 @@ function Post({ params }: { params: { id: string } }) {
                 <p className="">{comment.content}</p>
               </div>
             ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

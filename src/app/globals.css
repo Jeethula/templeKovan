@@ -67,3 +67,13 @@
   }
 }
 
+@layer utilities {
+  .gradient-bg {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--background)),
+      hsl(var(--background)) 60%,
+      hsl(var(--background-lighter))
+    );
+  }
+}

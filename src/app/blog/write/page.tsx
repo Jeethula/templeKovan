@@ -148,7 +148,7 @@ function WritePost() {
               {data.content.length !== 0 && <p>{data.content.length} letters</p>}
               {error.content && <p className="text-red-500">{error.content}</p>}
             </div>
-            <div className="mb-5">
+            {/* <div className="mb-5">
               <label className="block text-xl font-semibold">
                 Post Type
               </label>
@@ -176,7 +176,7 @@ function WritePost() {
                   <span className="ml-2">Private</span>
                 </label>
               </div>
-            </div>
+            </div> */}
             <div className="mb-5">
               <label htmlFor="image" className="block text-xl font-semibold">
                 Image (Optional)

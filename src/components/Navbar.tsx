@@ -9,6 +9,7 @@ import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import { PiHandsPrayingBold} from 'react-icons/pi';
 import { HiOutlineSpeakerphone } from 'react-icons/hi';
+import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -49,6 +50,9 @@ const Navbar = () => {
       { name: 'User Management', path: '/userManagement', icon: <LucideUserCog2  className="text-lg" /> },
       { name: 'Seva Configuration  ', path: '/addSevas', icon: <Settings  className="text-lg" /> },
       { name: 'Reports', path: '/reports', icon: <BookDown  className="text-lg"  /> },
+    ] : []),
+    ...(role.includes('superadmin') ? [
+      { name: 'Super Admin', path: '/superAdmin', icon: <MdOutlineAdminPanelSettings size={23} className="text-lg" /> },
     ] : []),
     ...(role.includes('approver') ? [
       { name: 'Seva Management', path: '/serviceManagement', icon: <LucideUserCheck2  className="text-lg" /> },

@@ -155,7 +155,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>;
+  // if (loading) return <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
   const getChanges = (current: Profile | HistoryItem, previous: Profile | HistoryItem): Change[] => {
