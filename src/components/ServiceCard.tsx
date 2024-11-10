@@ -38,7 +38,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   return (
     <>
             <div
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-[300px] mx-auto  "
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full max-w-[380px] mx-auto  "
         onClick={() => setIsModalOpen(true)}
       >
         <div className="relative h-32">

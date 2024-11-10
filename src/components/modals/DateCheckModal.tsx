@@ -77,7 +77,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className='text-[#663399] '>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
             <div className="relative">
@@ -88,7 +88,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
                 onSelect={(date: Date | undefined) => {
                   setServiceDate(date);
                   if (date) {
-                    const formattedDate = date.toISOString().split('T')[0];
+                    // const formattedDate = date.toISOString().split('T')[0];
                     setError('');
                   }
                 }}

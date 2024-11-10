@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import ServiceCard from '../../components/ServiceCard';
 import { FaPersonPraying } from 'react-icons/fa6';
-import { FaPrayingHands } from 'react-icons/fa';
+import { FaPrayingHands, FaSearch } from 'react-icons/fa';
+import { PiHandsPrayingBold } from 'react-icons/pi';
 
 interface Service {
   id: string;
@@ -29,7 +30,9 @@ const SkeletonCard = () => (
 );
 
 const ServicesPage: React.FC = () => {
-  const [services, setServices] = useState<Service[]>([]);
+  const [allServices, setAllServices] = useState<Service[]>([]); // Original services
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]); // Filtered services
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +40,11 @@ const ServicesPage: React.FC = () => {
       try {
         const response = await fetch('/api/services/addservices');
         const data = await response.json();
-        setServices(data.services.filter((service: Service) => service.isActive));
+        const activeServices = data.services.filter((service: Service) => 
+          service.isActive && service.name !== 'Contribution'
+        );
+        setAllServices(activeServices);
+        setFilteredServices(activeServices);
       } catch (error) {
         console.error('Error fetching services:', error);
       } finally {
@@ -48,31 +55,61 @@ const ServicesPage: React.FC = () => {
     fetchServices();
   }, []);
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    
+    if (term.trim() === '') {
+      setFilteredServices(allServices);
+    } else {
+      const filtered = allServices.filter(service => 
+        service.name.toLowerCase().includes(term)
+      );
+      setFilteredServices(filtered);
+    }
+  };
+
   return (
-    <div className="px-4 py-8 min-w-screen w-full min-h-screen bg-[#fdf0f4]">
-      <h1 className="text-xl flex gap-x-3 font-semibold mb-4 text-[#663399] justify-center items-center">
-        <FaPrayingHands /> Our Seva&apos;s
-      </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {isLoading ? (
-          // Show 6 skeleton cards while loading
-          [...Array(6)].map((_, index) => <SkeletonCard key={index} />)
-        ) : (
-          services
-            .filter(service => service.isActive && service.name !== 'Contribution')
-            .map((service) => (
-              <ServiceCard
-                key={service.id}
-                id={service.id}
-                title={service.name}
-                imageSrc={service.image}
-                description={service.description}
-                minAmount={service.minAmount}
-                maxCount={service.maxCount}
-              />
-            ))
-        )}
+    <div className="px-4 py-3 min-w-screen min-h-screen mx-auto bg-[#fdf0f4]">
+      <div className="bg-white rounded-lg h-fit w-full max-w-[380px] p-4 flex flex-col gap-y-2 mb-4  mx-auto">
+        <h1 className='flex gap-x-3 font-semibold text-lg text-[#663399] items-center'>
+        <PiHandsPrayingBold />  Our Seva&apos;s  
+        </h1> 
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search sevas..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full px-4 py-2 pl-9 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+          />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        </div>
       </div>
+      
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(6)].map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      ) : filteredServices.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredServices.map((service) => (
+            <ServiceCard
+              key={service.id}
+              id={service.id}
+              title={service.name}
+              imageSrc={service.image}
+              description={service.description}
+              minAmount={service.minAmount}
+              maxCount={service.maxCount}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-600 text-lg">No sevas found</p>
+        </div>
+      )}
     </div>
   );
 };
