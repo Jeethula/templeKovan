@@ -110,15 +110,15 @@ const PosUserPage = () => {
   return (
     <div className="min-h-screen bg-[#fdf0f4] py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <div className="flex flex-col gap-y-2 bg-white p-4 mb-5 rounded-lg">
+        <h1 className="text-xl font-semibold text-[#663399] ">
           POS User Search
         </h1>
-
-        <div className="relative mb-6">
+        <div className="relative mb-3">
           <input
             type="text"
             placeholder="Search users by name, email, or phone number..."
-            className="w-full p-4 pl-12 border border-gray-300 rounded-lg 
+            className="w-full p-2 pl-12 border border-gray-300 rounded-lg 
                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none
                      bg-white shadow-sm"
             value={searchTerm}
@@ -136,6 +136,7 @@ const PosUserPage = () => {
           >
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
+        </div>
         </div>
 
         {error && (
@@ -218,23 +219,23 @@ const PosUserPage = () => {
 
                 <div className="flex gap-4">
                 <button
-                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
+                  className="mt-4 w-full bg-[#663399]  text-white 
                          font-medium py-2 px-4 rounded-lg transition-colors 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 
                          focus:ring-offset-2 shadow-sm"
                   onClick={() => setShowDetailsModal(true)}
                 >
-                  Go to Contribution
+                  Contribution
                 </button>
 
                 <button
-                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
+                  className="mt-4 w-full bg-[#663399]  text-white 
                          font-medium py-2 px-4 rounded-lg transition-colors 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 
                          focus:ring-offset-2 shadow-sm"
                   onClick={() => goToService(selectedUser.id)}
                 >
-                  Go to Service
+                   Service
                 </button>
                 </div>
                 <Dialog 

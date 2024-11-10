@@ -59,7 +59,7 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
       className="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 relative group"
     >
       {/* Service Type Banner */}
-      <div className="bg-violet-500 px-4 py-2">
+      <div className="bg-violet-600 px-4 py-2">
         <h3 className="font-medium text-white text-sm">
           {service.nameOfTheService.name}
         </h3>
@@ -98,6 +98,8 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
             </svg>
             {service.paymentMode === null ? "POS" : service.paymentMode} 
+          </div>
+          <div>
           </div>
         </div>
       </div>
@@ -261,7 +263,7 @@ const ServiceManagementGrid: React.FC = () => {
           <div className="space-y-4">
             <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
               <FaUsersGear className="text-xl" />
-              <span>Manage Services</span>
+              <span>Manage Seva</span>
             </h1>
             
             {isLoading ? (

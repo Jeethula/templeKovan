@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FloatingInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => {
@@ -93,11 +94,16 @@ const FloatingTextarea = React.forwardRef<
 });
 FloatingTextarea.displayName = 'FloatingTextarea';
 
+const FormFieldSkeleton = () => (
+  <div className="space-y-2">
+    <Skeleton className="h-4 w-20" />
+    <Skeleton className="h-10 w-full" />
+  </div>
+);
+
 interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
 }
-
-
 
 const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
   const [userDetails, setUserDetails] =
@@ -107,12 +113,12 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   // const { user } = useAuth();
   const router = useRouter();
 
-
-
   const getData = async () => {
+    setIsLoading(true);
     const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
     try {
       const data = await fetch(`/api/userDetails?userId=${userID}`, {
@@ -146,6 +152,8 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     } catch (error) {
       console.error("Error fetching user details:", error);
       toast.error("Failed to fetch user details. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -182,8 +190,6 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     };
     fetchUserDetails();
   }, [router]);
-
-
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -360,96 +366,123 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
             <p className="text-sm text-gray-600"> Your complete profile information</p>
           </div>
 
-          {/* Edit Button */}
-          {Object.keys(userDetails).some(
-            (key) => userDetails[key as keyof UserDetails]
-          ) && (
-            <div className="flex justify-end mb-4">
-              <button
-                type="button"
-                onClick={() => setIsEditable(!isEditable)}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium 
-                         bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
-                         transition-all duration-200"
-              >
-                {!isEditable ? "Edit Profile" : "Cancel"} <FaUserEdit />
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Section - Salutation and First Name in same row */}
-            <div>
-              {renderField("unique_id", "Unique Id", userDetails, handleChange, isEditable, errors)}
-            </div>
-            <div className="flex gap-3">
-              <div className="w-1/3">
-                {renderField("salutation", "Salutation", userDetails, handleChange, isEditable, errors, "select", [
-                  "Mr.", "Ms.", "Mrs.", "Dr.", "Prof.", "Mx.",
-                ])}
+          {isLoading ? (
+            <div className="space-y-6">
+              <FormFieldSkeleton />
+              <div className="flex gap-3">
+                <div className="w-1/3">
+                  <FormFieldSkeleton />
+                </div>
+                <div className="w-2/3">
+                  <FormFieldSkeleton />
+                </div>
               </div>
-              <div className="w-2/3">
-                {renderField("first_name", "First Name", userDetails, handleChange, isEditable, errors)}
-              </div>
-            </div>
-
-            {/* Other Personal Details */}
-            <div className="space-y-4">
-              {renderField("last_name", "Last Name", userDetails, handleChange, isEditable, errors)}
-              {renderField("phone_number", "Phone Number", userDetails, handleChange, isEditable, errors)}
-            </div>
-
-            {/* Address Section */}
-            <div className="space-y-4 pt-2">
-              <div className="text-sm font-medium text-[#663399]/80 pb-1">Address Details</div>
-              {renderField("address_line_1", "Address Line 1", userDetails, handleChange, isEditable, errors)}
-              {renderField("address_line_2", "Address Line 2", userDetails, handleChange, isEditable, errors)}
-              
-              {/* City and State in same row */}
+              <FormFieldSkeleton />
+              <FormFieldSkeleton />
+              <FormFieldSkeleton />
+              <FormFieldSkeleton />
               <div className="flex gap-3">
                 <div className="w-1/2">
-                  {renderField("city", "City", userDetails, handleChange, isEditable, errors)}
+                  <FormFieldSkeleton />
                 </div>
                 <div className="w-1/2">
-                  {renderField("state", "State", userDetails, handleChange, isEditable, errors)}
+                  <FormFieldSkeleton />
                 </div>
               </div>
-              
-              {/* Pincode and Country in same row */}
-              <div className="flex gap-3">
-                <div className="w-1/2">
-                  {renderField("pincode", "Pin Code", userDetails, handleChange, isEditable, errors)}
-                </div>
-                <div className="w-1/2">
-                  {renderField("country", "Country", userDetails, handleChange, isEditable, errors)}
-                </div>
-              </div>
+              <Skeleton className="h-11 w-full mt-6" />
             </div>
+          ) : (
+            <>
+              {/* Existing form content */}
+              {Object.keys(userDetails).some(
+                (key) => userDetails[key as keyof UserDetails]
+              ) && (
+                <div className="flex justify-end mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditable(!isEditable)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium 
+                             bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
+                             transition-all duration-200"
+                  >
+                    {!isEditable ? "Edit Profile" : "Cancel"} <FaUserEdit />
+                  </button>
+                </div>
+              )}
 
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Name Section - Salutation and First Name in same row */}
+                <div>
+                  {renderField("unique_id", "Unique Id", userDetails, handleChange, isEditable, errors)}
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-1/3">
+                    {renderField("salutation", "Salutation", userDetails, handleChange, isEditable, errors, "select", [
+                      "Mr.", "Ms.", "Mrs.", "Dr.", "Prof.", "Mx.",
+                    ])}
+                  </div>
+                  <div className="w-2/3">
+                    {renderField("first_name", "First Name", userDetails, handleChange, isEditable, errors)}
+                  </div>
+                </div>
 
+                {/* Other Personal Details */}
+                <div className="space-y-4">
+                  {renderField("last_name", "Last Name", userDetails, handleChange, isEditable, errors)}
+                  {renderField("phone_number", "Phone Number", userDetails, handleChange, isEditable, errors)}
+                </div>
 
-            {/* Submit/Update Button */}
-            {isEditable && (
-              <button
-                type={isSubmitted ? "button" : "submit"}
-                onClick={isSubmitted ? handleUpdate : undefined}
-                disabled={loading}
-                className="w-full h-11 text-base font-medium 
+                {/* Address Section */}
+                <div className="space-y-4 pt-2">
+                  <div className="text-sm font-medium text-[#663399]/80 pb-1">Address Details</div>
+                  {renderField("address_line_1", "Address Line 1", userDetails, handleChange, isEditable, errors)}
+                  {renderField("address_line_2", "Address Line 2", userDetails, handleChange, isEditable, errors)}
+
+                  {/* City and State in same row */}
+                  <div className="flex gap-3">
+                    <div className="w-1/2">
+                      {renderField("city", "City", userDetails, handleChange, isEditable, errors)}
+                    </div>
+                    <div className="w-1/2">
+                      {renderField("state", "State", userDetails, handleChange, isEditable, errors)}
+                    </div>
+                  </div>
+
+                  {/* Pincode and Country in same row */}
+                  <div className="flex gap-3">
+                    <div className="w-1/2">
+                      {renderField("pincode", "Pin Code", userDetails, handleChange, isEditable, errors)}
+                    </div>
+                    <div className="w-1/2">
+                      {renderField("country", "Country", userDetails, handleChange, isEditable, errors)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit/Update Button */}
+                {isEditable && (
+                  <button
+                    type={isSubmitted ? "button" : "submit"}
+                    onClick={isSubmitted ? handleUpdate : undefined}
+                    disabled={loading}
+                    className="w-full h-11 text-base font-medium 
                          bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
                          transition-all duration-200 mt-6
                          disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm">{isSubmitted ? "Updating..." : "Submitting..."}</span>
-                  </div>
-                ) : (
-                  <span>{isSubmitted ? "Update Profile" : "Complete Profile"}</span>
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span className="text-sm">{isSubmitted ? "Updating..." : "Submitting..."}</span>
+                      </div>
+                    ) : (
+                      <span>{isSubmitted ? "Update Profile" : "Complete Profile"}</span>
+                    )}
+                  </button>
                 )}
-              </button>
-            )}
-          </form>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>
