@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
     validateDateRange(startDate, endDate);
 
     // Build where clause
-    const whereClause: any = {
+    const whereClause: {
+      serviceDate: { gte: Date; lte: Date };
+      nameOfTheServiceId?: string;
+      posUserId?: string;
+    } = {
       serviceDate: {
         gte: startDate,
         lte: endDate,

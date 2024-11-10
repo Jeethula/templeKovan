@@ -4,8 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../app/context/AuthContext";
 import { User } from "firebase/auth";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+
 
 const OtpInput = ({ length, value, onChange }: { length: number; value: string; onChange: (value: string) => void }) => {
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
@@ -161,7 +160,7 @@ export default function OtpLogin() {
           <div className="text-center space-y-2">
             <h3 className="text-xl font-semibold text-gray-800">Verify Your Number</h3>
             <p className="text-sm text-gray-600">
-              We've sent a 6-digit code to +91 {phoneNumber}
+              We&apos;ve sent a 6-digit code to +91 {phoneNumber}
             </p>
           </div>
 
@@ -178,7 +177,7 @@ export default function OtpLogin() {
           </button>
 
           <div className="flex items-center justify-center gap-2 text-sm">
-            <span className="text-gray-600">Didn't receive code?</span>
+            <span className="text-gray-600">Didn&apos;t receive code?</span>
             <button
               onClick={handleSendOtp}
               className="text-orange-600 hover:text-orange-500 font-medium transition-colors"

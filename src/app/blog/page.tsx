@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
 import Link from "next/link";
-import Image from "next/image";
 import { Post } from "../../utils/type";
 import LoadingUI from "../../components/LoadingUI";
 import { useRouter } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
-import toast from "react-hot-toast";
 import withProfileCheck from "@/components/withProfileCheck";
 import {  Heart, Share2 } from "lucide-react";
 import { handleShare } from "@/utils";
@@ -17,12 +14,10 @@ function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<{ [key: string]: string }>({}); 
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const role = sessionData.role;
   const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
-  const [commentLoading, setCommentLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -193,48 +188,48 @@ function Posts() {
     setFilteredPosts(filtered);
 };
 
-const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: string) => {
-  setComments((prevComments) => ({
-    ...prevComments,
-    [postId]: e.target.value,
-  }));
-};
+// const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>, postId: string) => {
+//   setComments((prevComments) => ({
+//     ...prevComments,
+//     [postId]: e.target.value,
+//   }));
+// };
 
-  const handleCommentSubmit = async (postId: string) => {
-    setCommentLoading(true)
-    const comment = comments[postId];
-    if (!userId || !comment) return;
+  // const handleCommentSubmit = async (postId: string) => {
+  //   setCommentLoading(true)
+  //   const comment = comments[postId];
+  //   if (!userId || !comment) return;
 
-    const post = posts.find((p) => p.id === postId);
-    if (!post) return;
+  //   const post = posts.find((p) => p.id === postId);
+  //   if (!post) return;
 
-    try {
-      const response = await fetch("/api/comment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: postId, user_id: userId, content: comment }),
-      });
+  //   try {
+  //     const response = await fetch("/api/comment", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ post_id: postId, user_id: userId, content: comment }),
+  //     });
       
-      const result = await response.json();
-      console.log(result);
+  //     const result = await response.json();
+  //     console.log(result);
 
-      if (result.status === 200) {
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postId]: "",
-        }));
-        setCommentLoading(false);
-        toast.success("Comment added successfully!");
-        fetchData();
-      } else {
-        setCommentLoading(false);
-        toast.error("Failed to add comment. Please try again.");
-      }
-    } catch (error) {
-      console.error(`Error adding comment:`, error);
-      toast.error("Network error. Please check your connection and try again.");
-    }
-  };
+  //     if (result.status === 200) {
+  //       setComments((prevComments) => ({
+  //         ...prevComments,
+  //         [postId]: "",
+  //       }));
+  //       setCommentLoading(false);
+  //       toast.success("Comment added successfully!");
+  //       fetchData();
+  //     } else {
+  //       setCommentLoading(false);
+  //       toast.error("Failed to add comment. Please try again.");
+  //     }
+  //   } catch (error) {
+  //     console.error(`Error adding comment:`, error);
+  //     toast.error("Network error. Please check your connection and try again.");
+  //   }
+  // };
 
   return (
     <div className="bg-[#fdf0f4] h-full min-h-screen">

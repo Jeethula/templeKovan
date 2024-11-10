@@ -3,13 +3,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../app/context/AuthContext';
 import { useState, useEffect } from 'react';
-import { FaBars, FaHome, FaUser, FaBlog, FaCog, FaSignOutAlt, FaTimes, FaPrayingHands } from 'react-icons/fa';
-import { CiSettings } from "react-icons/ci";
-import { Bell, BookDown, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, Settings, UserCog, UserRound, UserRoundPlus } from 'lucide-react';
+import { FaBars, FaSignOutAlt, FaTimes } from 'react-icons/fa';
+import {  BookDown, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, Settings, UserRound, UserRoundPlus } from 'lucide-react';
 import { CgArrowsExchangeAlt } from "react-icons/cg";
-import { TfiAnnouncement } from "react-icons/tfi";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
-import { PiHandsPrayingBold, PiHandsPrayingDuotone } from 'react-icons/pi';
+import { PiHandsPrayingBold} from 'react-icons/pi';
 import { HiOutlineSpeakerphone } from 'react-icons/hi';
 
 const Navbar = () => {

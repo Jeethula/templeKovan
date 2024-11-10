@@ -20,7 +20,6 @@ interface Post {
     };
   };
   likes: number;
-  comments: any[];
 }
 
 interface Service {
@@ -31,13 +30,13 @@ interface Service {
 }
 
 // First, define an interface for the contribution data
-interface Contribution {
-  transactionId: string;
-  price: number;
-  paymentMode: string;
-  createdAt: string;
-  status: string;
-}
+// interface Contribution {
+//   transactionId: string;
+//   price: number;
+//   paymentMode: string;
+//   createdAt: string;
+//   status: string;
+// }
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -54,11 +53,7 @@ export default function HomePage() {
   const [recentDate, setRecentDate] = useState("");
   const [recentCity, setRecentCity] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [templeStats, setTempleStats] = useState({
-    totalContributions: 0,
-    monthlyDonors: 0,
-    totalServices: 0
-  });
+
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -187,18 +182,6 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const fetchTempleStats = async () => {
-      // Simulated data - replace with actual API call
-      setTempleStats({
-        totalContributions: 25000,
-        monthlyDonors: 150,
-        totalServices: 12
-      });
-    };
-    fetchTempleStats();
-  }, []);
-
   const handlePosMode = () => {
     router.push("/posuser");
   };
@@ -228,7 +211,7 @@ export default function HomePage() {
                 {getGreeting()}
               </h1>
               <h1 className="mt-2 text-gray-600 text-md font-normal ">
-                Welcome to Sri Renukka Akkama Temple's official place
+                Welcome to Sri Renukka Akkama Temple&apos;s official place
               </h1>
             </div>
             {isposuser ? (
@@ -244,7 +227,7 @@ export default function HomePage() {
             </div>}
           </div>
           <h1 className="mt-4 text-gray-800 font-medium bg-violet-100 p-2 rounded-md">
-            "{quote}"
+          &quot;{quote}&quot;
           </h1>
         </div>
         <div className="text-black font-semibold mt-4 text-xl">Quick Links</div>

@@ -19,7 +19,6 @@ interface Post {
     };
   };
   likes: number;
-  comments: any[];
 }
 
 interface User {
@@ -72,9 +71,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Partial<PersonalInfo & { user?: Partial<User> }>>({});
 
   const fetchData = async () => {
     try {

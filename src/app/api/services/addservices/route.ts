@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 
-export async function GET(req:NextRequest) {
+export async function GET() {
     try {
         const services = await prisma.serviceAdd.findMany({
             where: {
@@ -68,6 +68,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(service);
   } catch (error) {
+    console.error('Error creating service:', error);
     return NextResponse.json({ error: 'Error creating service' }, { status: 500 });
   }
 }
@@ -102,6 +103,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json(updatedService);
   } catch (error) {
+    console.error('Error updating service:', error);
     return NextResponse.json({ error: 'Error updating service' }, { status: 500 });
   }
 }
@@ -124,6 +126,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ message: 'Service deleted successfully' });
   } catch (error) {
+    console.error('Error deleting service:', error);
     return NextResponse.json({ error: 'Error deleting service' }, { status: 500 });
   }
 }
