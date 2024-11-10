@@ -244,6 +244,7 @@ const ServicePage = () => {
                 onClose={() => setShowModal(false)}
                 nameOfTheServiceId={slug as string}
                 serviceName={service?.name||''}
+                minAmount={service?.minAmount||0}
                 date={serviceDate ? new Date(serviceDate) : new Date()}
                 onSubmitSuccess={() => {
                   setShowModal(false);

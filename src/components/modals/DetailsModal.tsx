@@ -18,17 +18,16 @@ interface DetailsModalProps {
   nameOfTheServiceId: string;
   date: Date;
   isOpen: boolean;
+  minAmount: number;
   selectedMethod: string;
   serviceName: string;
   onClose: () => void;
   onSubmitSuccess: () => void;
 }
 
-const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
+const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen,minAmount, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
-  console.log(date);
-  console.log("gello");
   
   
   
@@ -92,9 +91,15 @@ const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, o
       setErrors(newErrors);
       return;
     }
+    if(parseInt(formData.amount) < minAmount){
+      newErrors.amount = `Amount should be greater than or equal to ${minAmount}`;
+    }
+    if (Object.keys(newErrors).some(key => newErrors[key as keyof typeof newErrors])) {
+      setErrors(newErrors);
+      return;
+    }
 
     setIsSubmitting(true);
-
     try {
       const response = await fetch('/api/services/user', {
         method: 'POST',
