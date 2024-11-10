@@ -505,14 +505,14 @@ const TransactionsPage = () => {
                             <>
                               <p className="text-gray-500">Service Date</p>
                               <p className="font-medium text-gray-900">
-                                {new Date(transaction.serviceDate).toISOString().split('T')[0] || "N/A"}
+                                {new Date(transaction.serviceDate).toLocaleDateString('en-GB') || "N/A"}
                               </p>
                             </>
                           ) : (
                             <>
                               <p className="text-gray-500">Donation Date</p>
                               <p className="font-medium text-gray-900">
-                                {new Date(transaction.createdAt).toISOString().split('T')[0] || "N/A"}
+                                {new Date(transaction.createdAt).toLocaleDateString('en-GB') || "N/A"}
                               </p>
                             </>
                           )}
