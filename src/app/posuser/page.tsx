@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import DetailsModal from "../../components/posusermodals/DetailsModal";
 
 interface PersonalInfo {
   id: string;
@@ -56,6 +58,7 @@ const PosUserPage = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const router = useRouter();
   const userSession = JSON.parse(sessionStorage.getItem('user') || '{}');
   const userId = userSession.id;
@@ -212,6 +215,18 @@ const PosUserPage = () => {
                     </p>
                   </div>
                 </div>
+
+                <div className="flex gap-4">
+                <button
+                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
+                         font-medium py-2 px-4 rounded-lg transition-colors 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 
+                         focus:ring-offset-2 shadow-sm"
+                  onClick={() => setShowDetailsModal(true)}
+                >
+                  Go to Contribution
+                </button>
+
                 <button
                   className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white 
                          font-medium py-2 px-4 rounded-lg transition-colors 
@@ -221,6 +236,23 @@ const PosUserPage = () => {
                 >
                   Go to Service
                 </button>
+                </div>
+                <Dialog 
+        open={showDetailsModal} 
+        onOpenChange={(open) => !open && setShowDetailsModal(false)}
+      >
+                <DialogContent className="sm:max-w-[500px]">
+                  <DetailsModal
+                    serviceName={"Contribution"}
+                    date={new Date()}
+                    userId={selectedUser.id}
+                    isOpen={showDetailsModal}
+                    onClose={() => setShowDetailsModal(false)}
+                    nameOfTheServiceId={"cm39vec3p0000ooi3pkdquuov"}
+                    onSubmitSuccess={() => setShowDetailsModal(false)}
+                  />
+                </DialogContent>
+              </Dialog>
               </div>
             </div>
           )

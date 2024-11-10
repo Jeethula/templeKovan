@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import DateCheckModal from "./DateCheckModal";
-import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DetailsModal from "./DetailsModal";
 
@@ -27,7 +26,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isDateCheckModalOpen, setIsDateCheckModalOpen] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const router = useRouter();
 
   const handleBook = () => {
     setIsServiceModalOpen(false); // Close the service modal first
