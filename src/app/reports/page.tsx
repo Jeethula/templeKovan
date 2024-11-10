@@ -1,11 +1,11 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Download } from 'lucide-react';
+import {  Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -97,14 +97,14 @@ export default function ReportsPage() {
         }));
     };
 
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate] = useState(new Date());
     const [selectedService, setSelectedService] = useState('');
     const [selectedPosUser, setSelectedPosUser] = useState('');
     const [reportData, setReportData] = useState<ReportData | null>(null);
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<Array<{ id: string; name: string }>>([]);
     const [posUsers, setPosUsers] = useState<Array<{ id: string; email: string; personalInfo?: { firstName?: string; lastName?: string } }>>([]);
-    const [date, setDate] = useState<Date>(new Date());
+    const [date] = useState<Date>(new Date());
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: new Date(),
         to: new Date(),
@@ -156,16 +156,16 @@ export default function ReportsPage() {
         }
     };
 
-    const convertToCSV = (data: any) => {
+    const convertToCSV = (data: ReportData) => {
         const headers = ['Date', 'Service', 'POS User', 'Status', 'Amount'];
-        const rows = data.services.map((service: any) => [
+        const rows = data.services.map((service: ReportData['services'][number]) => [
             new Date(service.serviceDate).toLocaleDateString(),
             service.nameOfTheService.name,
             service.posUser?.email || 'N/A',
             service.status,
             service.price
         ]);
-        return [headers.join(','), ...rows.map((row: [string, string, string, string, string]) => row.join(','))].join('\n');
+        return [headers.join(','), ...rows.map((row: (string | number)[]) => row.join(','))].join('\n');
     };
 
     const exportToCSV = () => {

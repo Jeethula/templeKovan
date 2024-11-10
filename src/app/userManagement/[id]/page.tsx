@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill } from "react-icons/pi";
-import { toast } from 'react-toastify';
 import { BsWhatsapp } from "react-icons/bs";
+import toast from "react-hot-toast";
 
 interface Post {
   id: string;
@@ -19,7 +19,6 @@ interface Post {
     };
   };
   likes: number;
-  comments: any[];
 }
 
 interface User {
@@ -72,9 +71,6 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Partial<PersonalInfo & { user?: Partial<User> }>>({});
 
   const fetchData = async () => {
     try {

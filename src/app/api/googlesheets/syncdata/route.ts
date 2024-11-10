@@ -96,9 +96,9 @@ export async function GET() {
                 state: newObj.fullData.state,
                 pincode: newObj.fullData.pincode,
                 country: newObj.fullData.country,
-                comments: newObj.fullData.comments,
+                // comments: newObj.fullData.comments,
                 uniqueId: parseInt(newObj.fullData.uniqueId),
-                avatarUrl: newObj.fullData.avatarUrl,
+                // avatarUrl: newObj.fullData.avatarUrl,
                 salutation: newObj.fullData.salutation,
                 user: {
                     connect: { id: user.id }

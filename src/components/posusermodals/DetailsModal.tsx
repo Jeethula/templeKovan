@@ -1,5 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
-import { DialogContent } from "../../components/ui/dialog";
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +21,7 @@ interface DetailsModalProps {
   onSubmitSuccess: () => void;
 }
 
-const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen, onClose, onSubmitSuccess,userId  }: DetailsModalProps) => {
+const DetailsModal = ({ nameOfTheServiceId,serviceName, date, onSubmitSuccess,userId  }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const posUserId: string = sessionData.id;
   

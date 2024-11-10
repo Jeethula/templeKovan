@@ -69,10 +69,10 @@ export async function POST(req: Request) {
           country: personalInfo.country,
           pincode: personalInfo.pincode,
           city: personalInfo.city,
-          avatarUrl: personalInfo.avatarUrl,
+          // avatarUrl: personalInfo.avatarUrl,
           salutation: personalInfo.salutation,
-          comments: personalInfo.comments || "",
-          isApproved: "pending",
+          // comments: personalInfo.comments || "",
+          // isApproved: "pending",
           uniqueId: personalInfo.uniqueId,
           user: { connect: { id: newUser.id } }
         }

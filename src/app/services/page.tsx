@@ -1,8 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import ServiceCard from '../../components/ServiceCard';
-import { FaPersonPraying } from 'react-icons/fa6';
-import { FaPrayingHands, FaSearch } from 'react-icons/fa';
+import {  FaSearch } from 'react-icons/fa';
 import { PiHandsPrayingBold } from 'react-icons/pi';
 
 interface Service {

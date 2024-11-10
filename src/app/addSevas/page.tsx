@@ -4,7 +4,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import toast from "react-hot-toast";
 
@@ -72,6 +71,7 @@ export default function AddSevas() {
             console.log(data);
             setServices(data.services)
         } catch (error) {
+            console.error(error);
             toast.error('Error fetching services');
         } finally {
             setIsLoading(false);
@@ -102,6 +102,7 @@ export default function AddSevas() {
                     image: 'temporary_image_url' // Replace with actual image URL from your upload response
                 }));
             } catch (error) {
+                console.error(error);
                 toast.error('Error uploading image');
             }
         }
@@ -181,6 +182,7 @@ export default function AddSevas() {
             toast.success('Service deleted successfully');
             fetchServices();
         } catch (error) {
+            console.error(error);
             toast.error('Error deleting service');
         }
     };

@@ -1,14 +1,10 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock } from 'lucide-react';
-import { IoCheckmarkDone } from 'react-icons/io5';
-import { RxCross1 } from 'react-icons/rx';
 import { FaUserCog, FaSearch } from 'react-icons/fa';
 import { MdEmail, MdPhone } from 'react-icons/md';
 import { HiLocationMarker } from 'react-icons/hi';
 import { IoLogoWhatsapp } from 'react-icons/io';
-import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -36,6 +32,13 @@ type PersonalInfo = {
   role?: string;
   Phone?: string;
   [key: string]: string | undefined;
+};
+
+type UserDetail = {
+  id: string;
+  email?: string;
+  role?: string;
+  phone?: string;
 };
 
 const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => (
@@ -137,7 +140,7 @@ const PersonalInfoGrid: React.FC = () => {
       const data = await res.json();
       
       const combinedData = data.personalInfodetails.map((personal: PersonalInfo) => {
-        const userDetail = data.userDetails.find((user: any) => user.id === personal.userid);
+        const userDetail = data.userDetails.find((user:UserDetail) => user.id === personal.userid);
         return {
           ...personal,
           email: userDetail?.email,

@@ -40,13 +40,14 @@ export async function GET(req: NextRequest) {
             where:{
                 id:userId
             },
-            select:{
-                personalInfo:{
-                    select:{
-                        Services:true
-                    }
-                }
-            }
+            // select:{
+            //     personalInfo:{
+            //         select:{
+            //             // services:true
+                        
+            //         }
+            //     }
+            // }
         })
         if(!user)
         {

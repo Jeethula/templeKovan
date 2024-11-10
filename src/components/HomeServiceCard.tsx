@@ -7,7 +7,7 @@ interface ServiceCardProps {
   modalComponent: React.ReactNode;
 }
 
-const HomeServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, description, modalComponent }) => {
+const HomeServiceCard: React.FC<ServiceCardProps> = ({ title, imageSrc, modalComponent }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

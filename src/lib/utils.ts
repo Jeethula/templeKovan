@@ -40,7 +40,7 @@ export function getDateRange(reportType: string, baseDate: Date) {
   return { startDate, endDate };
 }
 
-export async function convertToCSV(data: any[]) {
+export async function convertToCSV(data: Record<string, unknown>[]) {
   if (data.length === 0) return '';
 
   const headers = Object.keys(data[0]);

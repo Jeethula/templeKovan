@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { UserDetails } from "../../utils/type";
-import { initialUserDetails } from "../../utils/type";
+import { UserDetails,initialUserDetails } from "../../utils/type";
 // import { useAuth } from "../context/AuthContext";
 import { FaUserEdit } from "react-icons/fa";
 import toast from "react-hot-toast";

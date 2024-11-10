@@ -3,7 +3,6 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User } from 'firebase/auth';
 import { auth } from '../../Firebase/Firebase';
 import { useRouter } from 'next/navigation';
-import { clearLine } from 'readline';
 
 type Userdata = {
   phoneNumber: string;

@@ -36,7 +36,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                         personalInfo:{
                             select:{
                                 firstName:true,
-                                avatarUrl:true
+                                // avatarUrl:true
                             }
                         }
                     }
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest,{ params }: { params: Params }) {
                                 personalInfo:{
                                     select:{
                                         firstName:true,
-                                        avatarUrl:true
+                                        // avatarUrl:true
                                     }
                                 }
                             }

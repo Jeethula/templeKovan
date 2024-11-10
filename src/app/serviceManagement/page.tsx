@@ -6,8 +6,7 @@ import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { FaUsersGear } from 'react-icons/fa6';
 import { FaSearch } from 'react-icons/fa';
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import {
   Pagination,
   PaginationContent,
@@ -159,7 +158,7 @@ const ServiceManagementGrid: React.FC = () => {
     if (!sessionData.role.includes('approver') ) {
       router.push('/unAuthorized');
     }
-    const userId = sessionData.id;
+    // const userId = sessionData.id;
     const fetchServices = async () => {
       setIsLoading(true);
       try {
