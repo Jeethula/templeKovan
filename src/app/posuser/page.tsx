@@ -37,20 +37,95 @@ const SkeletonUserCard = () => (
   </div>
 );
 
-const SkeletonUserDetails = () => (
-  <div className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-    <div className="h-6 bg-gray-200 rounded w-1/4 mb-4" />
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="border-b border-gray-100 pb-2">
-          <div className="h-3 bg-gray-200 rounded w-1/4 mb-2" />
-          <div className="h-4 bg-gray-200 rounded w-3/4" />
-        </div>
-      ))}
-    </div>
-    <div className="mt-4 h-10 bg-gray-200 rounded" />
-  </div>
-);
+const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToService }: {
+  user: User;
+  showDetailsModal: boolean;
+  setShowDetailsModal: (show: boolean) => void;
+  goToService: (userId: string) => void;
+}) => {
+  const [showContributionModal, setShowContributionModal] = useState(false);
+
+  if (!user.personalInfo) return null;
+
+  return (
+    <>
+      <Dialog 
+        open={showDetailsModal} 
+        onOpenChange={(open) => !open && setShowDetailsModal(false)}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="border-b border-gray-100 pb-2">
+                  <p className="text-sm text-gray-500">Full Name</p>
+                  <p className="text-gray-900">
+                    {user.personalInfo.salutation} {user.personalInfo.firstName} {user.personalInfo.lastName}
+                  </p>
+                </div>
+                <div className="border-b border-gray-100 pb-2">
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-gray-900">{user.phone}</p>
+                </div>
+                <div className="border-b border-gray-100 pb-2">
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-gray-900">{user.email}</p>
+                </div>
+                <div className="border-b border-gray-100 pb-2">
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="text-gray-900">
+                    {user.personalInfo.address1}
+                    {user.personalInfo.address2 && <>, {user.personalInfo.address2}</>}
+                    {`, ${user.personalInfo.city}, ${user.personalInfo.state}`}
+                    {`, ${user.personalInfo.country} - ${user.personalInfo.pincode}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
+                  onClick={() => setShowContributionModal(true)}
+                >
+                  Contribution
+                </button>
+
+                <button
+                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
+                  onClick={() => goToService(user.id)}
+                >
+                  Service
+                </button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {showContributionModal && (
+        <Dialog 
+          open={showContributionModal} 
+          onOpenChange={(open) => !open && setShowContributionModal(false)}
+        >
+          <DialogContent className="sm:max-w-[500px]">
+            <DetailsModal
+              serviceName={"Contribution"}
+              date={new Date()}
+              userId={user.id}
+              nameOfTheServiceId={"cm39vec3p0000ooi3pkdquuov"}
+              minAmount={0}
+              onSubmitSuccess={() => {
+                setShowContributionModal(false);
+                setShowDetailsModal(false);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
+};
 
 const PosUserPage = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -101,6 +176,7 @@ const PosUserPage = () => {
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
+    setShowDetailsModal(true);
   };
 
   const goToService = (userId: string) => {
@@ -184,78 +260,13 @@ const PosUserPage = () => {
           </div>
         </div>
 
-        {isLoading ? (
-          <SkeletonUserDetails />
-        ) : (
-          selectedUser && selectedUser.personalInfo && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="border-b border-gray-100 pb-2">
-                    <p className="text-sm text-gray-500">Full Name</p>
-                    <p className="text-gray-900">
-                      {selectedUser.personalInfo.salutation} {selectedUser.personalInfo.firstName} {selectedUser.personalInfo.lastName}
-                    </p>
-                  </div>
-                  <div className="border-b border-gray-100 pb-2">
-                    <p className="text-sm text-gray-500">Phone</p>
-                    <p className="text-gray-900">{selectedUser.phone}</p>
-                  </div>
-                  <div className="border-b border-gray-100 pb-2">
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="text-gray-900">{selectedUser.email}</p>
-                  </div>
-                  <div className="border-b border-gray-100 pb-2">
-                    <p className="text-sm text-gray-500">Address</p>
-                    <p className="text-gray-900">
-                      {selectedUser.personalInfo.address1}
-                      {selectedUser.personalInfo.address2 && <>, {selectedUser.personalInfo.address2}</>}
-                      {`, ${selectedUser.personalInfo.city}, ${selectedUser.personalInfo.state}`}
-                      {`, ${selectedUser.personalInfo.country} - ${selectedUser.personalInfo.pincode}`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                <button
-                  className="mt-4 w-full bg-[#663399]  text-white 
-                         font-medium py-2 px-4 rounded-lg transition-colors 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 
-                         focus:ring-offset-2 shadow-sm"
-                  onClick={() => setShowDetailsModal(true)}
-                >
-                  Contribution
-                </button>
-
-                <button
-                  className="mt-4 w-full bg-[#663399]  text-white 
-                         font-medium py-2 px-4 rounded-lg transition-colors 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 
-                         focus:ring-offset-2 shadow-sm"
-                  onClick={() => goToService(selectedUser.id)}
-                >
-                   Service
-                </button>
-                </div>
-                <Dialog 
-        open={showDetailsModal} 
-        onOpenChange={(open) => !open && setShowDetailsModal(false)}
-      >
-                <DialogContent className="sm:max-w-[500px]">
-                  <DetailsModal
-                    serviceName={"Contribution"}
-                    date={new Date()}
-                    userId={selectedUser.id}
-                    nameOfTheServiceId={"cm39vec3p0000ooi3pkdquuov"}
-                    minAmount={0}
-                    onSubmitSuccess={() => setShowDetailsModal(false)}
-                  />
-                </DialogContent>
-              </Dialog>
-              </div>
-            </div>
-          )
+        {selectedUser && (
+          <UserDetailsModal 
+            user={selectedUser}
+            showDetailsModal={showDetailsModal}
+            setShowDetailsModal={setShowDetailsModal}
+            goToService={goToService}
+          />
         )}
       </div>
     </div>

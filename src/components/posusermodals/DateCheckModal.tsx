@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import toast from 'react-hot-toast';
 import DetailsModal from './DetailsModal';
+import { Calendar } from '../ui/calendar';
 
 interface DateCheckModalProps {
   title: string;
@@ -28,15 +29,10 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
   onClose, 
   userId 
 }) => {
-  const [serviceDate, setServiceDate] = useState('');
+  const [serviceDate, setServiceDate] = useState<Date | undefined>(undefined);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setServiceDate(e.target.value);
-    setError('');
-  };
 
   const checkAvailability = async () => {
     if (!serviceDate) {
@@ -48,6 +44,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
     setError('');
     
     try {
+      const formattedDate = serviceDate.toISOString().split('T')[0];
       const selectedDate = new Date(serviceDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -64,7 +61,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          serviceDate, 
+          serviceDate: formattedDate, 
           nameOfTheServiceId: id 
         }),
       });
@@ -78,7 +75,6 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
         }, 100); // Small delay to ensure smooth transition
       } else {
         setError('The selected date is not available');
-        toast.error('Selected date is not available');
       }
     } catch (error) {
       console.error('Error checking date availability:', error);
@@ -91,7 +87,6 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
 
   const handleDetailsModalClose = () => {
     setShowDetailsModal(false);
-    setServiceDate('');
   };
 
   return (
@@ -104,27 +99,30 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
           </DialogHeader>
           <div className="space-y-6">
             <div className="relative">
-              <Input
-                type="date"
-                id="serviceDate"
-                value={serviceDate}
-                onChange={handleDateChange}
-                className={`block w-full text-sm bg-transparent rounded-lg border appearance-none focus:outline-none focus:ring-0 peer ${
-                  error ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              <Label
-                htmlFor="serviceDate"
-                className="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-              >
-                Service Date
-              </Label>
-              {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+              <div className="grid justify-center">
+                <Calendar
+                  mode="single"
+                  selected={serviceDate}
+                  onSelect={(date: Date | undefined) => {
+                    setServiceDate(date);
+                    if (date) {
+                      setError('');
+                    }
+                  }}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
+                  className="rounded-md border w-full"
+                />
+                {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+              </div>
             </div>
 
             <Button 
               onClick={checkAvailability} 
-              className="w-full" 
+              className="w-full bg-[rgb(102,51,153)]" 
               disabled={isLoading}
             >
               {isLoading ? (
@@ -167,7 +165,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DetailsModal
             serviceName={title}
-            date={new Date(serviceDate)}
+            date={serviceDate || new Date()}
             userId={userId}
             minAmount={minAmount}
             nameOfTheServiceId={id}
