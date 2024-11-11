@@ -74,7 +74,7 @@ const ServicesPage: React.FC = () => {
     <div className="px-4 py-3 min-w-screen min-h-screen mx-auto bg-[#fdf0f4]">
       <div className="bg-white rounded-lg h-fit w-full max-w-[380px] p-4 flex flex-col gap-y-2 mb-4  mx-auto">
         <h1 className='flex gap-x-3 font-semibold text-lg text-[#663399] items-center'>
-        <PiHandsPrayingBold />  Our Seva&apos;s  
+        <PiHandsPrayingBold />  Special Event&apos;s  
         </h1> 
         <div className="relative">
           <input
@@ -92,12 +92,12 @@ const ServicesPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, index) => <SkeletonCard key={index} />)}
         </div>
-      ) : filteredServices.filter(service => service.isSeva).length === 0 ? (
+      ) : filteredServices.filter(service => !service.isSeva).length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-[#663399]/20 w-full max-w-[380px] mx-auto">
           <PiHandsPrayingBold className="h-12 w-12 text-[#663399]/50 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-600 mb-2">No Sevas Available</h3>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">No Events Available</h3>
           <p className="text-sm text-gray-500">
-            There are currently no sevas available. Please contact the temple administration for more information.
+            There are currently no Special Event&apos;s available. Please contact the temple administration for more information.
           </p>
           <p className="text-sm text-[#663399] mt-4">
             Email: admin@temple.com
@@ -105,7 +105,7 @@ const ServicesPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredServices.filter((service) => service.isSeva).map((service) => (
+          {filteredServices.filter((service) => !service.isSeva).map((service) => (
             <ServiceCard
               key={service.id}
               id={service.id}

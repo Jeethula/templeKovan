@@ -17,6 +17,7 @@ export async function GET() {
                 minAmount: true,
                 maxCount: true,
                 isActive: true,
+                isSeva:true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -51,7 +52,8 @@ export async function POST(req: Request) {
       targetDate,
       targetPrice,
       minAmount,
-      maxCount
+      maxCount,
+      isSeva,
     } = body;
 
     const service = await prisma.serviceAdd.create({
@@ -62,7 +64,8 @@ export async function POST(req: Request) {
         targetDate: targetDate ? new Date(targetDate) : null,
         targetPrice,
         minAmount,
-        maxCount
+        maxCount,
+        isSeva,
       }
     });
 
@@ -85,7 +88,8 @@ export async function PUT(req: Request) {
       targetDate,
       targetPrice,
       minAmount,
-      maxCount
+      maxCount,
+      isSeva,
     } = body;
 
     const updatedService = await prisma.serviceAdd.update({
@@ -97,7 +101,8 @@ export async function PUT(req: Request) {
         targetDate: targetDate ? new Date(targetDate) : null,
         targetPrice,
         minAmount,
-        maxCount
+        maxCount,
+        isSeva,
       }
     });
 

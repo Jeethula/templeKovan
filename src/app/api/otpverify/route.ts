@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     })
 
     if(!user){
-      return NextResponse.json({ success: false, error: 'Phone number not found' }, { status: 200 });
+      return NextResponse.json({ success: false, error: 'You are mobile number not registered , continue with google sign in below or contact admin' }, { status: 200 });
     }
 
     try {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       });
     } catch (error) {
       console.error('Error sending OTP:', error);
-      return NextResponse.json({ success: false, error: 'Failed to send OTP' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Failed to send OTP , Please try again later' }, { status: 500 });
     }
   } else if (action === 'verify') {
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ success: true, verified: true , user: user});
     } else {
-      return NextResponse.json({ success: false, verified: false, error: 'Invalid OTP' });
+      return NextResponse.json({ success: false, verified: false, error: 'Invalid OTP , Please try again' });
     }
   }
 

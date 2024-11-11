@@ -4,6 +4,7 @@ import DetailsModal from '@/components/modals/DetailsModal';
 import { FaDownload, FaCheck } from 'react-icons/fa';
 import { IoCopyOutline } from "react-icons/io5";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
+import withProfileCheck from '@/components/withProfileCheck';
 
 type PaymentMethod = 'NEFT' | 'UPI' | 'QR';
 
@@ -189,4 +190,4 @@ const DonationPage = () => {
   );
 };
 
-export default DonationPage;
+export default withProfileCheck(DonationPage);

@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Edit, Trash2, Settings } from 'lucide-react';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -16,6 +16,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { MdOutlineEditCalendar } from 'react-icons/md';
 
 interface Service {
     id: string;
@@ -145,7 +146,7 @@ export default function AddSevas() {
                 targetPrice: Number(formData.targetPrice),
                 minAmount: Number(formData.minAmount),
                 maxCount: Number(formData.maxCount),
-                isSeva: true,
+                isSeva: false,
             };
 
             const response = await fetch('/api/services/addservices', {
@@ -246,14 +247,14 @@ export default function AddSevas() {
         <div className="min-h-screen bg-[#fdf0f4]">
             <div className="px-4 max-w-3xl mx-auto pb-5 pt-5">
                 <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl flex items-center gap-x-2 font-bold text-[#663399]"> <Settings/> Mange Seva </h1>
+                <h1 className="text-2xl flex items-center gap-x-2 font-bold text-[#663399]"> <MdOutlineEditCalendar /> Manage Events </h1>
                     <button
                         onClick={openCreateModal}
                         className="flex items-center bg-[#663399] hover:bg-[#663399]/90 h-12 rounded-xl shadow-sm
                                      hover:shadow-md transition-all duration-200 text-white px-4 py-2"
                     >
                         <PlusCircle className="mr-2 h-5 w-5" />
-                        Add New Seva
+                        Add Event
                     </button>
                 </div>
 
@@ -265,57 +266,59 @@ export default function AddSevas() {
                             <ServiceSkeleton />
                             <ServiceSkeleton />
                         </>
-                    ) : services.filter(service => service.isSeva).length === 0 ? (
+                    ) : services.filter(service => !service.isSeva).length === 0 ? (
                         <div className="text-center py-12 bg-white rounded-xl border border-[#663399]/20">
-                            <Settings className="h-12 w-12 text-[#663399]/50 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-600 mb-2">No Sevas Found</h3>
-                            <p className="text-sm text-gray-500 mb-4">Get started by creating your first seva</p>
+                            <MdOutlineEditCalendar className="h-12 w-12 text-[#663399]/50 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-600 mb-2">No Events Found</h3>
+                            <p className="text-sm text-gray-500 mb-4">Get started by creating your first event</p>
                             <button
                                 onClick={openCreateModal}
                                 className="inline-flex items-center bg-[#663399] hover:bg-[#663399]/90 text-white px-4 py-2 rounded-lg"
                             >
                                 <PlusCircle className="h-5 w-5 mr-2" />
-                                Create New Seva
+                                Create New Event
                             </button>
                         </div>
                     ) : (
-                        services.filter(service => service.isSeva).map((service) => (
-                            <div
-                                key={service.id}
-                                className="bg-white rounded-xl p-6 shadow-sm border border-[#663399]/20 hover:shadow-md
-                                             transition-all duration-200"
-                            >
-                                {/* Service card content */}
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-semibold text-lg text-[#663399]">{service.name}</h3>
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => openEditModal(service)}
-                                            className="hover:bg-[#663399]/10"
-                                        >
-                                            <Edit className="h-5 w-5 text-[#663399]" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(service.id)}
-                                            className="hover:bg-red-50"
-                                        >
-                                            <Trash2 className="h-5 w-5 text-red-500" />
-                                        </button>
+                        services
+                            .filter(service => !service.isSeva)
+                            .map((service) => (
+                                <div
+                                    key={service.id}
+                                    className="bg-white rounded-xl p-6 shadow-sm border border-[#663399]/20 hover:shadow-md
+                                                 transition-all duration-200"
+                                >
+                                    {/* Service card content */}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="font-semibold text-lg text-[#663399]">{service.name}</h3>
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => openEditModal(service)}
+                                                className="hover:bg-[#663399]/10"
+                                            >
+                                                <Edit className="h-5 w-5 text-[#663399]" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(service.id)}
+                                                className="hover:bg-red-50"
+                                            >
+                                                <Trash2 className="h-5 w-5 text-red-500" />
+                                            </button>
+                                        </div>
                                     </div>
+                                    
+                                    {service.image && (
+                                        <div className="mb-4 rounded-lg overflow-hidden">
+                                            <img 
+                                                src={service.image} 
+                                                alt={service.name}
+                                                className="w-full h-48 object-cover"
+                                            />
+                                        </div>
+                                    )}
+                                    <p className="text-sm text-gray-600 mb-4">{service.description}</p>
                                 </div>
-                                
-                                {service.image && (
-                                    <div className="mb-4 rounded-lg overflow-hidden">
-                                        <img 
-                                            src={service.image} 
-                                            alt={service.name}
-                                            className="w-full h-48 object-cover"
-                                        />
-                                    </div>
-                                )}
-                                <p className="text-sm text-gray-600 mb-4">{service.description}</p>
-                            </div>
-                        ))
+                            ))
                     )}
                 </div>
             </div>

@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaHandHoldingHeart, FaOm, FaUsers } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
+import withProfileCheck from "../components/withProfileCheck"
 
 interface Post {
   id: string;
@@ -27,18 +29,10 @@ interface Service {
   name: string;
   description: string;
   image: string;
+  isSeva: boolean;
 }
 
-// First, define an interface for the contribution data
-// interface Contribution {
-//   transactionId: string;
-//   price: number;
-//   paymentMode: string;
-//   createdAt: string;
-//   status: string;
-// }
-
-export default function HomePage() {
+function HomePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [latestPost, setLatestPost] = useState<Post | null>(null);
@@ -48,12 +42,7 @@ export default function HomePage() {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [isposuser, setIsposuser] = useState<boolean>(false);
   const [quote, setQuote] = useState("");
-  const [recentName, setRecentName] = useState("");
-  const [recentPrice, setRecentPrice] = useState(0);
-  const [recentDate, setRecentDate] = useState("");
-  const [recentCity, setRecentCity] = useState("");
-  const [currentSlide, setCurrentSlide] = useState(0);
-
+  const [showingCard, setShowingCard] = useState<'welcome' | 'special'>('welcome');
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -72,23 +61,18 @@ export default function HomePage() {
     fetchServices();
   }, []);
 
-  useEffect(() => {
-    const fetchRecentContributions = async () => {
-      const res = await fetch("/api/services/getRecentContributions", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      setQuote(randomQuote);
-      setRecentName(data.user.User.personalInfo.firstName);
-      setRecentPrice(data.user.price);
-      setRecentDate(new Date(data.user.createdAt).toLocaleDateString());
-      setRecentCity(data.user.User.personalInfo.city);
-      console.log(data.user);
-    };
-    fetchRecentContributions();
-  }, []);
+  // useEffect(() => {
+  //   const fetchRecentContributions = async () => {
+  //     const res = await fetch("/api/services/getRecentContributions", {
+  //       method: "GET",
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //     const data = await res.json();
+
+  //     console.log(data.user);
+  //   };
+  //   fetchRecentContributions();
+  // }, []);
 
   useEffect(() => {
     const fetchLatestPost = async () => {
@@ -106,8 +90,9 @@ export default function HomePage() {
         }
 
         const data = await res.json();
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        setQuote(randomQuote);
         if (data.posts && data.posts.length > 0) {
-          // Sort posts by date and get the latest
           const sortedPosts = data.posts.sort(
             (a: Post, b: Post) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -175,12 +160,24 @@ export default function HomePage() {
     fetchLatestPost();
   }, [router, user]);
 
+  const handleSpecialclick = () => {
+    router.push("/special");
+  };
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 0 ? 1 : 0));
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    // Only set up random selection if there are special events
+    if (services.filter(service => !service.isSeva).length > 0) {
+      // Randomly choose which card to show initially
+      setShowingCard(Math.random() < 0.5 ? 'welcome' : 'special');
+      
+      // Change card every 10 seconds
+      const timer = setInterval(() => {
+        setShowingCard(prev => prev === 'welcome' ? 'special' : 'welcome');
+      }, 10000);
+      
+      return () => clearInterval(timer);
+    }
+  }, [services]);
 
   const handlePosMode = () => {
     router.push("/posuser");
@@ -204,43 +201,118 @@ export default function HomePage() {
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2">
       <div className="w-full">
-        <div className="min-w-screen min-h-40 w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3">
-          <div className="flex justify-between ">
-            <div className="flex flex-col">
-              <h1 className="text-xl font-semibold text-gray-800">
-                {getGreeting()}
-              </h1>
-              <h1 className="mt-2 text-gray-600 text-md font-normal ">
-                Welcome to Sri Renukka Akkama Temple&apos;s official place
-              </h1>
-            </div>
-            {isposuser ? (
-              <div
-                onClick={handlePosMode}
-                className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md  bg-red-500 text-sm text-white font-medium"
-              >
-                POS Mode
-              </div>
-            ) :
-            <div>
-              <FaOm />
-            </div>}
+        {/* Welcome/Special Card Skeleton */}
+        {servicesLoading ? (
+          <div className="min-h-[200px] max-h-[200px] w-full rounded-lg mt-3">
+            <Skeleton className="w-full h-full" />
           </div>
-          <h1 className="mt-4 text-gray-800 font-medium bg-violet-100 p-2 rounded-md">
-          &quot;{quote}&quot;
-          </h1>
-        </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            {(showingCard === 'welcome' || services.filter(service => !service.isSeva).length === 0) ? (
+              <motion.div
+                key="welcome"
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 100 }}
+                transition={{ 
+                  duration: 1, // Keep transition smooth but quick
+                  ease: "easeInOut"
+                }}
+                className="min-w-screen min-h-[200px] max-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3"
+              >
+                {/* Welcome card content */}
+                <div className="flex justify-between">
+                  <div className="flex flex-col">
+                    <h1 className="text-xl font-semibold text-gray-800">
+                      {getGreeting()}
+                    </h1>
+                    <h1 className="mt-2 text-gray-600 text-md font-normal">
+                      Welcome to Sri Renukka Akkama Temple&apos;s official place
+                    </h1>
+                  </div>
+                  {isposuser ? (
+                    <div onClick={handlePosMode} className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md bg-red-500 text-sm text-white font-medium">
+                      POS Mode
+                    </div>
+                  ) : (
+                    <div><FaOm /></div>
+                  )}
+                </div>
+                <h1 className="mt-4 text-gray-800 font-medium bg-violet-100 p-2 rounded-md">
+                  &quot;{quote}&quot;
+                </h1>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="special-events"
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 100 }}
+                transition={{ 
+                  duration: 1,
+                  ease: "easeInOut"
+                }}
+                className="min-w-screen min-h-[200px] max-h-[200px] w-full rounded-lg shadow-lg mt-3"
+              >
+                {(() => {
+                  const specialEvents = services.filter(service => !service.isSeva);
+                  const randomEvent = specialEvents[Math.floor(Math.random() * specialEvents.length)];
+                  
+                  if (!randomEvent) return null;
+
+                  return (
+                    <div onClick={handleSpecialclick} className="bg-gradient-to-r from-[#FFD700] via-[#FDB931] to-[#FFD700] rounded-xl p-4 shadow-[0_0_15px_rgba(253,185,49,0.3)] h-[200px] overflow-hidden">
+                      <div className="relative h-full">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-2">
+                          <h2 className="text-xl font-bold text-[#4A3800] tracking-wide">
+                            Special Event
+                            {/* <div className="h-1 w-20 bg-[#4A3800] mt-1 rounded-full opacity-60"></div> */}
+                          </h2>
+                          <div className="w-10 h-10 rounded-full bg-[#4A3800] flex items-center justify-center">
+                            <FaOm className="text-[#FFD700] text-xl" />
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex flex-col space-y-2 h-[140px]">
+                          {randomEvent.image && (
+                            <div className="relative h-24 w-full overflow-hidden rounded-lg border-2 border-[#4A3800]/20">
+                              <Image
+                                src={randomEvent.image}
+                                alt={randomEvent.name}
+                                layout="fill"
+                                objectFit="cover"
+                                className="transition-transform duration-300 hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-[#4A3800]/60 to-transparent"></div>
+                            </div>
+                          )}
+                          <h3 className="font-bold text-lg text-[#4A3800] leading-tight truncate">
+                            {randomEvent.name}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
         <div className="text-black font-semibold mt-4 text-xl">Quick Links</div>
         <div className="flex gap-x-4 overflow-x-auto w-full py-4">
           {servicesLoading ? (
-            <div className="animate-pulse flex space-x-4">
+            <div className="flex space-x-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-gray-200 rounded-lg w-64 h-48"></div>
+                <div key={i} className="flex-none w-64 h-48">
+                  <Skeleton className="w-full h-full" />
+                </div>
               ))}
             </div>
           ) : services.length > 0 ? (
             services
-              .filter(service => service.id !== "cm39vec3p0000ooi3pkdquuov")
+              .filter(service => service.isSeva)
               .map((service) => (
                 <div
                   key={service.id}
@@ -280,118 +352,56 @@ export default function HomePage() {
             </div>
           )}
         </div>
-        <div className="relative h-[200px] overflow-hidden" onClick={handleContributeClick}>
-          <AnimatePresence mode="wait">
-            {currentSlide === 0 ? (
-              <motion.div
-                key="slide1"
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -300, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute w-full"
-              >
-                <div className="bg-violet-500 mt-2 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 ">
-                  <div className="flex flex-col md:flex-row items-center gap-2">
-                    <div className="flex-1 text-white">
-                      <div className="flex items-center gap-3 mb-4">
-                        <FaHandHoldingHeart className="text-3xl animate-pulse" />
-                        <h2 className="text-xl font-semibold">
-                          Together make a difference
-                        </h2>
-                      </div>
-                      <p className="mb-4 text-lg opacity-90">
-                        Even a small amount can help, as it can make a big impact
-                        in many ways
-                      </p>
-                      <button className="bg-white text-violet-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
-                        <FaUsers />
-                        Contribute now
-                      </button>
-                    </div>
+        {/* Contribution Section Skeleton */}
+        {servicesLoading ? (
+          <div className="relative h-[200px] mt-2">
+            <Skeleton className="w-full h-full rounded-xl" />
+          </div>
+        ) : (
+          <div className="relative h-[200px] overflow-hidden" onClick={handleContributeClick}>
+            <div className="bg-violet-500 mt-2 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 ">
+              <div className="flex flex-col md:flex-row items-center gap-2">
+                <div className="flex-1 text-white">
+                  <div className="flex items-center gap-3 mb-4">
+                    <FaHandHoldingHeart className="text-3xl animate-pulse" />
+                    <h2 className="text-xl font-semibold">
+                      Together make a difference
+                    </h2>
                   </div>
+                  <p className="mb-4 text-lg opacity-90">
+                    Even a small amount can help, as it can make a big impact
+                    in many ways
+                  </p>
+                  <button className="bg-white text-violet-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
+                    <FaUsers />
+                    Contribute now
+                  </button>
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="slide2"
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -300, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute w-full"
-              >
-                <div className="bg-white rounded-xl mt-4  p-4 transform hover:scale-[1.02] transition-all duration-300">
-                  <div className="flex flex-col space-y-3">
-                  <h1 className="text-center text-lg ">Recent Contributor 💜</h1>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-full bg-purple-100">
-                          <FaHandHoldingHeart className="text-purple-600 text-xl" />
-                        </div>
-                        <span className="font-semibold text-lg text-gray-800">
-                          {recentName || "Anonymous"}
-                        </span>
-                      </div>
-                      <span className="text-purple-600 font-bold">
-                        ₹{recentPrice || 0}
-                      </span>
-                    </div>
-                    <div className="flex flex-col space-y-2 text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span>{recentDate || "N/A"}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        <span>{recentCity || "N/A"}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <h1 className="text-black font-semibold text-xl mt-4  mb-4">
         Latest Announcemet
       </h1>
       <div className="w-full px-1">
         {isLoading ? (
-          <div className="bg-white rounded-lg shadow-lg p-4 mb-4 animate-pulse">
-            <div className="h-24 bg-gray-200 rounded"></div>
+          <div className="w-full px-1">
+            <div className="rounded-xl p-4">
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </div>
+              <div className="space-y-3 mt-4">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
           </div>
         ) : error ? (
           <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
@@ -423,7 +433,6 @@ export default function HomePage() {
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span>❤️ {latestPost.likes} likes</span>
-                {/* <span>💬 {latestPost.comments.length} comments</span> */}
               </div>
             </Link>
           </div>
@@ -437,4 +446,5 @@ export default function HomePage() {
   );
 }
 
+export default withProfileCheck(HomePage);
 

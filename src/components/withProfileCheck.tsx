@@ -22,7 +22,7 @@ const withProfileCheck = (WrappedComponent: React.ComponentType) => {
             const data = await response.json();
 
             if (!data.userDetails) {
-              toast.error('Please complete your profile to continue');
+              toast.success('Please complete your profile to continue');
               router.push('/profile?redirect=blog');
             }
           } catch (error) {

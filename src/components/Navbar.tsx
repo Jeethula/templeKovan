@@ -9,7 +9,7 @@ import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import { PiHandsPrayingBold} from 'react-icons/pi';
 import { HiOutlineSpeakerphone } from 'react-icons/hi';
-import { MdOutlineAdminPanelSettings } from 'react-icons/md';
+import { MdOutlineAdminPanelSettings, MdOutlineEditCalendar, MdOutlineTempleHindu } from 'react-icons/md';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -38,6 +38,7 @@ const Navbar = () => {
   const mainNav = [
     { name: 'Home', path: '/', icon: <House className="text-lg" /> },
     { name: `Seva`, path: '/services', icon: <PiHandsPrayingBold  size={23} className="text-lg " /> },
+    { name: 'Special Events',path:'/special',icon:<MdOutlineTempleHindu className='text-lg' size={23}/>},
     { name: 'Profile', path: '/profile', icon: <UserRound className="text-lg" /> },
     { name: 'Announcements', path: '/blog', icon: <HiOutlineSpeakerphone className="text-lg" size={23} stroke='black' /> },
     {name:'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" size={23}  />},
@@ -49,6 +50,7 @@ const Navbar = () => {
     ...(role.includes('Admin') ? [
       { name: 'User Management', path: '/userManagement', icon: <LucideUserCog2  className="text-lg" /> },
       { name: 'Seva Configuration  ', path: '/addSevas', icon: <Settings  className="text-lg" /> },
+      { name: 'Special Events Configuration',path:'/specialManage',icon:<MdOutlineEditCalendar className='text-lg' size={23}/>},
       { name: 'Reports', path: '/reports', icon: <BookDown  className="text-lg"  /> },
     ] : []),
     ...(role.includes('superadmin') ? [
