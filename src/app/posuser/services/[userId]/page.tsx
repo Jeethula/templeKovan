@@ -26,7 +26,7 @@ interface Service {
 const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
   const { userId } = params;
   const [services, setServices] = useState<Service[]>([]);
-  const [filteredServices, setFilteredServices] = useState<Service[]>([]); // Filtered services
+  // const [ setFilteredServices] = useState<Service[]>([]); // Filtered services
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
         const data = await response.json();
         
         setServices(data.services.filter((service: Service) => service.isActive));
-        setFilteredServices(data.services.filter((service: Service) => service.isActive));
+        // setFilteredServices(data.services.filter((service: Service) => service.isActive));
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -49,14 +49,14 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
     
-    if (term.trim() === '') {
-      setFilteredServices(services);
-    } else {
-      const filtered = services.filter(service => 
-        service.name.toLowerCase().includes(term)
-      );
-      setFilteredServices(filtered);
-    }
+    // if (term.trim() === '') {
+    //   // setFilteredServices(services);
+    // } else {
+    //   // const filtered = services.filter(service => 
+    //   //   service.name.toLowerCase().includes(term)
+    //   // );
+    //   // setFilteredServices(filtered);
+    // }
   };
 
 

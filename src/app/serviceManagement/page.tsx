@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Clock, LucideUserCheck2 } from 'lucide-react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
-import { FaUsersGear } from 'react-icons/fa6';
 import { FaSearch } from 'react-icons/fa';
 
 import {
