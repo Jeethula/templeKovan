@@ -447,29 +447,6 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                         <span>Approver Email</span>
                         <span>{service.approvedBy.email}</span>
                       </div>
-                      <div className="mt-4">
-                        <PDFDownloadLink 
-                          document={
-                            <MyDocument 
-                              rowData={service} 
-                              userData={sessionData}
-                              approvedByData={{
-                                firstName: service.approvedBy.personalInfo.firstName,
-                                lastName: service.approvedBy.personalInfo.lastName,
-                                phoneNumber: service.approvedBy.phone
-                              }}
-                            />
-                          }
-                          fileName="Service_Details.pdf"
-                        >
-                          <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
-                                         text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
-                                         rounded-full transition-colors duration-200">
-                            <Download className="w-3 h-3" />
-                            Download Receipt
-                          </button>
-                        </PDFDownloadLink>
-                      </div>
                     </>
                   )}
                 </div>
@@ -505,7 +482,8 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
             </div>
 
             {/* Action Buttons */}
-            <div className="p-6 bg-[#fdf0f4] flex gap-4">
+            {service.status === "PENDING"?(
+           <div className="p-6 bg-[#fdf0f4] flex gap-4">
               <Button
                 onClick={handleAccept}
                 className="flex-1 h-12 bg-[#663399] hover:bg-[#663399]/90 text-white rounded-xl"
@@ -518,7 +496,31 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
               >
                 Reject
               </Button>
-            </div>
+            </div>):service.approvedBy?(
+                                    <div className="mb-4 p-6">
+                                    <PDFDownloadLink 
+                                      document={
+                                        <MyDocument 
+                                          rowData={service} 
+                                          userData={sessionData}
+                                          approvedByData={{
+                                            firstName: service.approvedBy.personalInfo.firstName,
+                                            lastName: service.approvedBy.personalInfo.lastName,
+                                            phoneNumber: service.approvedBy.phone
+                                          }}
+                                        />
+                                      }
+                                      fileName="Service_Details.pdf"
+                                    >
+                                      <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
+                                                     text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
+                                                     rounded-full transition-colors duration-200">
+                                        <Download className="w-3 h-3" />
+                                        Download Receipt
+                                      </button>
+                                    </PDFDownloadLink>
+                                  </div>
+            ):null}
           </div>
         </div>
       ) : (

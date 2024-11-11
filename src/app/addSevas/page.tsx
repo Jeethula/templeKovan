@@ -80,7 +80,6 @@ export default function AddSevas() {
             const response = await fetch('/api/services/addservices');
             if (!response.ok) throw new Error('Failed to fetch services');
             const data = await response.json();
-            console.log(data);
             setServices(data.services)
         } catch (error) {
             console.error(error);
@@ -98,26 +97,18 @@ export default function AddSevas() {
         }));
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                // Implement your image upload logic here
-                // For example, using a service like Cloudinary or your own endpoint
-                // const response = await fetch('/api/upload', { method: 'POST', body: formData });
-                // const { imageUrl } = await response.json();
-                
-                setFormData(prev => ({
-                    ...prev,
-                    image: 'temporary_image_url' // Replace with actual image URL from your upload response
-                }));
-            } catch (error) {
-                console.error(error);
-                toast.error('Error uploading image');
-            }
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFormData(prev => ({
+                ...prev,
+                image: reader.result as string,
+            }));
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -129,7 +120,7 @@ export default function AddSevas() {
             description?: string;
             image?: string;
         } = {};
-
+        
         if (!formData.name.trim()) {
             validationErrors.name = 'Service name is required';
         }
@@ -165,6 +156,7 @@ export default function AddSevas() {
                 ),
             });
 
+            
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Failed to save service');
