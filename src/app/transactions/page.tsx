@@ -29,6 +29,14 @@ type Service = {
       lastName: string;
     };
   }
+    posUser:{
+      phone: string;
+      email: string;
+      personalInfo: {
+        firstName: string;
+        lastName: string;
+      }
+    }
   status: string;
 };
 
@@ -193,6 +201,94 @@ const MyDocument: React.FC<{
         <View style={styles.row}>
           <Text style={styles.label}>Approver Contact</Text>
           <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+        </View>
+
+        <View style={[styles.row, { borderBottom: 'none' }]}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{rowData.status}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          This is a computer generated receipt. No signature required.
+        </Text>
+        <Text style={styles.footerText}>
+          For any queries, please contact the temple office.
+        </Text>
+        {/* <Text style={styles.blessingText}>
+          
+        </Text> */}
+      </View>
+    </Page>
+  </Document>
+);
+
+
+const MyDocumentForPos: React.FC<{ 
+  rowData: Service; 
+  userData: { 
+    id: string; 
+    email: string; 
+    phone: string 
+  }; 
+  posUserData:{
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }
+}> = ({ rowData, userData, posUserData }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.headerSection}>
+        <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
+        <Text style={styles.subtitle}></Text>
+        <View style={styles.decorativeLine} />
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.ornament}>☸</Text>
+        <Text style={styles.receiptTitle}>Seva Receipt</Text>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Devotee ID</Text>
+          <Text style={styles.value}>{userData.id}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact Details</Text>
+          <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Name</Text>
+          <Text style={styles.value}>{rowData.nameOfTheService.name}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Description</Text>
+          <Text style={styles.value}>{rowData.description}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Date</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString('en-GB')}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Offering Amount</Text>
+          <Text style={styles.value}>₹{rowData.price}</Text>
+        </View>
+
+
+        <View style={styles.row}>
+          <Text style={styles.label}>POS User By</Text>
+          <Text style={styles.value}>{posUserData?.firstName} {posUserData?.lastName}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>POS Contact</Text>
+          <Text style={styles.value}>{posUserData?.phoneNumber}</Text>
         </View>
 
         <View style={[styles.row, { borderBottom: 'none' }]}>
@@ -392,7 +488,28 @@ const TransactionsPage = () => {
         return null;
     }
   };
-  const handleDownload = (transaction:Service) => {  
+  const handleDownload = (transaction:Service) => { 
+    if(transaction.posUser)
+      {
+        const posUserData={
+          firstName: transaction.posUser.personalInfo.firstName,
+          lastName: transaction.posUser.personalInfo.lastName,
+          phoneNumber: transaction.posUser.phone
+
+        }
+        return (
+          <PDFDownloadLink 
+            document={<MyDocumentForPos rowData={transaction} userData={sessionData} posUserData={posUserData} />}
+            fileName="Service_Details.pdf"
+          >
+            <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
+                               text-xs font-medium  px-3 py-2 
+                               rounded-full transition-colors duration-200">
+              <Download className="w-3 h-3" />
+            </button>
+          </PDFDownloadLink>
+        )
+      } 
     const approvedByData = transaction.approvedBy ? {
       firstName: transaction.approvedBy.personalInfo.firstName,
       lastName: transaction.approvedBy.personalInfo.lastName,
@@ -521,14 +638,20 @@ const TransactionsPage = () => {
                           <p className="font-medium text-gray-900">₹{transaction.price}</p>
                         </div>
                         <div className="col-span-2 grid grid-cols-2 gap-2">
-                          <div>
-                            <p className="text-gray-500">Transaction ID</p>
-                            <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-500">Paid via</p>
-                            <p className="font-medium text-gray-900">{transaction.paymentMode}</p>
-                          </div>
+                          {transaction.posUser == null? (
+                            <>
+                              <div>
+                                <p className="text-gray-500">Transaction ID</p>
+                                <p className="font-medium text-gray-900 truncate">{transaction.transactionId}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Paid via</p>
+                                <p className="font-medium text-gray-900">{transaction.paymentMode}</p>
+                              </div>
+                            </>
+                          ):(
+                            <p>Hello</p>
+                          )}
                         </div>
                       </div>
                     </div>

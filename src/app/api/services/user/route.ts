@@ -44,6 +44,18 @@ export async function GET(req:NextRequest)
                                 }
                             }
                         },
+                        posUser:{
+                            select:{
+                                phone:true,
+                                email:true,
+                                personalInfo:{
+                                    select:{
+                                        firstName:true,
+                                        lastName:true
+                                    }
+                                }
+                            }
+                        },
                         serviceDate:true,
                         paymentMode:true,
                         transactionId:true,
