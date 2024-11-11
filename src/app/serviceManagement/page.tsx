@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock } from 'lucide-react';
+import { Clock, LucideUserCheck2 } from 'lucide-react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { FaUsersGear } from 'react-icons/fa6';
@@ -58,7 +58,7 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
       className="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 relative group"
     >
       {/* Service Type Banner */}
-      <div className="bg-violet-600 px-4 py-2">
+      <div className="bg-[#663399] px-4 py-2">
         <h3 className="font-medium text-white text-sm">
           {service.nameOfTheService.name}
         </h3>
@@ -261,7 +261,7 @@ const ServiceManagementGrid: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm p-4">
           <div className="space-y-4">
             <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
-              <FaUsersGear className="text-xl" />
+              <LucideUserCheck2 className="text-xl" />
               <span>Manage Seva</span>
             </h1>
             

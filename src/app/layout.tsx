@@ -7,7 +7,7 @@ import AuthWrapper from "../app/context/AuthWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import { Suspense } from "react";
-
+import ErrorBoundary from '@/components/ErrorBoundry';
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -106,23 +106,30 @@ export default function RootLayout({
           </div>
         </div>
         <div className="sm:hidden">
-          <Theme>
-            <Suspense 
-              fallback={
-                <div className="flex justify-center items-center bg-violet-200 w-full h-screen font-semibold text-2xl text-red-600">
-                  Loading...
-                </div>
-              }
-            >
-              <AuthProvider>
-                <AuthWrapper>
-                  <Navbar />
-                  {children}
-                  <Toaster />
-                </AuthWrapper>
-              </AuthProvider>
-            </Suspense>
-          </Theme>
+          <ErrorBoundary>
+            <Theme>
+              <Suspense 
+                fallback={
+                  <div className="flex flex-col justify-center items-center bg-violet-200 w-full h-screen font-semibold text-2xl text-red-600">
+                    {/* Loading... */}
+                    <div className="flex gap-1 items-center">
+                      <span className="animate-bounce delay-0">.</span>
+                      <span className="animate-bounce delay-150">.</span>
+                      <span className="animate-bounce delay-300">.</span>
+                    </div>
+                  </div>
+                }
+              >
+                <AuthProvider>
+                  <AuthWrapper>
+                    <Navbar />
+                    {children}
+                    <Toaster />
+                  </AuthWrapper>
+                </AuthProvider>
+              </Suspense>
+            </Theme>
+          </ErrorBoundary>
         </div>
       </body>
     </html>

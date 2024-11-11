@@ -145,10 +145,20 @@ const ServicePage = () => {
             </div>
           )}
           <h2 className="text-xl font-semibold text-[#663399] mb-2 mt-4">How to Donate</h2>
-          <p className="text-gray-700">
-            Choose your preferred payment method below and follow the instructions.
-            After making the payment, please fill out the donation form for our records.
-          </p>
+          <div className="space-y-2">
+            {[
+              'Select the preferred payment method below.',
+              'Pay the amount to the given details.',
+              'After successful payment, click Proceed to Next.',
+              'Take a screenshot and note the transaction ID.',
+              'Once you submit the details, the admin will verify it.'
+            ].map((step, index) => (
+              <div key={index} className="flex items-start space-x-2">
+              <span className="font-medium text-[#663399] min-w-[24px]">{index + 1}.</span>
+              <p className="text-gray-700">{step}</p>
+              </div>
+            ))}
+            </div>
         </div>
 
         {/* Payment Options */}

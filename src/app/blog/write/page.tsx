@@ -108,7 +108,7 @@ function WritePost() {
       <div className="pt-10 p-6">
         <div className="max-w-2xl lg:mx-60  bg-white p-4 rounded-xl shadow-md">
           <h1 className="font-semibold text-xl text-red-500 flex items-center gap-x-2">
-          <FaPen /> Write a new post 
+          <FaPen /> New Announcement
           </h1>
           <form className="mt-5" onSubmit={handleSubmit}>
             <div className="mb-5">
@@ -201,7 +201,7 @@ function WritePost() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-violet-500 hover:bg-violet-600 text-white px-4 py-1 font-semibold rounded-md ${
+                className={`bg-[#663399] hover:bg-violet-600 text-white px-4 py-1 font-semibold rounded-md ${
                   loading ? "cursor-not-allowed" : ""
                 }`}
               >

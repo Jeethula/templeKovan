@@ -14,6 +14,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import toast from 'react-hot-toast';
+import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 
 // Define types
 interface PersonalInfo {
@@ -166,8 +167,8 @@ export default function RoleManagementPage() {
       <div className="container mx-auto p-4 max-w-4xl">
         <Card className="mb-6 bg-white shadow-lg border-none">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-violet-600">
-              Role Management Dashboard
+            <CardTitle className="text-xl flex items-center gap-x-2 font-bold text-[#663399]">
+            <MdOutlineAdminPanelSettings size={25} /> Role Management 
             </CardTitle>
             <p className="text-sm mt-1 text-gray-600">
               Total Users: {filteredUsers.length}
@@ -235,7 +236,7 @@ export default function RoleManagementPage() {
                     <div className="flex gap-2">
                       <Button 
                         type="button"
-                        className="flex-1 bg-violet-600 text-white"
+                        className="flex-1 bg-[#663399] text-white"
                         onClick={updateRoles}
                         disabled={selectedRoles.length === 0}
                       >
@@ -266,7 +267,7 @@ export default function RoleManagementPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full bg-violet-500 hover:bg-violet-400 text-white font-semibold"
+                      className="w-full bg-[#663399] hover:bg-violet-600 text-white font-semibold"
                       onClick={() => startEditing(user)}
                     >
                       Edit Roles

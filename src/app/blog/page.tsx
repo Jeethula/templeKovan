@@ -9,6 +9,15 @@ import { IoMdAdd } from "react-icons/io";
 import withProfileCheck from "@/components/withProfileCheck";
 import {  Heart, Share2 } from "lucide-react";
 import { handleShare } from "@/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -19,6 +28,8 @@ function Posts() {
   const userId: string = sessionData.id;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 7;
 
   useEffect(() => {
     fetchData();
@@ -231,6 +242,18 @@ function Posts() {
   //   }
   // };
 
+  // Add this function to handle page changes
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  // Calculate pagination values
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
   return (
     <div className="bg-[#fdf0f4] h-full min-h-screen">
       <div className=" lg:mx-[20%] lg:w-[60%] w-full h-full sm:p-10 p-5">
@@ -255,7 +278,7 @@ function Posts() {
             No posts found
             </div>
             )}
-        {filteredPosts.map((post) => (
+        {currentPosts.map((post) => (
           <div
             key={post.id}
             className="bg-white p-4 border border-violet-100 shadow-xl rounded-xl mb-5"
@@ -359,6 +382,42 @@ function Posts() {
             </div> */}
           </div>
         ))}
+        {filteredPosts.length > postsPerPage && (
+          <div className="mt-8 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                
+                {[...Array(totalPages)].map((_, idx) => (
+                  <PaginationItem key={idx + 1} className="hidden sm:inline-flex">
+                    <PaginationLink
+                      onClick={() => handlePageChange(idx + 1)}
+                      isActive={currentPage === idx + 1}
+                    >
+                      {idx + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem className="hidden sm:inline-flex">
+                  <PaginationEllipsis />
+                </PaginationItem>
+                
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DetailsModal from "../../components/posusermodals/DetailsModal";
+import { LucideUsers2 } from "lucide-react";
 
 interface PersonalInfo {
   id: string;
@@ -187,8 +188,8 @@ const PosUserPage = () => {
     <div className="min-h-screen bg-[#fdf0f4] py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col gap-y-2 bg-white p-4 mb-5 rounded-lg">
-        <h1 className="text-xl font-semibold text-[#663399] ">
-          POS User Search
+        <h1 className="text-xl flex gap-x-2 items-center font-semibold text-[#663399] ">
+         <LucideUsers2 size={20} /> POS 
         </h1>
         <div className="relative mb-3">
           <input

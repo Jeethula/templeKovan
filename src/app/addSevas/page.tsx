@@ -4,8 +4,18 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Settings } from 'lucide-react';
 import toast from "react-hot-toast";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 interface Service {
     id: string;
@@ -47,6 +57,8 @@ export default function AddSevas() {
         description?: string;
         image?: string;
     }>({});
+    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+    const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -162,22 +174,30 @@ export default function AddSevas() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this service?')) return;
-
-        try {
-            const response = await fetch(`/api/services/addservices?id=${id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) throw new Error('Failed to delete service');
-            
-            toast.success('Service deleted successfully');
-            fetchServices();
-        } catch (error) {
-            console.error(error);
-            toast.error('Error deleting service');
-        }
+        setServiceToDelete(id);
+        setShowDeleteAlert(true);
     };
+
+    const confirmDelete = async () => {
+        if (!serviceToDelete) return;
+        
+        try {
+          const response = await fetch(`/api/services/addservices?id=${serviceToDelete}`, {
+            method: 'DELETE',
+          });
+      
+          if (!response.ok) throw new Error('Failed to delete service');
+          
+          toast.success('Service deleted successfully');
+          fetchServices();
+        } catch (error) {
+          console.error(error);
+          toast.error('Error deleting service');
+        } finally {
+          setShowDeleteAlert(false);
+          setServiceToDelete(null);
+        }
+      };
 
     const openCreateModal = () => {
         setModalMode('create');
@@ -224,7 +244,7 @@ export default function AddSevas() {
         <div className="min-h-screen bg-[#fdf0f4]">
             <div className="px-4 max-w-3xl mx-auto pb-5 pt-5">
                 <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-[#663399]">Manage Seva</h1>
+                <h1 className="text-2xl flex items-center gap-x-2 font-bold text-[#663399]"> <Settings/> Mange Seva </h1>
                     <button
                         onClick={openCreateModal}
                         className="flex items-center bg-[#663399] hover:bg-[#663399]/90 h-12 rounded-xl shadow-sm
@@ -423,6 +443,25 @@ export default function AddSevas() {
                     </form>
                 </DialogContent>
             </Dialog>
+            <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the service.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={confirmDelete}
+                            className="bg-red-500 hover:bg-red-600"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
