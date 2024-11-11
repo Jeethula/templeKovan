@@ -13,7 +13,7 @@ interface FormData {
 
 interface DetailsModalProps {
   nameOfTheServiceId: string;
-  date: Date;
+  date: Date| null;
   minAmount: number;
   serviceName: string;
   userId:string;

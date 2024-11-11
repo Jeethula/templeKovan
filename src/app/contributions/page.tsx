@@ -151,7 +151,7 @@ const DonationPage = () => {
                 {selectedMethod === 'QR' && (
                   <div className="flex flex-col items-center space-y-4">
                     <img
-                      src="/qr-code.png"
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/330px-QR_code_for_mobile_English_Wikipedia.svg.png"
                       alt="Donation QR Code"
                       className="w-48 h-48 object-contain"
                     />

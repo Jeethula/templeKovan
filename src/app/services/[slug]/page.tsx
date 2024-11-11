@@ -255,7 +255,7 @@ const ServicePage = () => {
                 nameOfTheServiceId={slug as string}
                 serviceName={service?.name||''}
                 minAmount={service?.minAmount||0}
-                date={serviceDate ? new Date(serviceDate) : new Date()}
+                date={serviceDate ? new Date(serviceDate) : null}
                 onSubmitSuccess={() => {
                   setShowModal(false);
                   router.push('/transactions');

@@ -118,7 +118,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DetailsModal
             serviceName={title}
-            date={new Date()} 
+            date={null} 
             userId={userId}
             minAmount={minAmount||0}
             nameOfTheServiceId={id}

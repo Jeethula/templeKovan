@@ -16,7 +16,7 @@ interface FormData {
 
 interface DetailsModalProps {
   nameOfTheServiceId: string;
-  date: Date;
+  date: Date|null;
   isOpen: boolean;
   minAmount: number;
   selectedMethod: string;
