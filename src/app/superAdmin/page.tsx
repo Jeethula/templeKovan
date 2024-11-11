@@ -30,9 +30,9 @@ interface UserData {
   phone?: string;
 }
 
-type Role = "admin" | "superadmin" | "user" | "posuser" | "blogAdmin"|"approver";
+type Role = "Admin" | "superadmin" | "user" | "posuser" | "blogAdmin"|"approver";
 
-const AVAILABLE_ROLES: Role[] = ["admin", "superadmin", "user", "posuser", "blogAdmin","approver"];
+const AVAILABLE_ROLES: Role[] = ["Admin", "superadmin", "user", "posuser", "blogAdmin","approver"];
 
 export default function RoleManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
