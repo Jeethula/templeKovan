@@ -114,7 +114,8 @@ export default function RoleManagementPage() {
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.personalInfo?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.personalInfo?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+    user.personalInfo?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.phone?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination

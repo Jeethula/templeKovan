@@ -617,7 +617,7 @@ const TransactionsPage = () => {
                     <div className="space-y-3 bg-gray-50/80 rounded-lg p-3 my-2">
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          {transaction.nameOfTheService.name !== 'Contribution' ? (
+                          {transaction.serviceDate !== null ? (
                             <>
                               <p className="text-gray-500">Service Date</p>
                               <p className="font-medium text-gray-900">
@@ -650,7 +650,16 @@ const TransactionsPage = () => {
                               </div>
                             </>
                           ):(
-                            <p>Hello</p>
+                            <>
+                              <div>
+                                <p className="text-gray-500">Paid Via</p>
+                                <p className="font-medium text-gray-900">POS User</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">POS Contact</p>
+                                <p className="font-medium text-gray-900">{transaction.posUser.phone}</p>
+                              </div>
+                            </>
                           )}
                         </div>
                       </div>

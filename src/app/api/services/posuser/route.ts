@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
                     }
                 },
                 price,
-                serviceDate,
+                serviceDate:serviceDate?new Date(serviceDate):null,
                 description,
                 status:"APPROVED",
                 User:{

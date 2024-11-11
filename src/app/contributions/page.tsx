@@ -180,7 +180,7 @@ const DonationPage = () => {
             )}
 
             {
-              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} nameOfTheServiceId="cm39vec3p0000ooi3pkdquuov" serviceName='Donation' date={new Date()} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} minAmount={0} />
+              showModal && <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} nameOfTheServiceId="cm39vec3p0000ooi3pkdquuov" serviceName='Donation' date={null} onSubmitSuccess={() => setShowModal(false)} selectedMethod={selectedMethod || 'NEFT'} minAmount={0} />
             }
           </div>
         </div>

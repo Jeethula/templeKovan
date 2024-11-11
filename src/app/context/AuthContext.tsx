@@ -72,7 +72,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       const data = await response.json();
       const userFromStorage = data.user;
-      console.log(userFromStorage, "userFromStorage");
       setRole(userFromStorage.role);
       sessionStorage.setItem('user', JSON.stringify(userFromStorage));
     } catch (error) {
