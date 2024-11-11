@@ -230,6 +230,66 @@ const MyDocument: React.FC<{
   </Document>
 );
 
+const ServiceDetailsSkeleton = () => {
+  return (
+    <div className="min-h-screen bg-[#fdf0f4] pb-6">
+      <div className="max-w-3xl mx-auto px-4">
+        {/* Header Skeleton */}
+        <div className="py-4 flex items-center gap-3">
+          <div className="w-20 h-6 bg-gray-200 animate-pulse rounded" />
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Title Section */}
+          <div className="p-8 bg-gradient-to-r from-[#663399]/50 to-[#8B5FBF]/50">
+            <div className="space-y-3">
+              <div className="w-2/3 h-8 bg-gray-200 animate-pulse rounded" />
+              <div className="w-24 h-6 bg-gray-200 animate-pulse rounded-full" />
+            </div>
+          </div>
+
+          {/* Image Skeleton */}
+          <div className="p-4">
+            <div className="h-[600px] bg-gray-200 animate-pulse rounded-xl" />
+          </div>
+
+          {/* Details Skeleton */}
+          <div className="p-6 space-y-6">
+            {/* Service Details */}
+            <div className="space-y-4">
+              <div className="w-40 h-6 bg-gray-200 animate-pulse rounded" />
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex justify-between py-2 border-b border-gray-100">
+                  <div className="w-24 h-4 bg-gray-200 animate-pulse rounded" />
+                  <div className="w-32 h-4 bg-gray-200 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+
+            {/* Personal Info Skeleton */}
+            <div className="space-y-4">
+              <div className="w-48 h-6 bg-gray-200 animate-pulse rounded" />
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex justify-between py-2 border-b border-gray-100">
+                  <div className="w-24 h-4 bg-gray-200 animate-pulse rounded" />
+                  <div className="w-32 h-4 bg-gray-200 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons Skeleton */}
+          <div className="p-6 bg-[#fdf0f4] flex gap-4">
+            <div className="flex-1 h-12 bg-gray-200 animate-pulse rounded-xl" />
+            <div className="flex-1 h-12 bg-gray-200 animate-pulse rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) => {
   const [service, setService] = useState<ServiceDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -293,11 +353,7 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
     }
   };
 
-  if (loading) return (
-    <div className="flex justify-center items-center h-screen bg-[#fdf0f4]">
-      <div className="text-[#663399] text-lg">Loading...</div>
-    </div>
-  );
+  if (loading) return <ServiceDetailsSkeleton />;
 
   return (
     <div className="min-h-screen bg-[#fdf0f4] pb-6">

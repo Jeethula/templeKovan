@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import {  Download } from 'lucide-react';
+import {  BookDown, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -331,7 +331,7 @@ export default function ReportsPage() {
     return (
         <div className="bg-[#fdf0f4] container min-h-screen min-w-screen mx-auto p-6 space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-xl text-[#663399] font-bold">Reports Dashboard</h1>
+                <h1 className="text-xl flex items-center gap-x-2 text-[#663399] font-bold"> <BookDown/>Reports</h1>
                 <Button
                     onClick={exportToCSV}
                     disabled={!reportData}

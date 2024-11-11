@@ -239,39 +239,41 @@ export default function HomePage() {
               ))}
             </div>
           ) : services.length > 0 ? (
-            services.map((service) => (
-              <div
-                key={service.id}
-                onClick={handleservices}
-                className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden"
-              >
-                {service.image ? (
-                  <div className="relative h-32 w-full">
-                    <Image
-                      src={service.image}
-                      alt={service.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="h-28"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
-                      <h1 className="font-semibold text-lg text-white">
-                        {service.name}
-                      </h1>
+            services
+              .filter(service => service.id !== "cm39vec3p0000ooi3pkdquuov")
+              .map((service) => (
+                <div
+                  key={service.id}
+                  onClick={handleservices}
+                  className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden"
+                >
+                  {service.image ? (
+                    <div className="relative h-32 w-full">
+                      <Image
+                        src={service.image}
+                        alt={service.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="h-28"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
+                        <h1 className="font-semibold text-lg text-white">
+                          {service.name}
+                        </h1>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="p-4">
-                    <h3 className="font-semibold text-black text-lg mb-2">
-                      {service.name}
-                    </h3>
-                    <p className="text-gray-600 line-clamp-3">
-                      {service.description}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))
+                  ) : (
+                    <div className="p-4">
+                      <h3 className="font-semibold text-black text-lg mb-2">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-600 line-clamp-3">
+                        {service.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))
           ) : (
             <div className="w-full text-center text-gray-500">
               No services available

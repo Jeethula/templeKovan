@@ -57,7 +57,7 @@ const Navbar = () => {
     ...(role.includes('approver') ? [
       { name: 'Seva Management', path: '/serviceManagement', icon: <LucideUserCheck2  className="text-lg" /> },
     ] : []),
-    ...(role.includes('posuser') ? [{ name: 'POS User', path: '/posuser', icon: <LucideUsers2  className="text-lg" /> }] : []),
+    ...(role.includes('posuser') ? [{ name: 'POS', path: '/posuser', icon: <LucideUsers2  className="text-lg" /> }] : []),
   ];
 
   return (
