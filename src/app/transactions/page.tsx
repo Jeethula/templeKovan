@@ -177,8 +177,8 @@ const MyDocument: React.FC<{
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Seva Date</Text>
-          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
+          <Text style={styles.label}>{rowData.serviceDate ? "Service Date" : "Donation Date"}</Text>
+          <Text style={styles.value}>{rowData.serviceDate?(new Date(rowData.serviceDate).toLocaleDateString('en-GB')):(new Date(rowData.createdAt).toLocaleDateString('en-GB'))}</Text>
         </View>
 
         <View style={styles.row}>
