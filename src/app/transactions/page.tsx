@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Button } from "@/components/ui/button";
 import {Clock, Download, Search , ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { FaRupeeSign } from 'react-icons/fa';
 
 type Service = {
   id: string;
@@ -183,7 +184,7 @@ const MyDocument: React.FC<{
 
         <View style={styles.row}>
           <Text style={styles.label}>Offering Amount</Text>
-          <Text style={styles.value}>₹{rowData.price}</Text>
+          <Text style={styles.value}>{rowData.price} INR</Text>
         </View>
 
         <View style={styles.row}>
@@ -200,7 +201,7 @@ const MyDocument: React.FC<{
 
         <View style={styles.row}>
           <Text style={styles.label}>Approver Contact</Text>
-          <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+          <Text style={styles.value}>{approvedByData?.phoneNumber||"Not Approved Yet"}</Text>
         </View>
 
         <View style={[styles.row, { borderBottom: 'none' }]}>
@@ -277,7 +278,7 @@ const MyDocumentForPos: React.FC<{
 
         <View style={styles.row}>
           <Text style={styles.label}>Offering Amount</Text>
-          <Text style={styles.value}>₹{rowData.price}</Text>
+          <Text style={styles.value}>{rowData.price} INR</Text>
         </View>
 
 

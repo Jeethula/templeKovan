@@ -20,7 +20,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   minAmount,
   maxCount
 }) => {
-  console.log(id);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDateCheckModalOpen, setIsDateCheckModalOpen] = useState(false);
