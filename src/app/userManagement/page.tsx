@@ -41,49 +41,68 @@ type UserDetail = {
   phone?: string;
 };
 
+const toTitleCase = (str: string) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => (
   <div 
     onClick={onClick}
-    className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:bg-gray-50 touch-manipulation"
+    className="bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all 
+      active:bg-gray-50 touch-manipulation md:p-4"
   >
-    <div className="flex items-start gap-2">
-      <div className="w-8 h-8 shrink-0 bg-[#663399] rounded-full flex items-center justify-center text-white text-xs font-semibold">
-        {user.firstName[0]}{user.lastName[0]}
+    <div className="flex items-center gap-3 md:gap-4"> {/* Changed items-start to items-center */}
+      {/* Avatar - adjusted sizing and centering */}
+      <div className="self-start w-10 h-10 md:w-12 md:h-12 shrink-0 bg-[#663399] rounded-full 
+        flex items-center justify-center text-white text-sm md:text-base font-semibold">
+        {toTitleCase(user.firstName)[0]}{toTitleCase(user.lastName)[0]}
       </div>
+
+      {/* Content */}
       <div className="min-w-0 flex-1">
-        <h3 className="font-semibold text-sm text-gray-800 truncate">
-          {`${user.firstName} ${user.lastName}`}
+        <h3 className="font-semibold text-sm md:text-base text-gray-800 truncate">
+          {`${toTitleCase(user.firstName)} ${toTitleCase(user.lastName)}`}
         </h3>
-        <div className="mt-1 space-y-1">
+        <div className="mt-1 space-y-1.5 md:mt-2 md:space-y-2">
           {user.Phone ? (
             <div className="flex items-center gap-1.5 text-gray-600">
-              <MdPhone className="text-[#663399] shrink-0 w-3.5 h-3.5" />
-              <a href={`tel:${user.Phone}`} className="text-xs truncate hover:text-[#663399]">
+              <MdPhone className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
+              <a href={`tel:${user.Phone}`} 
+                className="text-xs md:text-sm truncate hover:text-[#663399]">
                 {user.Phone}
               </a>
-              <a 
-                href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
+              <a href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-green-500 hover:text-green-600 touch-manipulation"
-              >
-                <IoLogoWhatsapp className="w-3.5 h-3.5" fill='green' />
+                className="text-green-500 hover:text-green-600 touch-manipulation">
+                <IoLogoWhatsapp className="w-3.5 h-3.5 md:w-4 md:h-4" fill='green' />
               </a>
             </div>
           ) : user.email && (
             <div className="flex items-center gap-1.5 text-gray-600">
-              <MdEmail className="text-[#663399] shrink-0 w-3.5 h-3.5" />
-              <span className="text-xs truncate">{user.email}</span>
+              <MdEmail className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="text-xs md:text-sm truncate">{user.email}</span>
             </div>
           )}
           <div className="flex gap-1.5 text-gray-600">
-            <HiLocationMarker className="text-[#663399] shrink-0 w-3.5 h-3.5 mt-0.5" />
-            <div className="text-xs space-y-0.5 flex-1 min-w-0">
+            <HiLocationMarker className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4 mt-0.5" />
+            <div className="text-xs md:text-sm space-y-0.5 flex-1 min-w-0">
               <div className="truncate">
-                {[user.address1, user.address2].filter(Boolean).join(', ')}
+                {[user.address1, user.address2]
+                  .filter(Boolean)
+                  .map(addr => toTitleCase(addr))
+                  .join(', ')}
               </div>
               <div className="truncate">
-                {[user.city, user.state, user.pincode].filter(Boolean).join(', ')}
+                {[user.city, user.state, user.pincode]
+                  .filter(Boolean)
+                  .map(item => toTitleCase(item))
+                  .join(', ')}
               </div>
             </div>
           </div>
@@ -94,26 +113,21 @@ const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user,
 );
 
 const SkeletonCard = () => (
-  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-pulse">
-    <div className="flex items-start space-x-3">
-      <div className="w-10 h-10 bg-gray-200 rounded-full shrink-0" />
-      <div className="flex-1 space-y-3">
-        {/* Name */}
-        <div className="h-4 bg-gray-200 rounded w-3/4" />
-        
-        {/* Contact Info */}
-        <div className="space-y-2">
+  <div className="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-gray-100 animate-pulse">
+    <div className="flex items-start space-x-3 md:space-x-4">
+      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-full shrink-0" />
+      <div className="flex-1 space-y-3 md:space-y-4">
+        <div className="h-4 md:h-5 bg-gray-200 rounded w-3/4" />
+        <div className="space-y-2 md:space-y-3">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-gray-200 rounded" />
-            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-200 rounded" />
+            <div className="h-3 md:h-4 bg-gray-200 rounded w-1/2" />
           </div>
-          
-          {/* Address */}
           <div className="flex space-x-2">
-            <div className="w-4 h-4 bg-gray-200 rounded" />
-            <div className="space-y-1 flex-1">
-              <div className="h-3 bg-gray-200 rounded w-full" />
-              <div className="h-3 bg-gray-200 rounded w-4/5" />
+            <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-200 rounded" />
+            <div className="space-y-1 md:space-y-2 flex-1">
+              <div className="h-3 md:h-4 bg-gray-200 rounded w-full" />
+              <div className="h-3 md:h-4 bg-gray-200 rounded w-4/5" />
             </div>
           </div>
         </div>
@@ -205,39 +219,41 @@ const PersonalInfoGrid: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#fdf0f4] min-h-screen">
-      <div className="max-w-sm mx-auto px-3 py-3 space-y-3">
-        {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-sm p-3">
-          <div className="space-y-3">
-            <h1 className="flex items-center gap-2 text-base font-semibold text-[#663399]">
-              <FaUserCog className="text-lg" />
+    <div className="min-h-screen bg-[#fdf0f4]">
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
+              <FaUserCog className="text-xl" />
               <span>Manage Users</span>
             </h1>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full px-3 py-2 pl-8 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-              />
-              <FaSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
-            </div>
-            {searchTerm && (
-              <div className="text-xs text-gray-500">
-                Found {filteredUsers.length} results
+            
+            <div className="w-full sm:w-96">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 rounded-lg text-sm border border-gray-200 
+                    focus:outline-none focus:border-[#663399] focus:ring-1 focus:ring-[#663399]"
+                />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               </div>
-            )}
+              {searchTerm && (
+                <div className="mt-2 text-sm text-gray-500">
+                  Found {filteredUsers.length} results
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 gap-2">
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {isLoading ? (
-            [...Array(3)].map((_, index) => (
-              <SkeletonCard key={index} />
-            ))
+            Array(8).fill(0).map((_, index) => <SkeletonCard key={index} />)
           ) : currentUsers.length > 0 ? (
             currentUsers.map((user) => (
               <UserCard
@@ -246,74 +262,48 @@ const PersonalInfoGrid: React.FC = () => {
                 onClick={() => router.push(`userManagement/${user.userid}`)}
               />
             ))
-          ) : searchTerm ? (
-            <div className="text-center py-6">
-              <p className="text-gray-500 text-base">No users found matching your search.</p>
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">
+                {searchTerm ? 'No users found matching your search.' : 'No users available.'}
+              </p>
             </div>
-          ) : null}
+          )}
         </div>
 
-        {/* Mobile-optimized Pagination */}
+        {/* Pagination */}
         {!isLoading && filteredUsers.length > itemsPerPage && (
-          <Pagination className="py-3">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-
-              {/* First page */}
-              <PaginationItem>
-                <PaginationLink 
-                  onClick={() => handlePageChange(1)}
-                  isActive={currentPage === 1}
-                >
-                  1
-                </PaginationLink>
-              </PaginationItem>
-
-              {/* Show dots if there are many pages before current page */}
-              {currentPage > 3 && <PaginationItem>...</PaginationItem>}
-
-              {/* Current page and surrounding pages */}
-              {Array.from({length: 3}, (_, i) => currentPage - 1 + i)
-                .filter(page => page > 1 && page < totalPages)
-                .map(page => (
-                  <PaginationItem key={page}>
+          <div className="flex justify-center py-6">
+            <Pagination>
+              <PaginationContent className="flex gap-1">
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className={`${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+                  />
+                </PaginationItem>
+                
+                {[...Array(totalPages)].map((_, index) => (
+                  <PaginationItem key={index + 1}>
                     <PaginationLink
-                      onClick={() => handlePageChange(page)}
-                      isActive={currentPage === page}
+                      onClick={() => handlePageChange(index + 1)}
+                      isActive={currentPage === index + 1}
+                      className="hover:bg-gray-100"
                     >
-                      {page}
+                      {index + 1}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-
-              {/* Show dots if there are many pages after current page */}
-              {currentPage < totalPages - 2 && <PaginationItem>...</PaginationItem>}
-
-              {/* Last page */}
-              {totalPages > 1 && (
+                
                 <PaginationItem>
-                  <PaginationLink
-                    onClick={() => handlePageChange(totalPages)}
-                    isActive={currentPage === totalPages}
-                  >
-                    {totalPages}
-                  </PaginationLink>
+                  <PaginationNext
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className={`${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+                  />
                 </PaginationItem>
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+              </PaginationContent>
+            </Pagination>
+          </div>
         )}
       </div>
     </div>

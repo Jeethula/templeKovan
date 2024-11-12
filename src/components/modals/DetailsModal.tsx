@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   description: string;
@@ -28,8 +29,7 @@ interface DetailsModalProps {
 const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen,minAmount, onClose, onSubmitSuccess,selectedMethod }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const userId: string = sessionData.id;
-  
-  
+  const router = useRouter();
   
   const [formData, setFormData] = useState<FormData>({
     description: '',
@@ -125,6 +125,7 @@ const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen,minAmount, 
           paymentMode: ''
         });
         onSubmitSuccess();
+        router.push('/transactions');
         
 
       } else {

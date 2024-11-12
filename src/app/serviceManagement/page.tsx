@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock, LucideUserCheck2 } from 'lucide-react';
+import { Clock, LucideUserCheck2, RotateCcw } from 'lucide-react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { FaSearch } from 'react-icons/fa';
@@ -256,14 +256,33 @@ const ServiceManagementGrid: React.FC = () => {
   return (
     <div className="bg-[#fdf0f4] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
-        {/* Header and Filters Section */}
+
+        {/* Rest of your existing filters and content */}
         <div className="bg-white rounded-xl shadow-sm p-4">
           <div className="space-y-4">
-            <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
-              <LucideUserCheck2 className="text-xl" />
-              <span>Manage Seva</span>
-            </h1>
+            {/* Header with Manage Seva and Reset Button */}
+            <div className="flex items-center justify-between">
+              <h1 className="flex items-center gap-2 text-lg font-semibold text-[#663399]">
+                <LucideUserCheck2 className="text-xl" />
+                <span>Manage Seva</span>
+              </h1>
+              
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('');
+                  setServiceTypeFilter('');
+                  setDateFilter('');
+                }}
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors text-[#663399]"
+                title="Reset filters"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span className="text-sm hidden sm:inline">Reset</span>
+              </button>
+            </div>
             
+            {/* Rest of the filters section */}
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="h-10 bg-gray-200 rounded animate-pulse" />
@@ -274,7 +293,8 @@ const ServiceManagementGrid: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Search bar - Full width on mobile */}
                 <div className="relative">
                   <input
                     type="text"
@@ -286,36 +306,55 @@ const ServiceManagementGrid: React.FC = () => {
                   <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 </div>
 
-                <div className='flex gap-x-2'>
+                {/* Filters with reset button */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <div className="flex-1 min-w-[150px]">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+                    >
+                      <option value="">All Status</option>
+                      <option value="APPROVED">Approved</option>
+                      <option value="PENDING">Pending</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                  </div>
 
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-1 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-                >
-                  <option value="">All Status</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
+                  <div className="flex-1 min-w-[150px]">
+                    <select
+                      value={serviceTypeFilter}
+                      onChange={(e) => setServiceTypeFilter(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+                    >
+                      <option value="">All Services</option>
+                      {uniqueServiceTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                <select
-                  value={serviceTypeFilter}
-                  onChange={(e) => setServiceTypeFilter(e.target.value)}
-                  className="w-full px-1 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-                >
-                  <option value="">All Services</option>
-                  {uniqueServiceTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                  <div className="w-full sm:w-auto">
+                    <input
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="w-full sm:w-[130px] px-3 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
+                    />
+                  </div>
 
-                <input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-28 px-4 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-                />
+                  {/* <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setStatusFilter('');
+                      setServiceTypeFilter('');
+                      setDateFilter('');
+                    }}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    title="Reset filters"
+                  >
+                    <RotateCcw className="w-5 h-5 text-[#663399]" />
+                  </button> */}
                 </div>
               </div>
             )}

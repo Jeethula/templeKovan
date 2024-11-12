@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Button } from "@/components/ui/button";
 import {Clock, Download, Search , ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
@@ -363,6 +362,8 @@ const TransactionsPage = () => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -383,34 +384,21 @@ const TransactionsPage = () => {
     }
   };
 
-  const handleServiceChange = (value: string) => {
-    setCurrentPage(1); // Reset to first page
-    if (value === "All") {
-      setFilteredHistory(history);
-      return;
-    }
-    const filtered = history.filter(service => 
-      service.nameOfTheService.name.toLowerCase() === value.toLowerCase()
-    );
-    setFilteredHistory(filtered);
-  };
-
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
     setSearchTerm(term);
     
-    // Filter the complete history dataset
+    // Filter the complete history dataset with null checks
     const filtered = history.filter(service => 
-      service.nameOfTheService.name.toLowerCase().includes(term) ||
-      service.transactionId.toLowerCase().includes(term) ||
-      service.description.toLowerCase().includes(term) ||
-      service.status.toLowerCase().includes(term) ||
-      service.paymentMode.toLowerCase().includes(term) ||
-      new Date(service.serviceDate).toLocaleDateString().toLowerCase().includes(term) ||
-      service.price.toString().includes(term)
+      (service.nameOfTheService?.name?.toLowerCase() || '').includes(term) ||
+      (service.transactionId?.toLowerCase() || '').includes(term) ||
+      (service.description?.toLowerCase() || '').includes(term) ||
+      (service.status?.toLowerCase() || '').includes(term) ||
+      (service.paymentMode?.toLowerCase() || '').includes(term) ||
+      (service.serviceDate && new Date(service.serviceDate).toLocaleDateString().toLowerCase().includes(term)) ||
+      service.price?.toString().includes(term)
     );
     
-    // Update filtered results and reset to first page
     setFilteredHistory(filtered);
     setCurrentPage(1);
   };
@@ -530,6 +518,18 @@ const TransactionsPage = () => {
     );
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const searchContainer = document.getElementById('search-container');
+      if (searchContainer && !searchContainer.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 px-4 py-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -540,34 +540,72 @@ const TransactionsPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="space-y-3">
+        <div id="search-container" className="relative">
           <div className="relative">
             <input
               type="text"
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={handleSearch}
+              onFocus={() => setShowFilters(true)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-purple-200 rounded-xl 
                        focus:border-purple-400 focus:ring-2 focus:ring-purple-100 bg-white/80
                        backdrop-blur-sm transition-all duration-200"
             />
             <Search className="absolute left-3 top-3 h-4 w-4 text-purple-400" />
           </div>
-
-            <Select onValueChange={handleServiceChange}>
-            <SelectTrigger className="w-full border border-purple-200 text-sm">
-              <SelectValue placeholder="Filter by service" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Services</SelectItem>
-              {Array.from(new Set(history.map(service => service.nameOfTheService.name))).map(serviceName => (
-              <SelectItem key={serviceName} value={serviceName}>
-                {serviceName}
-              </SelectItem>
-              ))}
-            </SelectContent>
-            </Select>
+          
+          {showFilters && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-xl border 
+                            border-purple-100 shadow-lg p-3">
+              <div className="flex flex-wrap gap-2">
+                {["All", ...Array.from(new Set(history.map(service => 
+                  service.nameOfTheService.name)))].map((serviceName) => (
+                  <button
+                    key={serviceName}
+                    onClick={() => {
+                      setActiveFilter(serviceName);
+                      if (serviceName === "All") {
+                        setFilteredHistory(history);
+                      } else {
+                        setFilteredHistory(history.filter(service => 
+                          service.nameOfTheService.name === serviceName
+                        ));
+                      }
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+                      ${activeFilter === serviceName 
+                        ? 'bg-gray-100 border-[0.5px] border-purple-600  text-black shadow-sm' 
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-purple-50'}`}
+                  >
+                    {serviceName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Add selected filter badge */}
+        {activeFilter !== "All" && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm 
+                          bg-purple-100 text-purple-700 border border-purple-200">
+              {activeFilter}
+              <button
+                onClick={() => {
+                  setActiveFilter("All");
+                  setFilteredHistory(history);
+                  setCurrentPage(1);
+                }}
+                className="ml-1 hover:text-purple-900"
+              >
+                <RxCross1 className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Transaction Cards */}
         <div className="space-y-4">

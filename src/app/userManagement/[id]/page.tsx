@@ -155,7 +155,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     fetchData();
   }, []);
 
-  // if (loading) return <div className="text-center mt-10"><LoadingPageUi /><p>Loading user profile...</p></div>;
+  // if (loading) return <div className="text-center mt-10"><LoadingPageUi /></div>;
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
   const getChanges = (current: Profile | HistoryItem, previous: Profile | HistoryItem): Change[] => {
@@ -222,16 +222,14 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     };
 
     return (
-      <div className="bg-white p-6 rounded-xl shadow-lg mb-6 relative">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg mb-4 sm:mb-6 relative">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg sm:text-xl font-semibold flex items-center text-[#663399] mr-4">
+          <h3 className="text-base sm:text-lg font-semibold flex items-center text-[#663399] mr-4">
             {section === 'personalInfo' ? (
-              <>
-                Personal Information
-              </>
+              'Personal Information'
             ) : (
               <>
-                <PiMapPinFill size={24} className="mr-2" fill="currentColor" />
+                <PiMapPinFill className="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="currentColor" />
                 Address Information
               </>
             )}
@@ -241,46 +239,58 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               onClick={() => setEditedValues(Object.fromEntries(
                 fields.map(field => [field, getValue(field)])
               ))} 
-              className="text-blue-500 hover:text-blue-600 flex-shrink-0"
+              className="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors"
             >
-              <Pencil size={20} />
+              <Pencil className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
         </div>
+
         {Object.keys(editedValues).length > 0 ? (
           <>
             {fields.map(field => (
-              <div key={field} className="mb-4">
+              <div key={field} className="mb-3">
                 <input
                   type="text"
                   id={field}
                   ref={(el: HTMLInputElement | null) => { inputRefs.current[field] = el; }}
                   value={editedValues[field] || getValue(field)}
                   onChange={(e) => handleInputChange(field, e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg
+                    focus:outline-none focus:ring-2 focus:ring-[#663399] focus:border-transparent
+                    transition-shadow"
                 />
               </div>
             ))}
-            <div className="flex justify-end mt-4">
-             
-              <button onClick={() => setEditedValues({})} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg mr-2">
+            <div className="flex justify-end gap-2 mt-4">
+              <button 
+                onClick={() => setEditedValues({})} 
+                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500 hover:bg-red-600 
+                  text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 
+                  focus:ring-offset-2"
+              >
                 Cancel
               </button>
-              <button onClick={handleSave} className="bg-green-600 hover:bg-green-600 text-white font-bold py-1 px-3 rounded-lg ">
+              <button 
+                onClick={handleSave} 
+                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 
+                  text-white transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 
+                  focus:ring-offset-2"
+              >
                 Save
               </button>
             </div>
           </>
         ) : (
-          <>
+          <div className="space-y-2">
             {fields.map(field => (
-              <p key={field} className="text-gray-700 mb-2 flex items-center">
+              <p key={field} className="flex items-center text-sm sm:text-base text-gray-700 py-1">
                 {getIcon(field)}
                 {field === 'phone' ? (
                   <span className="flex items-center gap-2">
                     <a
                       href={`tel:${formatPhoneNumber(getValue(field))}`}
-                      className="text-blue-600 hover:text-blue-800 underline"
+                      className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
                       {getValue(field)}
                     </a>
@@ -288,18 +298,17 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                       href={`https://wa.me/${formatPhoneNumber(getValue(field))}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-green-600 hover:text-green-700"
-                      title="Chat on WhatsApp"
+                      className="text-green-600 hover:text-green-700 p-1 hover:bg-green-50 rounded-full transition-colors"
                     >
-                      <BsWhatsapp size={20} />
+                      <BsWhatsapp className="w-4 h-4 sm:w-5 sm:h-5" />
                     </a>
                   </span>
                 ) : (
-                  getValue(field)
+                  <span className="ml-2">{getValue(field)}</span>
                 )}
               </p>
             ))}
-          </>
+          </div>
         )}
       </div>
     );
@@ -307,23 +316,24 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf0f4] to-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header Section */}
-        <div className="mb-12">
+        <div className="mb-6 sm:mb-8">
           <button
             onClick={() => router.push('/userManagement')}
-            className="group flex items-center text-[#663399] hover:text-[#663399]/80 transition-all duration-300 mb-6"
+            className="group flex items-center text-[#663399] hover:text-[#663399]/80 
+              transition-colors mb-4 text-sm sm:text-base"
           >
-            <ChevronLeft className="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform duration-300" />
-            <span className="text-lg">Back to Users</span>
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 transform group-hover:-translate-x-1 transition-transform" />
+            <span>Back to Users</span>
           </button>
-          <h1 className="text-3xl font-bold text-[#663399]">User Profile</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#663399]">User Profile</h1>
         </div>
 
         {loading ? (
           <LoadingPageUi />
         ) : profile ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Personal Information Section */}
             <EditableSection
               section="personalInfo"
@@ -353,19 +363,23 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             />
 
             {/* History Section remains the same */}
-            <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-8">
-              <h2 className="text-2xl font-semibold text-[#663399] mb-6">Profile History</h2>
-              <div className="space-y-4">
+            <div className="bg-white rounded-xl shadow-md border border-[#663399]/20 p-4 sm:p-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#663399] mb-4 sm:mb-6">
+                Profile History
+              </h2>
+              <div className="space-y-3 sm:space-y-4">
                 {history.length === 0 ? (
-                  <p className="text-gray-600">No changes recorded</p>
+                  <p className="text-gray-600 text-sm sm:text-base">No changes recorded</p>
                 ) : (
                   history.map((historyItem, index) => {
                     const previousProfile = index > 0 ? history[index - 1] : profile;
                     const changes = getChanges(historyItem, previousProfile as HistoryItem | Profile);
                     return (
-                      <div key={index} className="p-4 bg-[#fdf0f4] rounded-xl">
-                        <p className="text-sm font-medium text-[#663399] mb-2">
-                          {historyItem.createdAt ? new Date(historyItem.createdAt).toLocaleString() : 'Date not available'}
+                      <div key={index} className="p-3 sm:p-4 bg-[#fdf0f4] rounded-lg">
+                        <p className="text-xs sm:text-sm font-medium text-[#663399] mb-2">
+                          {historyItem.createdAt ? 
+                            new Date(historyItem.createdAt).toLocaleString() : 
+                            'Date not available'}
                         </p>
                         {changes.map((change, idx) => (
                           <p key={idx} className="text-gray-700">
@@ -380,7 +394,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             </div>
           </div>
         ) : (
-          <div className="text-center text-red-500">Profile not found</div>
+          <div className="text-center text-red-500 text-sm sm:text-base">Profile not found</div>
         )}
       </div>
     </div>

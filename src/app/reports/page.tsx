@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import toast from 'react-hot-toast';
 
 export interface ReportFilters {
     reportType: 'daily' | 'weekly' | 'monthly' | 'custom';
@@ -71,9 +72,17 @@ export interface ReportData {
     };
 }
 
+// Add this validation function at the top level
+const isDateInFuture = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date > today;
+};
+
+
 const DailyDatePicker = ({ date, onDateChange }: { date: Date, onDateChange: (date: Date) => void }) => {
     return (
-        <div className="flex flex-col gap-2">
+        <div className="w-full">
             <DatePicker
                 date={date}
                 onDateChange={onDateChange}
@@ -196,19 +205,24 @@ export default function ReportsPage() {
                     </div>
                 );
 
+            // Update weekly and monthly date display containers
             case 'weekly':
                 const weekStart = new Date(today.setDate(today.getDate() - 7));
                 return (
-                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm">
-                        {format(weekStart, "PPP")} - {format(new Date(), "PPP")}
+                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm w-full overflow-x-auto">
+                        <span className="whitespace-nowrap">
+                            {format(weekStart, "MMM d")} - {format(new Date(), "MMM d, yyyy")}
+                        </span>
                     </div>
                 );
 
             case 'monthly':
                 const monthStart = new Date(today.setDate(today.getDate() - 30));
                 return (
-                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm">
-                        {format(monthStart, "PPP")} - {format(new Date(), "PPP")}
+                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm w-full overflow-x-auto">
+                        <span className="whitespace-nowrap">
+                            {format(monthStart, "MMM d")} - {format(new Date(), "MMM d, yyyy")}
+                        </span>
                     </div>
                 );
 
@@ -218,28 +232,39 @@ export default function ReportsPage() {
                         <Button
                             variant={"outline"}
                             className={cn(
-                                "w-[300px] justify-start text-left font-normal",
+                                "w-full md:w-[300px] justify-start text-left font-normal text-sm",
                                 !dateRange && "text-muted-foreground"
                             )}
                         >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dateRange?.from ? (
-                                dateRange.to ? (
-                                    <>
-                                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                                        {format(dateRange.to, "LLL dd, y")}
-                                    </>
+                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                            <span className="truncate">
+                                {dateRange?.from ? (
+                                    dateRange.to ? (
+                                        <>
+                                            {format(dateRange.from, "LLL dd, y")} -{" "}
+                                            {format(dateRange.to, "LLL dd, y")}
+                                        </>
+                                    ) : (
+                                        format(dateRange.from, "LLL dd, y")
+                                    )
                                 ) : (
-                                    format(dateRange.from, "LLL dd, y")
-                                )
-                            ) : (
-                                <span>Pick a date range</span>
-                            )}
+                                    <span>Pick a date range</span>
+                                )}
+                            </span>
                         </Button>
                         <DatePicker
                             date={dateRange?.from || date}
-                            onDateChange={(newDate) => setDateRange({ from: newDate, to: dateRange?.to })}
+                            onDateChange={(newDate) => {
+                                if (isDateInFuture(newDate)) {
+                                    toast.error("Cannot select future dates");
+                                    return;
+                                }
+                                setDateRange({ from: newDate, to: dateRange?.to });
+                            }}
                         />
+                        {dateRange?.from && isDateInFuture(dateRange.from) && (
+                            <p className="text-sm text-red-500">Future dates are not allowed</p>
+                        )}
                     </div>
                 );
         }
@@ -264,7 +289,7 @@ export default function ReportsPage() {
 
         return (
             <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Card>
                         <CardHeader>
                             <CardTitle>Total Services</CardTitle>
@@ -329,13 +354,13 @@ export default function ReportsPage() {
     };
 
     return (
-        <div className="bg-[#fdf0f4] container min-h-screen min-w-screen mx-auto p-6 space-y-6">
+        <div className="bg-[#fdf0f4] min-h-screen w-full p-6 space-y-6 overflow-x-hidden">
             <div className="flex justify-between items-center">
                 <h1 className="text-xl flex items-center gap-x-2 text-[#663399] font-bold"> <BookDown/>Reports</h1>
                 <Button
                     onClick={exportToCSV}
                     disabled={!reportData}
-                    className="flex items-center gap-2 bg-[#663399] text-white"
+                    className="flex items-center gap-2 bg-[#663399] hover:bg-violet-600 text-white"
                 >
                     <Download className="h-4 w-4" />
                     Export CSV
@@ -344,8 +369,9 @@ export default function ReportsPage() {
 
             <Card>
                 <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Date Type Selection - Full width on small, half on medium */}
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
                             <Tabs value={filters.reportType} onValueChange={(value: string) => setFilters(prev => ({ ...prev, reportType: value as 'daily' | 'weekly' | 'monthly' | 'custom' }))}>
                                 <TabsList className="grid w-full grid-cols-4">
                                     <TabsTrigger value="daily">Daily</TabsTrigger>
@@ -356,44 +382,54 @@ export default function ReportsPage() {
                             </Tabs>
                         </div>
 
-                        <div>
+                        {/* Date Selector - Full width on small, half on medium */}
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
                             {renderDateSelector()}
                         </div>
 
-                        <Select value={selectedService} onValueChange={setSelectedService}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Service" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Services</SelectItem>
-                                {services.map((service) => (
-                                    <SelectItem key={service.id} value={service.id}>
-                                        {service.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {/* Service Select - Full width on small, half on medium */}
+                        <div className="col-span-1 sm:col-span-1 lg:col-span-1">
+                            <Select value={selectedService} onValueChange={setSelectedService}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Service" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Services</SelectItem>
+                                    {services.map((service) => (
+                                        <SelectItem key={service.id} value={service.id}>
+                                            {service.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                        <Select value={selectedPosUser} onValueChange={setSelectedPosUser}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select POS User" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All POS Users</SelectItem>
-                                {posUsers.map((user) => (
-                                    <SelectItem key={user.id} value={user.id}>
-                                        {user.personalInfo?.firstName} {user.personalInfo?.lastName}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {/* POS User Select - Full width on small, half on medium */}
+                        <div className="col-span-1 sm:col-span-1 lg:col-span-1">
+                            <Select value={selectedPosUser} onValueChange={setSelectedPosUser}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select POS User" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All POS Users</SelectItem>
+                                    {posUsers.map((user) => (
+                                        <SelectItem key={user.id} value={user.id}>
+                                            {user.personalInfo?.firstName} {user.personalInfo?.lastName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                        <button
-                            className="md:col-span-4 p-3 rounded-xl bg-[#663399] text-white"
-                            onClick={fetchReportData}
-                        >
-                            Generate Report
-                        </button>
+                        {/* Generate Report Button - Full width on all screens */}
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-4">
+                            <button
+                                className="md:w-fit md:h-fit md:px-6 md:py-3 w-full rounded-xl bg-[#663399] hover:bg-violet-600 text-white p-3"
+                                onClick={fetchReportData}
+                            >
+                                Generate Report
+                            </button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>

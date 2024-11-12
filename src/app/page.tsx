@@ -8,7 +8,7 @@ import Image from "next/image";
 import { FaHandHoldingHeart, FaOm, FaUsers } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
-import withProfileCheck from "../components/withProfileCheck"
+
 
 interface Post {
   id: string;
@@ -199,14 +199,13 @@ function HomePage() {
   };
 
   return (
-    <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2">
-      <div className="w-full">
-        {/* Welcome/Special Card Skeleton */}
-        {servicesLoading ? (
-          <div className="min-h-[200px] max-h-[200px] w-full rounded-lg mt-3">
-            <Skeleton className="w-full h-full" />
-          </div>
-        ) : (
+    <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2 md:px-6 lg:px-12">
+      {/* Content wrapper */}
+      <div className="w-full max-w-7xl mx-auto">
+        
+        {/* Welcome/Special Card section */}
+        <div className="md:grid md:grid-cols-2 md:gap-6 mt-3">
+          {/* Left card */}
           <AnimatePresence mode="wait">
             {(showingCard === 'welcome' || services.filter(service => !service.isSeva).length === 0) ? (
               <motion.div
@@ -214,11 +213,8 @@ function HomePage() {
                 initial={{ opacity: 0, x: -100 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 100 }}
-                transition={{ 
-                  duration: 1, // Keep transition smooth but quick
-                  ease: "easeInOut"
-                }}
-                className="min-w-screen min-h-[200px] max-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 mt-3"
+                transition={{ duration: 1, ease: "easeInOut" }}
+                className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 md:h-full"
               >
                 {/* Welcome card content */}
                 <div className="flex justify-between">
@@ -248,11 +244,8 @@ function HomePage() {
                 initial={{ opacity: 0, x: -100 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 100 }}
-                transition={{ 
-                  duration: 1,
-                  ease: "easeInOut"
-                }}
-                className="min-w-screen min-h-[200px] max-h-[200px] w-full rounded-lg shadow-lg mt-3"
+                transition={{ duration: 1, ease: "easeInOut" }}
+                className="min-h-[200px] w-full rounded-lg shadow-lg md:h-full"
               >
                 {(() => {
                   const specialEvents = services.filter(service => !service.isSeva);
@@ -299,25 +292,55 @@ function HomePage() {
               </motion.div>
             )}
           </AnimatePresence>
-        )}
-        <div className="text-black font-semibold mt-4 text-xl">Quick Links</div>
-        <div className="flex gap-x-4 overflow-x-auto w-full py-4">
+
+          {/* Right side contribution section for desktop */}
+          <div className="hidden md:block">
+            <div className="h-full" onClick={handleContributeClick}>
+              <div className="bg-violet-500 rounded-xl p-6 h-full transform hover:scale-105 transition-all duration-300">
+                <div className="flex flex-col md:flex-row items-center gap-2">
+                  <div className="flex-1 text-white">
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaHandHoldingHeart className="text-3xl animate-pulse" />
+                      <h2 className="text-xl font-semibold">
+                        Together make a difference
+                      </h2>
+                    </div>
+                    <p className="mb-4 text-lg opacity-90">
+                      Even a small amount can help, as it can make a big impact
+                      in many ways
+                    </p>
+                    <button className="bg-white text-violet-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
+                      <FaUsers />
+                      Contribute now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Links section */}
+        <div className="text-black font-semibold mt-8 text-xl"> Book Seva</div>
+        <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 w-full py-4">
           {servicesLoading ? (
-            <div className="flex space-x-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-none w-64 h-48">
+            // Skeleton grid for desktop
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-48">
                   <Skeleton className="w-full h-full" />
                 </div>
               ))}
             </div>
-          ) : services.length > 0 ? (
+          ) : (
+            // Service cards with responsive grid
             services
               .filter(service => service.isSeva)
               .map((service) => (
                 <div
                   key={service.id}
                   onClick={handleservices}
-                  className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden"
+                  className="flex-none w-64 md:w-full bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   {service.image ? (
                     <div className="relative h-32 w-full">
@@ -346,18 +369,11 @@ function HomePage() {
                   )}
                 </div>
               ))
-          ) : (
-            <div className="w-full text-center text-gray-500">
-              No services available
-            </div>
           )}
         </div>
-        {/* Contribution Section Skeleton */}
-        {servicesLoading ? (
-          <div className="relative h-[200px] mt-2">
-            <Skeleton className="w-full h-full rounded-xl" />
-          </div>
-        ) : (
+
+        {/* Contribution section - visible only on mobile */}
+        <div className="md:hidden relative h-[200px] mt-6">
           <div className="relative h-[200px] overflow-hidden" onClick={handleContributeClick}>
             <div className="bg-violet-500 mt-2 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 ">
               <div className="flex flex-col md:flex-row items-center gap-2">
@@ -380,71 +396,79 @@ function HomePage() {
               </div>
             </div>
           </div>
-        )}
-      </div>
-      <h1 className="text-black font-semibold text-xl mt-4  mb-4">
-        Latest Announcemet
-      </h1>
-      <div className="w-full px-1">
-        {isLoading ? (
-          <div className="w-full px-1">
-            <div className="rounded-xl p-4">
-              <div className="flex items-center space-x-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-[250px]" />
-                  <Skeleton className="h-4 w-[200px]" />
+        </div>
+
+        {/* Latest Announcement section */}
+        <div className="md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          <div className="col-span-full">
+            <h1 className="text-black font-semibold text-xl mb-4">
+              Latest Announcement
+            </h1>
+          </div>
+          <div className="col-span-full lg:col-span-2">
+            <div className="w-full px-1">
+              {isLoading ? (
+                <div className="w-full px-1">
+                  <div className="rounded-xl p-4">
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                      </div>
+                    </div>
+                    <div className="space-y-3 mt-4">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-3 mt-4">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
+              ) : error ? (
+                <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+                  <p className="text-red-500">{error}</p>
+                </div>
+              ) : latestPost ? (
+                <div className="bg-white rounded-xl shadow-lg  p-4 mb-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold text-lg">
+                        {latestPost.author.personalInfo.firstName
+                          .charAt(0)
+                          .toUpperCase()}
+                      </div>
+                      <span className="font-semibold">
+                        {latestPost.author.personalInfo.firstName}
+                      </span>
+                    </div>
+                    <span className="text-gray-500 text-sm">
+                      {new Date(latestPost.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Link href={`/blog/${latestPost.id}`} className="block">
+                    <h3 className="text-xl font-bold mb-2 hover:text-purple-600">
+                      {latestPost.title}
+                    </h3>
+                    <p className="text-gray-600 line-clamp-2 mb-4">
+                      {latestPost.content}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>❤️ {latestPost.likes} likes</span>
+                    </div>
+                  </Link>
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+                  <p className="text-gray-500">No latest announcment available.</p>
+                </div>
+              )}
             </div>
           </div>
-        ) : error ? (
-          <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-            <p className="text-red-500">{error}</p>
-          </div>
-        ) : latestPost ? (
-          <div className="bg-white rounded-xl shadow-lg  p-4 mb-4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold text-lg">
-                  {latestPost.author.personalInfo.firstName
-                    .charAt(0)
-                    .toUpperCase()}
-                </div>
-                <span className="font-semibold">
-                  {latestPost.author.personalInfo.firstName}
-                </span>
-              </div>
-              <span className="text-gray-500 text-sm">
-                {new Date(latestPost.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            <Link href={`/blog/${latestPost.id}`} className="block">
-              <h3 className="text-xl font-bold mb-2 hover:text-purple-600">
-                {latestPost.title}
-              </h3>
-              <p className="text-gray-600 line-clamp-2 mb-4">
-                {latestPost.content}
-              </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span>❤️ {latestPost.likes} likes</span>
-              </div>
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-            <p className="text-gray-500">No latest announcment available.</p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-export default withProfileCheck(HomePage);
+export default HomePage;
 

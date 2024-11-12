@@ -26,7 +26,6 @@ interface Service {
 const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
   const { userId } = params;
   const [services, setServices] = useState<Service[]>([]);
-  // const [ setFilteredServices] = useState<Service[]>([]); // Filtered services
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
         const data = await response.json();
         
         setServices(data.services.filter((service: Service) => service.isActive));
-        // setFilteredServices(data.services.filter((service: Service) => service.isActive));
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -48,44 +46,46 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    
-    // if (term.trim() === '') {
-    //   // setFilteredServices(services);
-    // } else {
-    //   // const filtered = services.filter(service => 
-    //   //   service.name.toLowerCase().includes(term)
-    //   // );
-    //   // setFilteredServices(filtered);
-    // }
   };
 
-
   return (
-    <div className="px-4 py-8 min-w-screen w-full min-h-screen bg-[#fdf0f4]">
-      <h1 className="text-xl flex gap-x-3 font-semibold mb-4 text-[#663399] justify-center items-center"><FaPrayingHands /> Our Seva&apos;s</h1>
-        <div className="relative mb-4">
-          <input
-            type="text"
-            placeholder="Search sevas..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full px-4 py-2 pl-9 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-          />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 min-w-screen w-full min-h-screen bg-[#fdf0f4]">
+      <h1 className="text-lg sm:text-xl md:text-2xl flex gap-x-2 sm:gap-x-3 font-semibold mb-3 sm:mb-4 text-[#663399] justify-center items-center">
+        <FaPrayingHands className="w-5 h-5 sm:w-6 sm:h-6" /> 
+        <span>Our Seva&apos;s</span>
+      </h1>
+      
+      <div className="relative mb-3 sm:mb-4 max-w-xl mx-auto">
+        <input
+          type="text"
+          placeholder="Search sevas..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="w-full px-3 sm:px-4 py-2 pl-8 sm:pl-9 rounded-lg text-sm sm:text-base 
+                   border border-gray-200 focus:outline-none focus:border-[#663399]
+                   shadow-sm"
+        />
+        <FaSearch className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 
+                          text-gray-400 w-3 h-3 sm:w-4 sm:h-4" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 
+                    gap-4 sm:gap-6 md:gap-8 
+                    mx-auto max-w-7xl">
         {services
-          .filter(service => service.isActive&&service.name!='Contribution')
+          .filter(service => service.isActive && service.name !== 'Contribution')
           .map((service) => (
-            <ServiceCard
-              key={service.id}
-              userId={userId}
-              id={service.id}
-              title={service.name}
-              imageSrc={service.image}
-              description={service.description}
-              minAmount={service.minAmount}
-              maxCount={service.maxCount}/>
+            <div key={service.id} className="w-full">
+              <ServiceCard
+                userId={userId}
+                id={service.id}
+                title={service.name}
+                imageSrc={service.image}
+                description={service.description}
+                minAmount={service.minAmount}
+                maxCount={service.maxCount}
+              />
+            </div>
           ))}
       </div>
     </div>

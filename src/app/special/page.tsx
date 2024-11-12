@@ -71,54 +71,60 @@ const ServicesPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-3 min-w-screen min-h-screen mx-auto bg-[#fdf0f4]">
-      <div className="bg-white rounded-lg h-fit w-full max-w-[380px] p-4 flex flex-col gap-y-2 mb-4  mx-auto">
-        <h1 className='flex gap-x-3 font-semibold text-lg text-[#663399] items-center'>
-        <PiHandsPrayingBold />  Special Event&apos;s  
-        </h1> 
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search sevas..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full px-4 py-2 pl-9 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
-          />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+    <div className="px-4 lg:px-8 py-3 lg:py-6 min-w-screen min-h-screen mx-auto bg-[#fdf0f4]">
+      <div className="lg:max-w-7xl mx-auto">
+        {/* Header and Search Section */}
+        <div className="bg-white rounded-lg h-fit w-full max-w-[380px] lg:max-w-full p-4 lg:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 mx-auto">
+          <h1 className='flex gap-x-3 font-semibold text-lg lg:text-2xl text-[#663399] items-center'>
+            <PiHandsPrayingBold className="lg:text-2xl" /> Special Event&apos;s
+          </h1>
+          <div className="relative mt-2 lg:mt-0 lg:w-1/3">
+            <input
+              type="text"
+              placeholder="Search sevas..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full px-4 py-2 pl-9 rounded-lg text-sm lg:text-base border border-gray-200 focus:outline-none focus:border-[#663399]"
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          </div>
         </div>
-      </div>
       
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, index) => <SkeletonCard key={index} />)}
         </div>
       ) : filteredServices.filter(service => !service.isSeva).length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-[#663399]/20 w-full max-w-[380px] mx-auto">
-          <PiHandsPrayingBold className="h-12 w-12 text-[#663399]/50 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-600 mb-2">No Events Available</h3>
-          <p className="text-sm text-gray-500">
+        <div className="text-center py-12 bg-white rounded-xl border border-[#663399]/20 w-full max-w-[380px] lg:max-w-[600px] mx-auto">
+          <PiHandsPrayingBold className="h-12 w-12 lg:h-16 lg:w-16 text-[#663399]/50 mx-auto mb-4" />
+          <h3 className="text-lg lg:text-2xl font-medium text-gray-600 mb-2">No Events Available</h3>
+          <p className="text-sm lg:text-base text-gray-500 max-w-md mx-auto">
             There are currently no Special Event&apos;s available. Please contact the temple administration for more information.
           </p>
-          <p className="text-sm text-[#663399] mt-4">
+          <p className="text-sm lg:text-base text-[#663399] mt-4">
             Email: admin@temple.com
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredServices.filter((service) => !service.isSeva).map((service) => (
-            <ServiceCard
-              key={service.id}
-              id={service.id}
-              title={service.name}
-              imageSrc={service.image}
-              description={service.description}
-              minAmount={service.minAmount}
-              maxCount={service.maxCount}
-            />
-          ))}
+        <div className="w-full min-h-screen p-4 md:p-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            {filteredServices.filter((service) => !service.isSeva).map((service) => (
+              <div key={service.id} className="w-full">
+                <ServiceCard
+                  id={service.id}
+                  title={service.name}
+                  imageSrc={service.image}
+                  description={service.description}
+                  minAmount={service.minAmount}
+                  maxCount={service.maxCount}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
+  </div>
   );
 };
 

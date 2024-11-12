@@ -93,7 +93,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased bg-[#fdf0f4]`}>
         {/* Desktop Message */}
-        <div className="hidden sm:flex fixed inset-0 bg-violet-100 items-center justify-center flex-col p-4 text-center">
+        {/* <div className="sm:flex fixed inset-0 bg-violet-100 items-center justify-center flex-col p-4 text-center">
           <div className="max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-violet-900">
               Mobile Only Application
@@ -104,8 +104,8 @@ export default function RootLayout({
             </p>
             <div className="text-5xl">📱</div>
           </div>
-        </div>
-        <div className="sm:hidden">
+        </div> */}
+        <div className="max-w-screen min-w-screen">
           <ErrorBoundary>
             <Theme>
               <Suspense 
