@@ -31,7 +31,8 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
+  const [formattedDate, setFormattedDate] = useState<string>('');
+  
   const checkAvailability = async () => {
     if (!serviceDate) {
       setError('Please select a date');
@@ -42,17 +43,10 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
     setError('');
     
     try {
-      const formattedDate = serviceDate.toISOString().split('T')[0];
-      const selectedDate = new Date(serviceDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate < today) {
-        setError('The selected date is in the past');
-        toast.error('Selected date is not valid');
-        return;
-      }
-
+       setFormattedDate(new Date(serviceDate.getTime() - (serviceDate.getTimezoneOffset() * 60000))
+      .toISOString()
+      .split('T')[0]);
+      
       const response = await fetch('/api/services/datecheck', {
         method: 'POST',
         headers: {
@@ -163,7 +157,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DetailsModal
             serviceName={title}
-            date={serviceDate || new Date()}
+            date={formattedDate || new Date()}
             userId={userId}
             minAmount={minAmount}
             nameOfTheServiceId={id}

@@ -54,7 +54,6 @@ export async function POST(req: Request) {
                     isfirstTimeLogin: true,
                 }
             });
-            console.log(newUser);
             return NextResponse.json({ user: newUser, status: 200, success: "user created" });
         }
     } catch (e) {

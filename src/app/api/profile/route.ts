@@ -42,7 +42,6 @@ export async function GET(){
 export async function POST(req:Request){
     try{
         const body = await req.json();
-        console.log(body.id, "body");
         const details = await prisma.personalInfo.findUnique({
             where:{
                 userid:body?.id

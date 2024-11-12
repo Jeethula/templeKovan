@@ -22,8 +22,6 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  console.log(id);
-  console.log(title);
   
   // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setServiceDate(new Date(e.target.value));
@@ -34,14 +32,18 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
 
   const checkAvailability = async (): Promise<void> => {
     setIsLoading(true); 
+
+    
     try {
       if (!serviceDate) {
         setError('Please select a date');
         setIsLoading(false);
         return;
       }
-
-      const formattedDate = serviceDate.toISOString().split('T')[0];
+      const formattedDate = new Date(serviceDate.getTime() - (serviceDate.getTimezoneOffset() * 60000))
+      .toISOString()
+      .split('T')[0];
+      
       const requestBody = { 
         serviceDate: formattedDate, 
         nameOfTheServiceId: id 
@@ -57,8 +59,11 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
 
       const data = await response.json();
       if (data.isAvailable) {
-        const selectedDate = new Date(serviceDate);
-        router.push(`/services/${id}?date=${selectedDate.toISOString()}`);
+        const formattedDate = new Date(serviceDate.getTime() - (serviceDate.getTimezoneOffset() * 60000))
+          .toISOString()
+          .split('T')[0];
+        
+        router.push(`/services/${id}?date=${formattedDate}`);
       } else {
         setError('The selected date is not available');
       }
@@ -86,7 +91,6 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({ title, id, open, onClos
                 onSelect={(date: Date | undefined) => {
                   setServiceDate(date);
                   if (date) {
-                    // const formattedDate = date.toISOString().split('T')[0];
                     setError('');
                   }
                 }}

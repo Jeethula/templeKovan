@@ -23,7 +23,6 @@ export async function GET() {
                 createdAt: 'desc'
             }
         });
-        console.log(services);
         
         return NextResponse.json({ 
             success: true,

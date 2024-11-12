@@ -13,7 +13,7 @@ interface FormData {
 
 interface DetailsModalProps {
   nameOfTheServiceId: string;
-  date: Date| null;
+  date: string| null| Date;
   minAmount: number;
   serviceName: string;
   userId:string;
@@ -23,7 +23,6 @@ interface DetailsModalProps {
 const DetailsModal = ({ nameOfTheServiceId,serviceName, date,minAmount, onSubmitSuccess,userId  }: DetailsModalProps) => {
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const posUserId: string = sessionData.id;
-  
   
   
   
