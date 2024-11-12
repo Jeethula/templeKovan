@@ -557,7 +557,7 @@ const TransactionsPage = () => {
           </div>
           
           {showFilters && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-xl border 
+            <div className="absolute z-50 text-md top-full left-0 right-0 mt-1 bg-white rounded-xl border 
                             border-purple-100 shadow-lg p-3">
               <div className="flex flex-wrap gap-2">
                 {["All", ...Array.from(new Set(history.map(service => 
