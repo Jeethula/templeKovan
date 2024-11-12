@@ -421,10 +421,10 @@ export default function ReportsPage() {
                             </Select>
                         </div>
 
-                        {/* Generate Report Button - Full width on all screens */}
-                        <div className="col-span-1 sm:col-span-2 lg:col-span-4">
+                        {/* Generate Report Button - Full width on mobile, right-aligned on md and above */}
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex md:justify-end">
                             <button
-                                className="md:w-fit md:h-fit md:px-6 md:py-3 w-full rounded-xl bg-[#663399] hover:bg-violet-600 text-white p-3"
+                                className="md:w-fit w-full rounded-xl bg-[#663399] hover:bg-violet-600 text-white p-3 md:px-6 md:py-3"
                                 onClick={fetchReportData}
                             >
                                 Generate Report

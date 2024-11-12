@@ -322,7 +322,7 @@ export default function RoleManagementPage() {
 
         {/* Simplified Pagination */}
         {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-center gap-2 bg-white p-2 rounded-lg shadow-sm">
+          <div className="mt-4 flex items-center justify-center gap-2">
             <Button
               variant="outline"
               size="sm"

@@ -6,7 +6,6 @@ import { MdEmail, MdPhone } from 'react-icons/md';
 import { HiLocationMarker } from 'react-icons/hi';
 import { IoLogoWhatsapp } from 'react-icons/io';
 import {
-  Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
@@ -136,6 +135,90 @@ const SkeletonCard = () => (
   </div>
 );
 
+const Pagination: React.FC<{
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}> = ({ currentPage, totalPages, onPageChange }) => {
+  const getPageNumbers = () => {
+    const delta = window.innerWidth < 640 ? 1 : 2; // Show fewer pages on mobile
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  return (
+    <div>
+      <PaginationContent className="flex flex-wrap justify-center gap-1 px-4">
+        <PaginationItem>
+          <PaginationPrevious
+            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+            className={`
+              min-w-[40px] h-10 md:h-9
+              ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}
+              touch-manipulation
+            `}
+          />
+        </PaginationItem>
+
+        {getPageNumbers().map((pageNum, idx) => (
+          <PaginationItem key={idx}>
+            {pageNum === '...' ? (
+              <span className="px-3 py-2">...</span>
+            ) : (
+              <PaginationLink
+                onClick={() => onPageChange(Number(pageNum))}
+                isActive={currentPage === pageNum}
+                className="
+                  min-w-[40px] h-10 md:h-9
+                  hover:bg-gray-100 touch-manipulation
+                  text-sm md:text-base
+                "
+              >
+                {pageNum}
+              </PaginationLink>
+            )}
+          </PaginationItem>
+        ))}
+
+        <PaginationItem>
+          <PaginationNext
+            onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+            className={`
+              min-w-[40px] h-10 md:h-9
+              ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}
+              touch-manipulation
+            `}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </div>
+  );
+};
+
 const PersonalInfoGrid: React.FC = () => {
   const router = useRouter();
   const [userData, setUserData] = useState<PersonalInfo[]>([]);
@@ -251,7 +334,7 @@ const PersonalInfoGrid: React.FC = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {isLoading ? (
             Array(8).fill(0).map((_, index) => <SkeletonCard key={index} />)
           ) : currentUsers.length > 0 ? (
@@ -274,35 +357,11 @@ const PersonalInfoGrid: React.FC = () => {
         {/* Pagination */}
         {!isLoading && filteredUsers.length > itemsPerPage && (
           <div className="flex justify-center py-6">
-            <Pagination>
-              <PaginationContent className="flex gap-1">
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className={`${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-                  />
-                </PaginationItem>
-                
-                {[...Array(totalPages)].map((_, index) => (
-                  <PaginationItem key={index + 1}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(index + 1)}
-                      isActive={currentPage === index + 1}
-                      className="hover:bg-gray-100"
-                    >
-                      {index + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className={`${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         )}
       </div>

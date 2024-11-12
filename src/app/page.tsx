@@ -202,10 +202,110 @@ function HomePage() {
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2 md:px-6 lg:px-12">
       {/* Content wrapper */}
       <div className="w-full max-w-7xl mx-auto">
-        
-        {/* Welcome/Special Card section */}
-        <div className="md:grid md:grid-cols-2 md:gap-6 mt-3">
-          {/* Left card */}
+        {/* Desktop layout */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 mt-3">
+          {/* Welcome Card */}
+          <div className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4">
+            <div className="flex justify-between">
+              <div className="flex flex-col">
+                <h1 className="text-xl font-semibold text-gray-800">
+                  {getGreeting()}
+                </h1>
+                <h1 className="mt-2 text-gray-600 text-md font-normal">
+                  Welcome to Sri Renukka Akkama Temple&apos;s official place
+                </h1>
+              </div>
+              {isposuser ? (
+                <div onClick={handlePosMode} className="min-w-16 min-h-16 max-h-16 max-w-16 p-2 flex items-center text-center rounded-md bg-red-500 text-sm text-white font-medium">
+                  POS Mode
+                </div>
+              ) : (
+                <div><FaOm /></div>
+              )}
+            </div>
+            <h1 className="mt-4 text-gray-800 font-medium bg-violet-100 p-2 rounded-md">
+              &quot;{quote}&quot;
+            </h1>
+          </div>
+
+          {/* Special Events Card */}
+          <div className="min-h-[200px] w-full rounded-lg shadow-lg">
+            {(() => {
+              const specialEvents = services.filter(service => !service.isSeva);
+              const firstEvent = specialEvents[0];
+              
+              if (!firstEvent) return null;
+
+              return (
+                <div 
+                  onClick={handleSpecialclick} 
+                  className="bg-gradient-to-r from-[#FFD700] via-[#FDB931] to-[#FFD700] rounded-xl p-4 shadow-[0_0_15px_rgba(253,185,49,0.3)] h-full"
+                >
+                  <div className="relative h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="text-xl font-bold text-[#4A3800] tracking-wide">
+                        Special Event
+                      </h2>
+                      <div className="w-10 h-10 rounded-full bg-[#4A3800] flex items-center justify-center">
+                        <FaOm className="text-[#FFD700] text-xl" />
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col space-y-2">
+                      {firstEvent.image && (
+                        <div className="relative h-24 w-full overflow-hidden rounded-lg border-2 border-[#4A3800]/20">
+                          <Image
+                            src={firstEvent.image}
+                            alt={firstEvent.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="transition-transform duration-300 hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#4A3800]/60 to-transparent"></div>
+                        </div>
+                      )}
+                      <h3 className="font-bold text-lg text-[#4A3800] leading-tight">
+                        {firstEvent.name}
+                      </h3>
+                      <p className="text-[#4A3800]/80 text-sm line-clamp-2">
+                        {firstEvent.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Contribution section */}
+          <div className="h-full" onClick={handleContributeClick}>
+            <div className="bg-violet-500 rounded-xl p-6 h-full">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex-1 text-white">
+                  <div className="flex items-center gap-3 mb-4">
+                    <FaHandHoldingHeart className="text-3xl" />
+                    <h2 className="text-xl font-semibold">
+                      Together make a difference
+                    </h2>
+                  </div>
+                  <p className="mb-4 text-lg opacity-90">
+                    Even a small amount can help, as it can make a big impact
+                    in many ways
+                  </p>
+                  <button className="bg-white text-violet-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
+                    <FaUsers />
+                    Contribute now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile layout */}
+        <div className="md:hidden mt-2"> {/* Added mt-2 here */}
           <AnimatePresence mode="wait">
             {(showingCard === 'welcome' || services.filter(service => !service.isSeva).length === 0) ? (
               <motion.div
@@ -292,34 +392,9 @@ function HomePage() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Right side contribution section for desktop */}
-          <div className="hidden md:block">
-            <div className="h-full" onClick={handleContributeClick}>
-              <div className="bg-violet-500 rounded-xl p-6 h-full transform hover:scale-105 transition-all duration-300">
-                <div className="flex flex-col md:flex-row items-center gap-2">
-                  <div className="flex-1 text-white">
-                    <div className="flex items-center gap-3 mb-4">
-                      <FaHandHoldingHeart className="text-3xl animate-pulse" />
-                      <h2 className="text-xl font-semibold">
-                        Together make a difference
-                      </h2>
-                    </div>
-                    <p className="mb-4 text-lg opacity-90">
-                      Even a small amount can help, as it can make a big impact
-                      in many ways
-                    </p>
-                    <button className="bg-white text-violet-600 px-6 py-2 rounded-full font-bold hover:bg-purple-700 hover:text-white transition-colors flex items-center gap-2">
-                      <FaUsers />
-                      Contribute now
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
+        {/* Rest of your code remains the same */}
         {/* Quick Links section */}
         <div className="text-black font-semibold mt-8 text-xl"> Book Seva</div>
         <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 w-full py-4">
