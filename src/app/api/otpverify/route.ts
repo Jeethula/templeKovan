@@ -7,7 +7,6 @@ const BASE_URL = 'https://2factor.in/API/V1';
 
 export async function POST(req: NextRequest) {
   const { phoneNumber, action, otp } = await req.json();
-  console.log(phoneNumber,action,otp);
   
   if (action === 'send') {
     const otpValue = Math.floor(100000 + Math.random() * 900000).toString();

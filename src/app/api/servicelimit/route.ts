@@ -31,8 +31,6 @@ export async function PUT(req:NextRequest)
                 // abhisekamPrice:parseInt(abhisekamPrice)
             }
         });
-        console.log("Service limit updated successfully");
-        
         return NextResponse.json({serviceLimit, status:201});
     }
     catch(e){

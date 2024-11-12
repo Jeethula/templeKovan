@@ -228,9 +228,6 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const userId = url.searchParams.get("userId");
-
-    console.log(userId);
-    console.log(typeof userId);
     if (!userId) {
       return NextResponse.json({ error: "User ID is required", status: 400 });
     }
@@ -247,8 +244,6 @@ export async function GET(req: Request) {
           id: userId,
         },
       });
-
-      console.log(userDetails, "userDetails");
 
       if (!userDetails) {
         return NextResponse.json({ error: "User not found", status: 404 });

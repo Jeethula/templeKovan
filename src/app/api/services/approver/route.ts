@@ -69,7 +69,6 @@ export async function GET(req:NextRequest)
 export async function POST(req:NextRequest)
 {
     const {serviceId,status,approverId} = await req.json();
-    console.log(serviceId,status,approverId);
     
     if(!serviceId)
     {
@@ -119,7 +118,6 @@ export async function POST(req:NextRequest)
                 },
             }
         })
-        console.log("Status Updated Successfully");
         return NextResponse.json({message:"Status Updated Successfully",status:200})
     }
     catch(e)
