@@ -38,8 +38,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   return (
     <>
-      <div
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full"
+            <div
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full max-w-[380px] mx-auto "
         onClick={() => setIsServiceModalOpen(true)}
       >
         <div className="relative h-32">
@@ -56,7 +56,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
       {/* Service Details Modal */}
       <Dialog open={isServiceModalOpen} onOpenChange={setIsServiceModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] md:max-w-[525px] lg:max-w-[625px]">
           <div className="relative">
             <div className="relative h-64 w-full">
               <Image
@@ -90,7 +90,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               )}
 
               <button
-                className="mt-6 w-full bg-[rgb(102,51,153)] text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                className="mt-6 w-full bg-[#663399] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#6a32a5] transition-colors"
                 onClick={handleBook}
               >
                 Book Now
@@ -115,7 +115,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         open={showDetailsModal} 
         onOpenChange={(open) => !open && setShowDetailsModal(false)}
       >
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] ">
           <DetailsModal
             serviceName={title}
             date={null} 
