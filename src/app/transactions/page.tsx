@@ -5,7 +5,7 @@ import { RxCross1 } from 'react-icons/rx';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Button } from "@/components/ui/button";
 import {Clock, Download, Search , ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { FaRupeeSign } from 'react-icons/fa';
+// import { FaRupeeSign } from 'react-icons/fa';
 
 type Service = {
   id: string;
