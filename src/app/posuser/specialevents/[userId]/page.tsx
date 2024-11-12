@@ -1,8 +1,9 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { FaPrayingHands, FaSearch } from 'react-icons/fa';
+import {FaSearch } from 'react-icons/fa';
 import ServiceCard from '@/components/posusermodals/ServiceCard';
+import { PiHandsPrayingBold } from 'react-icons/pi';
 
 interface ServicesPageProps {
   params: {
@@ -35,7 +36,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
         const response = await fetch('/api/services/addservices');
         const data = await response.json();
         
-        setServices(data.services.filter((service: Service) => service.isActive&&service.isSeva===true&&service.name !== 'Contribution'));
+        setServices(data.services.filter((service: Service) => service.isActive&&service.isSeva===false&&service.name !== 'Contribution'));
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -52,8 +53,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
   return (
     <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 min-w-screen w-full min-h-screen bg-[#fdf0f4]">
       <h1 className="text-lg sm:text-xl md:text-2xl flex gap-x-2 sm:gap-x-3 font-semibold mb-3 sm:mb-4 text-[#663399] justify-center items-center">
-        <FaPrayingHands className="w-5 h-5 sm:w-6 sm:h-6" /> 
-        <span>Our Seva&apos;s</span>
+      <PiHandsPrayingBold className="lg:text-2xl" /> Special Event&apos;s
       </h1>
       
       <div className="relative mb-3 sm:mb-4 max-w-xl mx-auto">

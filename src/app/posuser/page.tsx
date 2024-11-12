@@ -38,11 +38,12 @@ const SkeletonUserCard = () => (
   </div>
 );
 
-const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToService }: {
+const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToService,goToEvents }: {
   user: User;
   showDetailsModal: boolean;
   setShowDetailsModal: (show: boolean) => void;
   goToService: (userId: string) => void;
+  goToEvents: (userId: string) => void;
 }) => {
   const [showContributionModal, setShowContributionModal] = useState(false);
 
@@ -55,7 +56,7 @@ const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToSer
         onOpenChange={(open) => !open && setShowDetailsModal(false)}
       >
         <DialogContent className="sm:max-w-[500px]">
-          <div className="p-6">
+          <div className="p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
@@ -86,17 +87,23 @@ const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToSer
 
               <div className="flex gap-4">
                 <button
-                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
+                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
                   onClick={() => setShowContributionModal(true)}
                 >
                   Contribution
                 </button>
 
                 <button
-                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
+                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
                   onClick={() => goToService(user.id)}
                 >
-                  Service
+                  Services
+                </button>
+                <button
+                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
+                  onClick={() => goToEvents(user.id)}
+                >
+                 Events
                 </button>
               </div>
             </div>
@@ -184,6 +191,10 @@ const PosUserPage = () => {
     router.push(`/posuser/services/${userId}`);
   };
 
+  const goToEvents = (userId: string) => {
+    router.push(`/posuser/specialevents/${userId}`);
+  };
+
   return (
     <div className="min-h-screen bg-[#fdf0f4] py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -267,6 +278,7 @@ const PosUserPage = () => {
             showDetailsModal={showDetailsModal}
             setShowDetailsModal={setShowDetailsModal}
             goToService={goToService}
+            goToEvents={goToEvents}
           />
         )}
       </div>
