@@ -6,6 +6,8 @@ const PROKERALA_API_BASE = 'https://api.prokerala.com/v2/astrology';
 
 const CLIENT_ID =process.env.NALLANERAM_CLIENT_ID
 const CLIENT_SECRET =process.env.NALLANERAM_CLIENT_SECRET
+console.log(CLIENT_ID);
+console.log(CLIENT_SECRET);
 
 
 export async function GET() {
@@ -79,12 +81,12 @@ async function getAccessToken() {
         client_secret: CLIENT_SECRET!,
       }),
     });
-
     if (!response.ok) {
       throw new Error('Failed to get access token');
     }
 
     const data = await response.json();
+    console.log(data);
     return data.access_token;
   } catch (error) {
     console.error('Error getting access token:', error);
