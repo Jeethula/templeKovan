@@ -9,6 +9,62 @@ import { FaHandHoldingHeart, FaOm, FaUsers } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// First, let's create skeleton components for each section
+
+// Welcome Card Skeleton
+const WelcomeCardSkeleton = () => (
+  <div className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4">
+    <div className="flex justify-between">
+      <div className="flex flex-col space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <Skeleton className="h-12 w-12 rounded-full" />
+    </div>
+    <Skeleton className="mt-4 h-24 w-full" />
+  </div>
+);
+
+// Special Events Card Skeleton
+const SpecialEventsCardSkeleton = () => (
+  <div className="min-h-[200px] w-full rounded-lg shadow-lg bg-[#FFD700]/20 p-4">
+    <div className="flex items-center justify-between mb-4">
+      <Skeleton className="h-8 w-40" />
+      <Skeleton className="h-10 w-10 rounded-full" />
+    </div>
+    <Skeleton className="h-24 w-full rounded-lg mb-4" />
+    <Skeleton className="h-6 w-3/4 mb-2" />
+    <Skeleton className="h-4 w-full" />
+  </div>
+);
+
+// Contribution Section Skeleton
+const ContributionSectionSkeleton = () => (
+  <div className="h-full">
+    <div className="bg-violet-500/20 rounded-xl p-6 h-full">
+      <div className="flex flex-col items-center gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-10 w-40" />
+      </div>
+    </div>
+  </div>
+);
+
+// Seva Cards Skeleton
+const SevaCardsSkeleton = () => (
+  <>
+    {[1, 2, 3, 4].map((i) => (
+      <div key={i} className="flex-none w-64 md:w-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <Skeleton className="h-32 w-full" />
+        <div className="p-4">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    ))}
+  </>
+);
 
 interface Post {
   id: string;
@@ -197,6 +253,34 @@ function HomePage() {
     if (hour < 16) return "Good Afternoon !";
     return "Good Evening !";
   };
+
+  if (isLoading || servicesLoading) {
+    return (
+      <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2 md:px-6 lg:px-12">
+        <div className="w-full max-w-7xl mx-auto">
+          {/* Desktop layout skeletons */}
+          <div className="hidden md:grid md:grid-cols-3 gap-6 mt-3">
+            <WelcomeCardSkeleton />
+            <SpecialEventsCardSkeleton />
+            <ContributionSectionSkeleton />
+          </div>
+
+          {/* Mobile layout skeleton */}
+          <div className="md:hidden mt-2">
+            <WelcomeCardSkeleton />
+          </div>
+
+          {/* Seva Cards skeleton */}
+          <div className="mt-8">
+            <Skeleton className="h-8 w-32 mb-4" />
+            <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 w-full py-4">
+              <SevaCardsSkeleton />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2 md:px-6 lg:px-12">

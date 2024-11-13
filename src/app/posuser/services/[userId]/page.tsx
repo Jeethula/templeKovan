@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { FaPrayingHands, FaSearch } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import ServiceCard from '@/components/posusermodals/ServiceCard';
 import { PiHandsPrayingBold } from 'react-icons/pi';
 

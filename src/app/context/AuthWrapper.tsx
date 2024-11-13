@@ -3,6 +3,8 @@ import { useAuth } from "./AuthContext";
 import Login from "../../components/Login";
 import OtpLogin from "../../components/OtpLogin";
 import { useState } from "react";
+import Image from "next/image";
+import  swastickacopy from "../../../public/Swastik.gif";
 
 export default function AuthWrapper({
   children,
@@ -15,7 +17,7 @@ export default function AuthWrapper({
   if (loading) {
     return (
       <div className="flex justify-center items-center bg-[#fdf0f4] w-full min-w-screen h-full min-h-screen">
-        <svg
+        {/* <svg
           className="mr-3 -ml-1 w-5 h-5 animate-spin balck"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -34,10 +36,12 @@ export default function AuthWrapper({
             fill="currentColor"
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
-        </svg>
-        <div className="font-bold text-black text-xl">
+        </svg> */}
+        <Image src={swastickacopy} alt="logo" width={400} height={400} />
+
+        {/* <div className="font-bold text-black text-xl">
           loading...
-        </div>
+        </div> */}
       </div>
     );
   }

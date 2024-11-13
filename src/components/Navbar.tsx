@@ -120,7 +120,7 @@ const Navbar = () => {
                   key={index}
                   href={item.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1
+                  className={`flex items-center space-x-3 px-3 py-3 rounded-lg mb-1
                     ${pathname === item.path ? 
                       'bg-[#663399]/10 text-[#663399] font-medium' : 
                       'text-gray-700 hover:bg-[#663399]/10'}`}
@@ -141,7 +141,7 @@ const Navbar = () => {
                     key={index}
                     href={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-lg mb-1
                       ${pathname === item.path ? 
                         'bg-[#663399]/10 text-[#663399] font-medium' : 
                         'text-gray-700 hover:bg-[#663399]/10'}`}

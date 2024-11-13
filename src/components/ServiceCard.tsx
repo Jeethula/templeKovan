@@ -40,7 +40,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full max-w-[380px] mx-auto"
         onClick={() => setIsServiceModalOpen(true)}
       >
-        <div className="relative h-32">
+        <div className="relative h-48">
           <Image
             src={imageSrc}
             alt={title}
