@@ -68,7 +68,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               />
             </div>
 
-            <div className="p-6">
+            <div className="mt-4">
               <h2 className="text-2xl font-bold mb-4">{title}</h2>
               <p className="text-gray-600 mb-6">{description}</p>
 
