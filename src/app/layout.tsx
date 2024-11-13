@@ -3,6 +3,7 @@ import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "@/components/Navbar";
+// import SearchNav from "@/components/SearchNav";
 import AuthWrapper from "../app/context/AuthWrapper";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";

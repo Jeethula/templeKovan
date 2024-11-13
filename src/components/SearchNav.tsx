@@ -11,7 +11,7 @@
 // import { HiOutlineSpeakerphone } from 'react-icons/hi';
 // import { MdOutlineAdminPanelSettings, MdOutlineEditCalendar, MdOutlineTempleHindu } from 'react-icons/md';
 
-// const Navbar = () => {
+// const SearchNav = () => {
 //   const pathname = usePathname();
 //   const { role, signOut } = useAuth();
 //   const [isOpen, setIsOpen] = useState(false);
@@ -263,4 +263,4 @@
 //   );
 // };
 
-// export default Navbar;
+// export default SearchNav;
