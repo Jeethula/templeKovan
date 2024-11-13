@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
                 posUser:{
                     select:{
                         id:true,
+                        phone:true,
                         personalInfo:{
                             select:{
                                 firstName:true,
