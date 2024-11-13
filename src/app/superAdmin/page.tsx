@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 // } from "@/components/ui/pagination"
 import toast from 'react-hot-toast';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
 
 // Define types
 interface PersonalInfo {
@@ -63,7 +64,13 @@ export default function RoleManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
 
+  const router = useRouter();
+
   useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (!sessionData.role?.includes('superadmin')) {
+      router.push('/unAuthorized');
+    }
     fetchUsers();
   }, []);
 

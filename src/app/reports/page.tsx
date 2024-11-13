@@ -11,6 +11,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export interface ReportFilters {
     reportType: 'daily' | 'weekly' | 'monthly' | 'custom';
@@ -119,7 +120,13 @@ export default function ReportsPage() {
         to: new Date(),
     });
 
+    const router = useRouter();
+
     useEffect(() => {
+        const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+        if (!sessionData.role?.includes('posuser') && !sessionData.role?.includes('Admin') && !sessionData.role?.includes('superadmin')) {
+          router.push('/unAuthorized');
+        }
         fetchServices();
         fetchPosUsers();
     }, []);

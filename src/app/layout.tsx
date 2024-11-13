@@ -106,7 +106,7 @@ export default function RootLayout({
             <div className="text-5xl">📱</div>
           </div>
         </div> */}
-        <div className="max-w-screen min-w-screen">
+        <div className="max-w-screen min-w-screen px-3 sm:px-0">
           <ErrorBoundary>
             <Theme>
               <Suspense 

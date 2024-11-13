@@ -5,6 +5,7 @@ import { FaSearch } from 'react-icons/fa';
 import ServiceCard from '@/components/posusermodals/ServiceCard';
 import { PiHandsPrayingBold } from 'react-icons/pi';
 import { MdOutlineTempleHindu } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
 
 interface ServicesPageProps {
   params: {
@@ -46,7 +47,13 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
+  const router = useRouter();
+
   useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (!sessionData.role?.includes('Admin')) {
+      router.push('/unAuthorized');
+    }
     const fetchServices = async () => {
       try {
         const response = await fetch('/api/services/addservices');
