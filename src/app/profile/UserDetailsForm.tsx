@@ -245,10 +245,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           country: userDetails.country,
           comments: userDetails.comments || "",
           salutation: userDetails.salutation,
-          avatarUrl: "",
           uniqueId: parseInt(userDetails?.unique_id),
           userId: userID,
-          email:  "",
+          email: email || ""  ,
           phone: userDetails.phone_number,
           isfirstTimeLogin:false,
         };
@@ -260,6 +259,14 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           },
           body: JSON.stringify(userDetailsToSend),
         });
+
+        const resBody = await res.json();
+            if(resBody.error === "Phone number already exists"){
+                toast.error("Phone number already exists");
+                toast.error("Failed to update details.");
+                return;
+            }
+
         if (res.status === 200) {
           toast.success("Details updated successfully!");
           if (onProfileCompletion) {
@@ -273,14 +280,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           //     },
           //     body: JSON.stringify(userDetailsToSend),
           // });
-        } else {
-            const resBody = await res.json();
-            if(resBody.error === "Phone number already exists"){
-                toast.error("Phone number already exists");
-                return;
-            }
-          toast.error("Failed to update details.");
-        }
+        } 
+            
+        
       } catch (error) {
         toast.error("Error: " + error);
       } finally {
@@ -411,9 +413,32 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name Section - Salutation and First Name in same row */}
-                <div>
-                  {renderField("unique_id", "Unique Id", userDetails, handleChange, isEditable, errors)}
-                </div>
+             { userDetails.unique_id && 
+  <div className="relative group flex items-center  gap-6">
+    <p className="text-sm text-gray-400">
+      Your Unique ID : <span className="text-gray-400 font-medium">{userDetails.unique_id}</span>
+    </p>
+    <div className="relative inline-block cursor-help">
+      <svg 
+        className="w-4 h-4 text-gray-400 hover:text-gray-600" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24" 
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          strokeWidth="2" 
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <div className="invisible group-hover:visible absolute left-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+        To modify your unique ID, please contact admin
+      </div>
+    </div>
+  </div>
+}
                 <div className="flex gap-3">
                   <div className="w-1/3">
                     {renderField("salutation", "Salutation", userDetails, handleChange, isEditable, errors, "select", [

@@ -152,6 +152,10 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   };
 
   useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (!sessionData.role?.includes('Admin')) {
+      router.push('/unAuthorized');
+    }
     fetchData();
   }, []);
 

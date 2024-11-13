@@ -9,8 +9,6 @@ import { FaHandHoldingHeart, FaOm, FaUsers } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// First, let's create skeleton components for each section
-
 // Welcome Card Skeleton
 const WelcomeCardSkeleton = () => (
   <div className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4">
@@ -99,6 +97,7 @@ function HomePage() {
   const [isposuser, setIsposuser] = useState<boolean>(false);
   const [quote, setQuote] = useState("");
   const [showingCard, setShowingCard] = useState<'welcome' | 'special'>('welcome');
+  // const [dragDirection, setDragDirection] = useState(0);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -166,6 +165,8 @@ function HomePage() {
     fetchLatestPost();
   }, []);
 
+
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -177,7 +178,7 @@ function HomePage() {
           //   router.push("/profile");
           // }
           if (
-            user.role.includes("Admin") ||
+            user.role.includes("Admin"  ) ||
             user.role.includes("approver") ||
             user.role.includes("posuser")
           ) {
@@ -389,18 +390,30 @@ function HomePage() {
         </div>
 
         {/* Mobile layout */}
-        <div className="md:hidden mt-2"> {/* Added mt-2 here */}
-          <AnimatePresence mode="wait">
+        <div className="md:hidden mt-2">
+          <AnimatePresence initial={false} mode="wait">
             {(showingCard === 'welcome' || services.filter(service => !service.isSeva).length === 0) ? (
               <motion.div
                 key="welcome"
-                initial={{ opacity: 0, x: -100 }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.7}
+                onDragEnd={(e, { offset }) => {
+                  if (offset.x > 100) {
+                    setShowingCard('special');
+                  }
+                }}
+                initial={{ opacity: 0, x: -300 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 100 }}
-                transition={{ duration: 1, ease: "easeInOut" }}
-                className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 md:h-full"
+                exit={{ opacity: 0, x: 300 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+                className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4 md:h-full cursor-grab active:cursor-grabbing"
               >
-                {/* Welcome card content */}
+                {/* Welcome card content remains the same */}
                 <div className="flex justify-between">
                   <div className="flex flex-col">
                     <h1 className="text-xl font-semibold text-gray-800">
@@ -425,12 +438,25 @@ function HomePage() {
             ) : (
               <motion.div
                 key="special-events"
-                initial={{ opacity: 0, x: -100 }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.7}
+                onDragEnd={(e, { offset }) => {
+                  if (offset.x < -100) {
+                    setShowingCard('welcome');
+                  }
+                }}
+                initial={{ opacity: 0, x: 300 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 100 }}
-                transition={{ duration: 1, ease: "easeInOut" }}
-                className="min-h-[200px] w-full rounded-lg shadow-lg md:h-full"
+                exit={{ opacity: 0, x: -300 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+                className="min-h-[200px] w-full rounded-lg shadow-lg md:h-full cursor-grab active:cursor-grabbing"
               >
+                {/* Special events card content remains the same */}
                 {(() => {
                   const specialEvents = services.filter(service => !service.isSeva);
                   const randomEvent = specialEvents[Math.floor(Math.random() * specialEvents.length)];
@@ -476,6 +502,12 @@ function HomePage() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Add swipe indicator */}
+          <div className="flex justify-center mt-2 gap-1">
+            <div className={`h-1 w-6 rounded-full transition-all ${showingCard === 'welcome' ? 'bg-violet-500' : 'bg-gray-300'}`} />
+            <div className={`h-1 w-6 rounded-full transition-all ${showingCard === 'special' ? 'bg-violet-500' : 'bg-gray-300'}`} />
+          </div>
         </div>
 
         {/* Rest of your code remains the same */}
@@ -494,7 +526,7 @@ function HomePage() {
           ) : (
             // Service cards with responsive grid
             services
-              .filter(service => service.isSeva)
+              .filter(service => service.isSeva && service.id !== 'cm39vec3p0000ooi3pkdquuov')
               .map((service) => (
                 <div
                   key={service.id}
