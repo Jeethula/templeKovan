@@ -3,7 +3,7 @@
 import { ArrowLeft, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-function page() {
+function Page() {
     const router = useRouter();
 
     return (
@@ -31,7 +31,7 @@ function page() {
                     You are not Authorized
                 </h1>
                 <p className="text-gray-600 mb-8">
-                    Sorry, you don't have permission to access this page. Please contact the administrator or go back.
+                    Sorry, you don&apos;t have permission to access this page. Please contact the administrator or go back.
                 </p>
 
                 {/* Action Buttons */}
@@ -56,4 +56,4 @@ function page() {
     );
 }
 
-export default page;
+export default Page;
