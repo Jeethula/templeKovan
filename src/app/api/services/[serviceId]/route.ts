@@ -37,7 +37,18 @@ export async function GET(req: NextRequest,{ params }: { params: Params })
                             }
                         }
                     },
-                
+                posUser:{
+                    select:{
+                        phone:true,
+                        email:true,
+                        personalInfo:{
+                            select:{
+                                firstName:true,
+                                lastName:true,
+                            }
+                        }
+                    }
+                },
                 transactionId:true,
                 paymentMode:true,
                 status:true,

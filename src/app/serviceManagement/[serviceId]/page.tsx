@@ -45,6 +45,14 @@ interface ServiceDetails {
       lastName: string;
     };
   };
+  posUser?:{
+    phone: string;
+    email: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+    };
+  }
 }
 
 const styles = StyleSheet.create({
@@ -184,7 +192,7 @@ const MyDocument: React.FC<{
 
         <View style={styles.row}>
           <Text style={styles.label}>Seva Date</Text>
-          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString()}</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString('en-GB')}</Text>
         </View>
 
         <View style={styles.row}>
@@ -207,6 +215,93 @@ const MyDocument: React.FC<{
         <View style={styles.row}>
           <Text style={styles.label}>Approver Contact</Text>
           <Text style={styles.value}>{approvedByData?.phoneNumber}</Text>
+        </View>
+
+        <View style={[styles.row, { borderBottom: 'none' }]}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{rowData.status}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          This is a computer generated receipt. No signature required.
+        </Text>
+        <Text style={styles.footerText}>
+          For any queries, please contact the temple office.
+        </Text>
+        {/* <Text style={styles.blessingText}>
+          
+        </Text> */}
+      </View>
+    </Page>
+  </Document>
+);
+
+const MyDocumentForPos: React.FC<{ 
+  rowData: ServiceDetails; 
+  userData: { 
+    id: string; 
+    email: string; 
+    phone: string 
+  }; 
+  posUserData:{
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }
+}> = ({ rowData, userData, posUserData }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.headerSection}>
+        <Text style={styles.mainTitle}>Sri Renuka Akkamma Temple</Text>
+        <Text style={styles.subtitle}></Text>
+        <View style={styles.decorativeLine} />
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.ornament}>☸</Text>
+        <Text style={styles.receiptTitle}>Seva Receipt</Text>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Devotee ID</Text>
+          <Text style={styles.value}>{userData.id}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact Details</Text>
+          <Text style={styles.value}>{userData.phone} | {userData.email}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Name</Text>
+          <Text style={styles.value}>{rowData.nameOfTheService.name}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Description</Text>
+          <Text style={styles.value}>{rowData.description}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Seva Date</Text>
+          <Text style={styles.value}>{new Date(rowData.serviceDate).toLocaleDateString('en-GB')}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Offering Amount</Text>
+          <Text style={styles.value}>{rowData.price} INR</Text>
+        </View>
+
+
+        <View style={styles.row}>
+          <Text style={styles.label}>POS User By</Text>
+          <Text style={styles.value}>{posUserData?.firstName} {posUserData?.lastName}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>POS Contact</Text>
+          <Text style={styles.value}>{posUserData?.phoneNumber}</Text>
         </View>
 
         <View style={[styles.row, { borderBottom: 'none' }]}>
@@ -418,22 +513,26 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                 <div className="grid gap-3 text-gray-700">
                   <div className="flex justify-between py-2 border-b border-gray-100">
                     <span>Service Date</span>
-                    <span>{new Date(service.serviceDate).toLocaleDateString()}</span>
+                    <span>{new Date(service.serviceDate).toLocaleDateString('en-GB')}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-gray-100">
                     <span>Price</span>
                     <span>₹{service.price.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span>Transaction ID</span>
-                    <span>{service.transactionId}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span>Payment Mode</span>
-                    <span>{service.paymentMode}</span>
-                  </div>
+
+                  {service.approvedBy?(
+                    <>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>Transaction ID</span>
+                        <span>{service.transactionId}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>Payment Mode</span>
+                        <span>{service.paymentMode}</span>
+                      </div>
+                  </>):null}
                   
-                  {service.status === "APPROVED" && service.approvedBy && (
+                  {service.status === "APPROVED" && service.approvedBy? (
                     <>
                       <div className="flex justify-between py-2 border-b border-gray-100">
                         <span>Approved By</span>
@@ -448,7 +547,22 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                         <span>{service.approvedBy.email}</span>
                       </div>
                     </>
-                  )}
+                  ):service.status==='APPROVED'&&service.posUser?(
+                    <>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>POS User Approved By</span>
+                        <span>{service.posUser.personalInfo.firstName} {service.posUser.personalInfo.lastName}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>POS User Contact</span>
+                        <span>{service.posUser.phone}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span>POS Email</span>
+                        <span>{service.posUser.email}</span>
+                      </div>
+                    </>
+                  ):null}
                 </div>
               </div>
 
@@ -496,7 +610,7 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
               >
                 Reject
               </Button>
-            </div>):service.approvedBy?(
+            </div>):service.status==='APPROVED'&&service.approvedBy?(
                                     <div className="mb-4 p-6">
                                     <PDFDownloadLink 
                                       document={
@@ -507,6 +621,31 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
                                             firstName: service.approvedBy.personalInfo.firstName,
                                             lastName: service.approvedBy.personalInfo.lastName,
                                             phoneNumber: service.approvedBy.phone
+                                          }}
+                                        />
+                                      }
+                                      fileName="Service_Details.pdf"
+                                    >
+                                      <button className="w-full flex items-center justify-center gap-1.5 text-purple-700 
+                                                     text-xs font-medium bg-purple-50 hover:bg-purple-100 px-3 py-2 
+                                                     rounded-full transition-colors duration-200">
+                                        <Download className="w-3 h-3" />
+                                        Download Receipt
+                                      </button>
+                                    </PDFDownloadLink>
+                                  </div>
+            ):
+            service.status==='APPROVED'&&service.posUser?(
+              <div className="mb-4 p-6">
+                                    <PDFDownloadLink 
+                                      document={
+                                        <MyDocumentForPos
+                                          rowData={service} 
+                                          userData={sessionData}
+                                          posUserData={{
+                                            firstName: service.posUser.personalInfo.firstName,
+                                            lastName: service.posUser.personalInfo.lastName,
+                                            phoneNumber: service.posUser.phone
                                           }}
                                         />
                                       }
