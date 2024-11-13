@@ -1,8 +1,8 @@
-// pages/api/checkuniqueid.ts
+
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const nallaneram = await prisma.nallaNeram.findMany({
       orderBy: {

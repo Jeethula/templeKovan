@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/utils/prisma';
 
-const prisma = new PrismaClient();
+
 const PROKERALA_API_BASE = 'https://api.prokerala.com/v2/astrology';
 
 const CLIENT_ID =process.env.NALLANERAM_CLIENT_ID
