@@ -7,7 +7,7 @@ import { FaBars, FaSignOutAlt, FaTimes } from 'react-icons/fa';
 import {  BookDown, Calendar, House, LucideUserCheck2, LucideUserCog2, LucideUsers2, Settings, UserRound, UserRoundPlus } from 'lucide-react';
 import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
-import { PiHandsPrayingBold} from 'react-icons/pi';
+import { PiCalendarStar, PiHandsPrayingBold} from 'react-icons/pi';
 import { HiOutlineSpeakerphone } from 'react-icons/hi';
 import { MdOutlineAdminPanelSettings, MdOutlineEditCalendar, MdOutlineTempleHindu } from 'react-icons/md';
 
@@ -39,9 +39,10 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: <House className="text-lg" /> },
     { name: `Seva`, path: '/services', icon: <PiHandsPrayingBold  size={23} className="text-lg " /> },
     { name: 'Special Events',path:'/special',icon:<MdOutlineTempleHindu className='text-lg' size={23}/>},
+    { name: 'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" size={23}  />},
+     {name:'Nalla Neram',path:'/nallaneram',icon:<PiCalendarStar className="text-lg" size={25}  />},
     { name: 'Profile', path: '/profile', icon: <UserRound className="text-lg" /> },
     { name: 'Announcements', path: '/blog', icon: <HiOutlineSpeakerphone className="text-lg" size={23} stroke='black' /> },
-    {name:'Contribution',path:'/contributions',icon:<RiMoneyRupeeCircleLine className="text-lg" size={23}  />},
   ];
 
   const menuItems = [
