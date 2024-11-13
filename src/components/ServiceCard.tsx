@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 import DateCheckModal from "../components/modals/DateCheckModal";
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ServiceCardProps {
   id: string;
@@ -20,15 +21,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   minAmount,
   maxCount
 }) => {
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isDateCheckModalOpen, setIsDateCheckModalOpen] = useState(false);
   const router = useRouter();
 
   const handleBook = () => {
+    setIsServiceModalOpen(false); // Close the service modal first
     if (maxCount) {
       setIsDateCheckModalOpen(true);
-
     } else {
       router.push(`/services/${id}`);
     }
@@ -36,9 +36,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   return (
     <>
-            <div
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full max-w-[380px] mx-auto  "
-        onClick={() => setIsModalOpen(true)}
+      <div
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105 w-full max-w-[380px] mx-auto"
+        onClick={() => setIsServiceModalOpen(true)}
       >
         <div className="relative h-48">
           <Image
@@ -52,23 +52,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <h3 className="text-sm font-semibold py-2 px-3 text-center truncate">{title}</h3>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
-          />
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 animate-modal-slide-up">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 z-10"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
+      {/* Service Details Modal */}
+      <Dialog open={isServiceModalOpen} onOpenChange={setIsServiceModalOpen}>
+        <DialogContent className="sm:max-w-[425px] md:max-w-[525px] lg:max-w-[625px]">
+          <div className="relative">
             <div className="relative h-64 w-full">
               <Image
                 src={imageSrc}
@@ -79,7 +66,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               />
             </div>
 
-            <div className="p-6">
+            <div className="mt-4">
               <h2 className="text-2xl font-bold mb-4">{title}</h2>
               <p className="text-gray-600 mb-6">{description}</p>
 
@@ -101,16 +88,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               )}
 
               <button
-                className="mt-6 w-full bg-violet-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-                onClick={() => handleBook()}
-
+                className="mt-6 w-full bg-[#663399] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#6a32a5] transition-colors"
+                onClick={handleBook}
               >
                 Book Now
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
+
       {isDateCheckModalOpen && (
         <DateCheckModal
           title={title}
