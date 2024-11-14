@@ -245,12 +245,12 @@ export default function AddSevas() {
     return (
         <div className="min-h-screen bg-[#fdf0f4]">
             <div className="px-4 max-w-3xl mx-auto pb-5 pt-5">
-                <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl flex items-center gap-x-2 font-bold text-[#663399]"> <Settings/> Mange Seva </h1>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h1 className="text-xl sm:text-2xl flex items-center gap-x-2 font-bold text-[#663399]"> <Settings/> Mange Seva </h1>
                     <button
                         onClick={openCreateModal}
-                        className="flex items-center bg-[#663399] hover:bg-[#663399]/90 h-12 rounded-xl shadow-sm
-                                     hover:shadow-md transition-all duration-200 text-white px-4 py-2"
+                        className="flex items-center justify-center w-full sm:w-auto bg-[#663399] hover:bg-[#663399]/90 
+                        h-10 sm:h-12 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-white px-3 sm:px-4 py-2"
                     >
                         <PlusCircle className="mr-2 h-5 w-5" />
                         Add New Seva
@@ -282,8 +282,8 @@ export default function AddSevas() {
                         services.filter(service => service.isSeva).map((service) => (
                             <div
                                 key={service.id}
-                                className="bg-white rounded-xl p-6 shadow-sm border border-[#663399]/20 hover:shadow-md
-                                             transition-all duration-200"
+                                className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-[#663399]/20 
+                                                hover:shadow-md transition-all duration-200"
                             >
                                 {/* Service card content */}
                                 <div className="flex items-center justify-between mb-4">
@@ -305,15 +305,15 @@ export default function AddSevas() {
                                 </div>
                                 
                                 {service.image && (
-                                    <div className="mb-4 rounded-lg overflow-hidden">
+                                    <div className="mb-3 sm:mb-4 rounded-lg overflow-hidden">
                                         <img 
                                             src={service.image} 
                                             alt={service.name}
-                                            className="w-full h-48 object-cover"
+                                            className="w-full h-32 sm:h-48 object-cover"
                                         />
                                     </div>
                                 )}
-                                <p className="text-sm text-gray-600 mb-4">{service.description}</p>
+                                <p className="text-xs sm:text-sm text-gray-600">{service.description}</p>
                             </div>
                         ))
                     )}
