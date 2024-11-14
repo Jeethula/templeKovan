@@ -1,5 +1,15 @@
 import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import prisma from "@/utils/prisma";
+
+// Add OPTIONS handler to support CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    headers: {
+      'Allow': 'GET, PUT, OPTIONS',
+    },
+  })
+}
 
 export async function GET() {
     try {
@@ -29,10 +39,17 @@ export async function GET() {
   }
   
   // Update user roles
-  export async function PUT(request: Request) {
+  export async function PUT(request: NextRequest) {
     try {
       const body = await request.json();
       const { userId, roles } = body;
+  
+      if (!userId || !roles) {
+        return NextResponse.json(
+          { error: 'Missing required fields' }, 
+          { status: 400 }
+        );
+      }
   
       const updatedUser = await prisma.user.update({
         where: { id: userId },
