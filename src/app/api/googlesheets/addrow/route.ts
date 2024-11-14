@@ -50,8 +50,6 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log("Append result:", appendResult.data);
-
     return NextResponse.json({ message: "Row added successfully!", updatedRange: appendResult.data.updates?.updatedRange });
   } catch (error) {
     console.error("Error adding row to Google Sheets:", error);

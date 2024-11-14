@@ -26,6 +26,7 @@ type Service = {
     transactionId: string;
     status: string;
     serviceDate: string;
+    createdAt: string;
 };
 
 const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ service, onClick }) => {
@@ -89,7 +90,7 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            {formatDate(service.serviceDate)}
+            {service.serviceDate?(formatDate(service.serviceDate)):(formatDate(service.createdAt))}
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +147,7 @@ const ServiceManagementGrid: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [serviceTypeFilter, setServiceTypeFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState<Date|null>(null);
   const [uniqueServiceTypes, setUniqueServiceTypes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20; // Changed to 20 items per page
@@ -157,7 +158,6 @@ const ServiceManagementGrid: React.FC = () => {
     if (!sessionData.role.includes('approver') ) {
       router.push('/unAuthorized');
     }
-    // const userId = sessionData.id;
     const fetchServices = async () => {
       setIsLoading(true);
       try {
@@ -187,7 +187,7 @@ const ServiceManagementGrid: React.FC = () => {
     const matchesSearch = service.nameOfTheService.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || service.status === statusFilter;
     const matchesType = !serviceTypeFilter || service.nameOfTheService.name === serviceTypeFilter;
-    const matchesDate = !dateFilter || new Date(service.serviceDate).toLocaleDateString().includes(dateFilter);
+    const matchesDate = !dateFilter || new Date(service.serviceDate).toLocaleDateString().includes(dateFilter.toLocaleDateString());
     return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
 
@@ -272,7 +272,7 @@ const ServiceManagementGrid: React.FC = () => {
                   setSearchTerm('');
                   setStatusFilter('');
                   setServiceTypeFilter('');
-                  setDateFilter('');
+                  setDateFilter(null);
                 }}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors text-[#663399]"
                 title="Reset filters"
@@ -337,24 +337,11 @@ const ServiceManagementGrid: React.FC = () => {
                   <div className="w-full sm:w-auto">
                     <input
                       type="date"
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value)}
+                      value={dateFilter ? dateFilter.toISOString().split('T')[0] : ''}
+                      onChange={(e) => setDateFilter(new Date(e.target.value))}
                       className="w-full sm:w-[130px] px-3 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
                     />
                   </div>
-
-                  {/* <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setStatusFilter('');
-                      setServiceTypeFilter('');
-                      setDateFilter('');
-                    }}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    title="Reset filters"
-                  >
-                    <RotateCcw className="w-5 h-5 text-[#663399]" />
-                  </button> */}
                 </div>
               </div>
             )}

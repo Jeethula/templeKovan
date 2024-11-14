@@ -436,7 +436,13 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
         body: JSON.stringify({ status, approverId: userId, serviceId}),
       });
       const data = await response.json();
-      
+      await fetch('/api/sendEmail', {
+        method:'POST',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({serviceId})
+      })
       if (response.ok) {
         toast.success(`Service ${status.toLowerCase()} successfully!`);
         router.push('/serviceManagement');

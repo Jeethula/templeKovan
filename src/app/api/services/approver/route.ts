@@ -43,6 +43,7 @@ export async function GET(req:NextRequest)
                 transactionId:true,
                 status:true,
                 serviceDate:true,
+                createdAt:true,
             },
             orderBy:{
                 createdAt:"desc"
@@ -54,7 +55,6 @@ export async function GET(req:NextRequest)
             
             return NextResponse.json({error:"Services not found",status:404})
         }
-        console.log(services);
         
         return NextResponse.json({services:services,status:200})
     }
