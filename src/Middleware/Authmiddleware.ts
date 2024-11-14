@@ -33,6 +33,7 @@ export function middleware(request: NextRequest) {
     })
 
   } catch (error) {
+    console.log(error)
     return new NextResponse('Invalid token', {
       status: 403,
       headers: { 'Content-Type': 'application/json' }

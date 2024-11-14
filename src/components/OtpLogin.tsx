@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { customFetch } from "@/lib/fetch";
+// import { customFetch } from "@/lib/fetch";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../app/context/AuthContext";
 import { User } from "firebase/auth";
@@ -90,18 +90,19 @@ export default function OtpLogin() {
     setLoading(true);
 
     try {
-      const response = await customFetch("/otpverify", {
+      const response = await fetch("/api/otpverify", {
         method: "POST",
         body: JSON.stringify({
           phoneNumber: `${phoneNumber}`,
           action: "send",
         }),
       });
+      const data = await response.json();
 
-      if (response.success) {
+      if (data.success) {
         setStep("otp");
       } else {
-        setError(response.error || "Failed to send OTP");
+        setError(data.error || "Failed to send OTP");
       }
     } catch (error) {
       console.log(error);
@@ -116,7 +117,7 @@ export default function OtpLogin() {
     setLoading(true);
 
     try {
-      const response = await customFetch("/otpverify", {
+      const response = await fetch("/otpverify", {
         method: "POST",
         body: JSON.stringify({
           phoneNumber: `${phoneNumber}`,
@@ -124,15 +125,16 @@ export default function OtpLogin() {
           action: "verify",
         }),
       });
+      const data = await response.json();
 
-      if (response.success && response.verified) {
+      if (data.success && data.verified) {
         console.log("OTP verified successfully");
         const userData: { phoneNumber: string } = {
           phoneNumber: `${phoneNumber}`,
         };
-        setRole(response.user.role);
-        sessionStorage.setItem("user", JSON.stringify(response.user));
-        localStorage.setItem("user", JSON.stringify(response.token));
+        setRole(data.user.role);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.token));
         setUser(userData as User | null);
         router.push("/");
       } else {
