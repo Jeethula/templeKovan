@@ -24,14 +24,15 @@ export async function GET() {
       return NextResponse.json(users)
     } catch (error) {
       console.error('Error fetching users:', error)
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
     }
   }
   
   // Update user roles
   export async function PUT(request: Request) {
     try {
-      const { userId, roles } = await request.json()
+      const body = await request.json();
+      const { userId, roles } = body;
   
       const updatedUser = await prisma.user.update({
         where: { id: userId },
@@ -53,6 +54,6 @@ export async function GET() {
       return NextResponse.json(updatedUser)
     } catch (error) {
       console.error('Error updating user roles:', error)
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update roles' }, { status: 500 })
     }
   }

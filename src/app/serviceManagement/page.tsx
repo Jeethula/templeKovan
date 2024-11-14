@@ -1,10 +1,10 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Clock, LucideUserCheck2, RotateCcw } from 'lucide-react';
-import { IoCheckmarkDone } from 'react-icons/io5';
-import { RxCross1 } from 'react-icons/rx';
-import { FaSearch } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Clock, LucideUserCheck2, RotateCcw } from "lucide-react";
+import { IoCheckmarkDone } from "react-icons/io5";
+import { RxCross1 } from "react-icons/rx";
+import { FaSearch } from "react-icons/fa";
 
 import {
   Pagination,
@@ -14,28 +14,31 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 
 type Service = {
-    id: string;
-    nameOfTheService: {
-        name: string;
-    };
-    price: number;
-    paymentMode: string;
-    transactionId: string;
-    status: string;
-    serviceDate: string;
+  id: string;
+  nameOfTheService: {
+    name: string;
+  };
+  price: number;
+  paymentMode: string;
+  transactionId: string;
+  status: string;
+  serviceDate: string;
 };
 
-const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ service, onClick }) => {
+const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({
+  service,
+  onClick,
+}) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'PENDING':
+      case "PENDING":
         return <Clock className="text-yellow-500" size={16} />;
-      case 'REJECTED':
+      case "REJECTED":
         return <RxCross1 className="text-red-500" size={16} />;
-      case 'APPROVED':
+      case "APPROVED":
         return <IoCheckmarkDone className="text-green-500" size={20} />;
       default:
         return null;
@@ -44,15 +47,15 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     }).format(date);
   };
 
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 relative group"
     >
@@ -68,16 +71,28 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
         {/* Price and Status Row */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-1">
-            <span className="text-lg font-bold text-gray-800">₹{service.price}</span>
+            <span className="text-lg font-bold text-gray-800">
+              ₹{service.price}
+            </span>
             <span className="text-xs text-gray-500">INR</span>
           </div>
-          <span className="flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium"
+          <span
+            className="flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium"
             style={{
-              backgroundColor: service.status === 'APPROVED' ? '#e6ffe6' : 
-                            service.status === 'REJECTED' ? '#ffe6e6' : '#fff9e6',
-              color: service.status === 'APPROVED' ? '#006600' : 
-                     service.status === 'REJECTED' ? '#cc0000' : '#997a00'
-            }}>
+              backgroundColor:
+                service.status === "APPROVED"
+                  ? "#e6ffe6"
+                  : service.status === "REJECTED"
+                  ? "#ffe6e6"
+                  : "#fff9e6",
+              color:
+                service.status === "APPROVED"
+                  ? "#006600"
+                  : service.status === "REJECTED"
+                  ? "#cc0000"
+                  : "#997a00",
+            }}
+          >
             {getStatusIcon(service.status)}
             <span>{service.status}</span>
           </span>
@@ -86,19 +101,38 @@ const ServiceCard: React.FC<{ service: Service; onClick: () => void }> = ({ serv
         {/* Details Section */}
         <div className="space-y-2">
           <div className="flex items-center text-sm text-gray-600">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             {formatDate(service.serviceDate)}
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+              />
             </svg>
-            {service.paymentMode === null ? "POS" : service.paymentMode} 
+            {service.paymentMode === null ? "POS" : service.paymentMode}
           </div>
-          <div>
-          </div>
+          <div></div>
         </div>
       </div>
 
@@ -143,35 +177,39 @@ const SkeletonCard = () => {
 const ServiceManagementGrid: React.FC = () => {
   const router = useRouter();
   const [services, setServices] = useState<Service[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [serviceTypeFilter, setServiceTypeFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [serviceTypeFilter, setServiceTypeFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [uniqueServiceTypes, setUniqueServiceTypes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20; // Changed to 20 items per page
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    if (!sessionData.role.includes('approver') ) {
-      router.push('/unAuthorized');
+    const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
+    if (!sessionData.role.includes("approver")) {
+      router.push("/unAuthorized");
     }
     // const userId = sessionData.id;
     const fetchServices = async () => {
       setIsLoading(true);
       try {
-        const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
         const userId = sessionData.id;
-        const response = await fetch(`/api/services/approver?approverId=${userId}`);
+        const response = await fetch(
+          `/api/services/approver?approverId=${userId}`
+        );
         const data = await response.json();
         if (response.status === 200) {
           setServices(data.services);
-          const types = Array.from(new Set(data.services.map((s: Service) => s.nameOfTheService.name))) as string[];
+          const types = Array.from(
+            new Set(data.services.map((s: Service) => s.nameOfTheService.name))
+          ) as string[];
           setUniqueServiceTypes(types);
         }
       } catch (error) {
-        console.error('Error fetching services:', error);
+        console.error("Error fetching services:", error);
       } finally {
         setIsLoading(false);
       }
@@ -184,16 +222,21 @@ const ServiceManagementGrid: React.FC = () => {
   }, [searchTerm, statusFilter, serviceTypeFilter, dateFilter]);
 
   const filteredServices = services.filter((service) => {
-    const matchesSearch = service.nameOfTheService.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = service.nameOfTheService.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || service.status === statusFilter;
-    const matchesType = !serviceTypeFilter || service.nameOfTheService.name === serviceTypeFilter;
-    const matchesDate = !dateFilter || new Date(service.serviceDate).toLocaleDateString().includes(dateFilter);
+    const matchesType =
+      !serviceTypeFilter || service.nameOfTheService.name === serviceTypeFilter;
+    const matchesDate =
+      !dateFilter ||
+      new Date(service.serviceDate).toLocaleDateString().includes(dateFilter);
     return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
 
   const totalItems = filteredServices.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
+
   const paginatedServices = filteredServices.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -206,12 +249,16 @@ const ServiceManagementGrid: React.FC = () => {
       <Pagination className="mt-4">
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious 
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            <PaginationPrevious
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className={
+                currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
+              }
             />
           </PaginationItem>
-          
+
           {[...Array(totalPages)].map((_, idx) => {
             const pageNumber = idx + 1;
             if (
@@ -244,8 +291,14 @@ const ServiceManagementGrid: React.FC = () => {
 
           <PaginationItem>
             <PaginationNext
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
+              className={
+                currentPage === totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
+              }
             />
           </PaginationItem>
         </PaginationContent>
@@ -256,7 +309,6 @@ const ServiceManagementGrid: React.FC = () => {
   return (
     <div className="bg-[#fdf0f4] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
-
         {/* Rest of your existing filters and content */}
         <div className="bg-white rounded-xl shadow-sm p-4">
           <div className="space-y-4">
@@ -266,13 +318,13 @@ const ServiceManagementGrid: React.FC = () => {
                 <LucideUserCheck2 className="text-xl" />
                 <span>Manage Seva</span>
               </h1>
-              
+
               <button
                 onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('');
-                  setServiceTypeFilter('');
-                  setDateFilter('');
+                  setSearchTerm("");
+                  setStatusFilter("");
+                  setServiceTypeFilter("");
+                  setDateFilter("");
                 }}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors text-[#663399]"
                 title="Reset filters"
@@ -281,7 +333,7 @@ const ServiceManagementGrid: React.FC = () => {
                 <span className="text-sm hidden sm:inline">Reset</span>
               </button>
             </div>
-            
+
             {/* Rest of the filters section */}
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -328,8 +380,10 @@ const ServiceManagementGrid: React.FC = () => {
                       className="w-full px-3 py-2 rounded-lg text-sm border border-gray-200 focus:outline-none focus:border-[#663399]"
                     >
                       <option value="">All Services</option>
-                      {uniqueServiceTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
+                      {uniqueServiceTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -375,20 +429,26 @@ const ServiceManagementGrid: React.FC = () => {
                 <ServiceCard
                   key={service.id}
                   service={service}
-                  onClick={() => router.push(`/serviceManagement/${service.id}`)}
+                  onClick={() =>
+                    router.push(`/serviceManagement/${service.id}`)
+                  }
                 />
               ))}
             </div>
-            
+
             {/* New Pagination Component */}
-            {!isLoading && filteredServices.length > 0 && <PaginationComponent />}
+            {!isLoading && filteredServices.length > 0 && (
+              <PaginationComponent />
+            )}
           </>
         )}
 
         {/* No Results Message */}
         {!isLoading && filteredServices.length === 0 && (
           <div className="text-center py-6">
-            <p className="text-gray-500 text-base">No services found matching your criteria.</p>
+            <p className="text-gray-500 text-base">
+              No services found matching your criteria.
+            </p>
           </div>
         )}
       </div>
