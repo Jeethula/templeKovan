@@ -1,12 +1,19 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+// import { customFetch } from "@/lib/fetch";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../app/context/AuthContext";
 import { User } from "firebase/auth";
 
-
-const OtpInput = ({ length, value, onChange }: { length: number; value: string; onChange: (value: string) => void }) => {
+const OtpInput = ({
+  length,
+  value,
+  onChange,
+}: {
+  length: number;
+  value: string;
+  onChange: (value: string) => void;
+}) => {
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -15,7 +22,10 @@ const OtpInput = ({ length, value, onChange }: { length: number; value: string; 
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const newValue = e.target.value;
     if (newValue.length <= 1) {
       const newOtp = value.split("");
@@ -27,7 +37,10 @@ const OtpInput = ({ length, value, onChange }: { length: number; value: string; 
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
     if (e.key === "Backspace" && !value[index] && index > 0) {
       inputs.current[index - 1]?.focus();
     }
@@ -38,7 +51,9 @@ const OtpInput = ({ length, value, onChange }: { length: number; value: string; 
       {[...Array(length)].map((_, index) => (
         <input
           key={index}
-          ref={(el) => { inputs.current[index] = el; }}
+          ref={(el) => {
+            inputs.current[index] = el;
+          }}
           type="text"
           maxLength={1}
           value={value[index] || ""}
@@ -75,15 +90,19 @@ export default function OtpLogin() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/otpverify", {
-        phoneNumber: `${phoneNumber}`,
-        action: "send",
+      const response = await fetch("/api/otpverify", {
+        method: "POST",
+        body: JSON.stringify({
+          phoneNumber: `${phoneNumber}`,
+          action: "send",
+        }),
       });
+      const data = await response.json();
 
-      if (response.data.success) {
+      if (data.success) {
         setStep("otp");
       } else {
-        setError(response.data.error || "Failed to send OTP");
+        setError(data.error || "Failed to send OTP");
       }
     } catch (error) {
       console.log(error);
@@ -98,20 +117,25 @@ export default function OtpLogin() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/otpverify", {
-        phoneNumber: `${phoneNumber}`,
-        otp,
-        action: "verify",
+      const response = await fetch("/otpverify", {
+        method: "POST",
+        body: JSON.stringify({
+          phoneNumber: `${phoneNumber}`,
+          otp,
+          action: "verify",
+        }),
       });
+      const data = await response.json();
 
-      if (response.data.success && response.data.verified) {
+      if (data.success && data.verified) {
         console.log("OTP verified successfully");
         const userData: { phoneNumber: string } = {
           phoneNumber: `${phoneNumber}`,
         };
-        setRole(response.data.user.role);
-        sessionStorage.setItem("user", JSON.stringify(response.data.user));
-        setUser(userData as User | null | string);
+        setRole(data.user.role);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.token));
+        setUser(userData as User | null);
         router.push("/");
       } else {
         throw new Error("Invalid OTP");
@@ -129,7 +153,9 @@ export default function OtpLogin() {
       {step === "phone" ? (
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Phone Number</label>
+            <label className="text-sm font-medium text-gray-700">
+              Phone Number
+            </label>
             <div className="relative">
               <input
                 value={phoneNumber}
@@ -141,7 +167,9 @@ export default function OtpLogin() {
                 maxLength={10}
                 type="tel"
               />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-medium">+91</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-medium">
+                +91
+              </span>
             </div>
           </div>
 
@@ -158,7 +186,9 @@ export default function OtpLogin() {
       ) : (
         <div className="space-y-6">
           <div className="text-center space-y-2">
-            <h3 className="text-xl font-semibold text-gray-800">Verify Your Number</h3>
+            <h3 className="text-xl font-semibold text-gray-800">
+              Verify Your Number
+            </h3>
             <p className="text-sm text-gray-600">
               We&apos;ve sent a 6-digit code to +91 {phoneNumber}
             </p>

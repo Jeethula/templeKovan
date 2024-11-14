@@ -1,5 +1,15 @@
 import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import prisma from "@/utils/prisma";
+
+// Add OPTIONS handler to support CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    headers: {
+      'Allow': 'GET, PUT, OPTIONS',
+    },
+  })
+}
 
 export async function GET() {
     try {
@@ -24,14 +34,22 @@ export async function GET() {
       return NextResponse.json(users)
     } catch (error) {
       console.error('Error fetching users:', error)
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
     }
   }
   
   // Update user roles
-  export async function PUT(request: Request) {
+  export async function PUT(request: NextRequest) {
     try {
-      const { userId, roles } = await request.json()
+      const body = await request.json();
+      const { userId, roles } = body;
+  
+      if (!userId || !roles) {
+        return NextResponse.json(
+          { error: 'Missing required fields' }, 
+          { status: 400 }
+        );
+      }
   
       const updatedUser = await prisma.user.update({
         where: { id: userId },
@@ -53,6 +71,6 @@ export async function GET() {
       return NextResponse.json(updatedUser)
     } catch (error) {
       console.error('Error updating user roles:', error)
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update roles' }, { status: 500 })
     }
   }

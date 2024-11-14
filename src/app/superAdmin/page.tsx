@@ -4,20 +4,10 @@ import {  ChevronDown, Check, Search, Phone, Edit, ChevronLeft, ChevronRight } f
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// import {
-//   Pagination,
-//   PaginationContent,
-//   PaginationEllipsis,
-//   PaginationItem,
-//   PaginationLink,
-//   PaginationNext,
-//   PaginationPrevious,
-// } from "@/components/ui/pagination"
 import toast from 'react-hot-toast';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 
-// Define types
 interface PersonalInfo {
   firstName?: string;
   lastName?: string;
@@ -104,7 +94,10 @@ export default function RoleManagementPage() {
     try {
       const response = await fetch('/api/admin/roles', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           userId: editingUser.id,
           roles: selectedRoles
@@ -115,14 +108,19 @@ export default function RoleManagementPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const updatedUser: UserData = await response.json();
+      const data = await response.json();
+      if (!data) {
+        throw new Error('No data received');
+      }
+
       setUsers(users.map(user => 
-        user.id === updatedUser.id ? updatedUser : user
+        user.id === data.id ? data : user
       ));
       setEditingUser(null);
       toast.success("User roles updated successfully");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update roles';
+      console.error('Update roles error:', errorMessage);
       toast.error(errorMessage);
     }
   };
@@ -383,106 +381,3 @@ export default function RoleManagementPage() {
   );
 }
 
-// const PaginationControls = ({ currentPage, totalPages, setCurrentPage }: { 
-//   currentPage: number; 
-//   totalPages: number; 
-//   setCurrentPage: (page: number) => void 
-// }) => {
-//   const renderPageNumbers = () => {
-//     const pages = [];
-
-//     // First page
-//     pages.push(
-//       <PaginationItem key="1">
-//         <PaginationLink
-//           className="hidden md:block hover:bg-white/80"
-//           isActive={currentPage === 1}
-//           onClick={() => setCurrentPage(1)}
-//         >
-//           1
-//         </PaginationLink>
-//       </PaginationItem>
-//     );
-
-//     // Add ellipsis after first page
-//     if (currentPage > 3) {
-//       pages.push(
-//         <PaginationItem key="start-ellipsis">
-//           <PaginationEllipsis />
-//         </PaginationItem>
-//       );
-//     }
-
-//     // Current page range
-//     for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
-//       pages.push(
-//         <PaginationItem key={i}>
-//           <PaginationLink
-//             isActive={currentPage === i}
-//             onClick={() => setCurrentPage(i)}
-//             className="hover:bg-white/80"
-//           >
-//             {i}
-//           </PaginationLink>
-//         </PaginationItem>
-//       );
-//     }
-
-//     // Add ellipsis before last page
-//     if (currentPage < totalPages - 2) {
-//       pages.push(
-//         <PaginationItem key="end-ellipsis">
-//           <PaginationEllipsis />
-//         </PaginationItem>
-//       );
-//     }
-
-//     // Last page
-//     if (totalPages > 1) {
-//       pages.push(
-//         <PaginationItem key={totalPages}>
-//           <PaginationLink
-//             className="hidden md:block hover:bg-white/80"
-//             isActive={currentPage === totalPages}
-//             onClick={() => setCurrentPage(totalPages)}
-//           >
-//             {totalPages}
-//           </PaginationLink>
-//         </PaginationItem>
-//       );
-//     }
-
-//     return pages;
-//   };
-
-//   return (
-//     <div className="mt-6 flex flex-col items-center gap-2 bg-[#fdf0f4] p-4 rounded-lg">
-//       <Pagination>
-//         <PaginationContent className="gap-1 md:gap-2">
-//           <PaginationItem>
-//             <PaginationPrevious
-//               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-//               className={`h-9 px-2 md:px-4 hover:bg-white/80 ${
-//                 currentPage === 1 ? 'pointer-events-none opacity-50' : ''
-//               }`}
-//             />
-//           </PaginationItem>
-          
-//           {renderPageNumbers()}
-
-//           <PaginationItem>
-//             <PaginationNext
-//               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-//               className={`h-9 px-2 md:px-4 hover:bg-white/80 ${
-//                 currentPage === totalPages ? 'pointer-events-none opacity-50' : ''
-//               }`}
-//             />
-//           </PaginationItem>
-//         </PaginationContent>
-//       </Pagination>
-//       <div className="text-sm text-muted-foreground md:hidden">
-//         Page {currentPage} of {totalPages}
-//       </div>
-//     </div>
-//   );
-// };
