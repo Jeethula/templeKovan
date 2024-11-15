@@ -13,14 +13,15 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import LoadingPageUi from '@/components/LoadingPageUi';
 import EditableSection from '@/components/EditableSection';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
+import { Pencil } from 'lucide-react';
 
 type PersonalInfo = {
   userid: string;
@@ -37,9 +38,9 @@ type PersonalInfo = {
   comments: string;
   avatarUrl: string;
   email?: string;
-  role?: string;
+  role?: string[];
   Phone?: string;
-  [key: string]: string | undefined;
+  [key: string]: string | string[] | undefined;
 };
 
 type UserDetail = {
@@ -75,187 +76,389 @@ type Profile = {
 // Add this type for the save handler
 type SaveHandler = (section: string, values: { [key: string]: string }) => Promise<void>;
 
-// Modify the UserProfileDrawer component
-const UserProfileDrawer = ({ user, onClose }: { user: PersonalInfo; onClose: () => void }) => {
-  const [profile, setProfile] = useState<Profile | null>(null);
+// Add the UserEditModal component
+const UserEditModal = ({ user, isOpen, onClose }: { 
+  user: PersonalInfo | null; 
+  isOpen: boolean; 
+  onClose: () => void;
+}) => {
+  const [formData, setFormData] = useState<PersonalInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: user?.userid }),
+      });
+      const data = await response.json();
+      if (data.status === 200) {
+        // Combine user and personal info data
+        setFormData({
+          ...data.details,
+          email: data.details.user.email,
+          Phone: data.details.user.phone
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to load user data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateField = async (field: string, value: string) => {
+    if (field === 'email' || field === 'Phone') {
       try {
-        const res = await fetch('/api/profile', {
+        const response = await fetch('/api/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: user.userid }),
+          body: JSON.stringify({ 
+            field, 
+            value, 
+            userId: user?.userid // exclude current user from validation
+          }),
         });
-        const data = await res.json();
-        if (data.status === 200) {
-          setProfile(data.details);
+        const data = await response.json();
+        
+        if (!data.isValid) {
+          setErrors(prev => ({
+            ...prev,
+            [field]: `This ${field.toLowerCase()} is already in use`
+          }));
+          return false;
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
-      } finally {
-        setLoading(false);
+        console.error('Validation error:', error);
       }
-    };
+    }
+    setErrors(prev => ({ ...prev, [field]: '' }));
+    return true;
+  };
 
-    fetchProfile();
-  }, [user.userid]);
+  const handleInputChange = async (field: string, value: string) => {
+    setFormData(prev => prev ? { ...prev, [field]: value } : null);
+    await validateField(field, value);
+  };
 
-  // Add the save handler function
-  const handleSave: SaveHandler = async (section, values) => {
+  const handleSubmit = async () => {
+    if (!formData) return;
+
+    // Validate email and phone before submission
+    const isEmailValid = await validateField('email', formData.email || '');
+    const isPhoneValid = await validateField('Phone', formData.Phone || '');
+
+    if (!isEmailValid || !isPhoneValid) {
+      return; // Don't submit if validation fails
+    }
+
     try {
       const response = await fetch('/api/profile', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.userid,
-          section,
-          ...values,
+          userId: user?.userid,
+          ...formData
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
+      if (!response.ok) throw new Error('Failed to update profile');
 
-      const updatedData = await response.json();
-      
-      if (updatedData.status === 200) {
-        setProfile(prev => prev ? { ...prev, ...values } : null);
+      const data = await response.json();
+      if (data.status === 200) {
         toast.success('Profile updated successfully');
+        onClose();
       } else {
-        throw new Error(updatedData.message || 'Failed to update profile');
+        throw new Error(data.message || 'Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     }
   };
 
   return (
-    <DrawerContent className="h-[85vh] overflow-y-auto">
-      <DrawerHeader>
-        <DrawerTitle className="text-[#663399]">User Profile</DrawerTitle>
-      </DrawerHeader>
-      <div className="px-4 pb-8">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-[#663399]">Edit User Profile</DialogTitle>
+        </DialogHeader>
+        
         {loading ? (
-          <LoadingPageUi />
-        ) : profile ? (
-          <div className="space-y-4">
-            <EditableSection
-              section="personalInfo"
-              fields={['firstName', 'lastName', 'email', 'phone']}
-              profile={profile}
-              onSave={handleSave}
-            />
-            <EditableSection
-              section="address"
-              fields={['address1', 'address2', 'city', 'state', 'pincode', 'country']}
-              profile={profile}
-              onSave={handleSave}
-            />
+          <SkeletonModal />
+        ) : formData ? (
+          <div className="space-y-6">
+            {/* Personal Information Fields */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-700">Personal Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { key: 'firstName', label: 'First Name' },
+                  { key: 'lastName', label: 'Last Name' },
+                  { key: 'email', label: 'Email' },
+                  { key: 'Phone', label: 'Phone' },
+                ].map(({ key, label }) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      {label}
+                    </label>
+                    <input
+                      type="text"
+                      value={formData[key] || ''}
+                      onChange={(e) => handleInputChange(key, e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#663399] 
+                        ${errors[key] ? 'border-red-500' : 'border-gray-300'}`}
+                    />
+                    {errors[key] && (
+                      <p className="mt-1 text-sm text-red-500">{errors[key]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Address Fields */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-700">Address Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { key: 'address1', label: 'Address Line 1' },
+                  { key: 'address2', label: 'Address Line 2' },
+                  { key: 'city', label: 'City' },
+                  { key: 'state', label: 'State' },
+                  { key: 'pincode', label: 'Pincode' },
+                  { key: 'country', label: 'Country' },
+                ].map(({ key, label }) => (
+                  <div key={key} className={key === 'address1' || key === 'address2' ? 'col-span-2' : ''}>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      {label}
+                    </label>
+                    <input
+                      type="text"
+                      value={formData[key] || ''}
+                      onChange={(e) => handleInputChange(key, e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                        focus:outline-none focus:ring-1 focus:ring-[#663399]"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 
+                  rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 
+                  focus:ring-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 text-sm font-medium text-white bg-[#663399] 
+                  rounded-md hover:bg-[#663399]/90 focus:outline-none focus:ring-2 
+                  focus:ring-[#663399]"
+              >
+                Update Profile
+              </button>
+            </div>
           </div>
         ) : (
           <div className="text-center text-red-500">Profile not found</div>
         )}
-      </div>
-    </DrawerContent>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+const UserCard: React.FC<{ user: PersonalInfo; onEdit: () => void }> = ({ user, onEdit }) => {
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <div 
-        onClick={() => setIsOpen(true)}
-        className="bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all 
-          active:bg-gray-50 touch-manipulation md:p-4"
-      >
-        <div className="flex items-center gap-3 md:gap-4"> {/* Changed items-start to items-center */}
-          {/* Avatar - adjusted sizing and centering */}
-          <div className="self-start w-10 h-10 md:w-12 md:h-12 shrink-0 bg-[#663399] rounded-full 
-            flex items-center justify-center text-white text-sm md:text-base font-semibold">
-            {toTitleCase(user.firstName)[0]}{toTitleCase(user.lastName)[0]}
+    <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border border-gray-100">
+      <div className="space-y-4">
+        {/* Header with avatar and name */}
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <div className="w-14 h-14 bg-gradient-to-br from-[#663399] to-[#8B5FBF] rounded-xl 
+              flex items-center justify-center text-white text-lg font-bold shadow-sm"
+            >
+              {toTitleCase(user.firstName)[0]}{toTitleCase(user.lastName)[0]}
+            </div>
           </div>
 
-          {/* Content */}
-          <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-sm md:text-base text-gray-800 truncate">
-              {`${toTitleCase(user.firstName)} ${toTitleCase(user.lastName)}`}
-            </h3>
-            <div className="mt-1 space-y-1.5 md:mt-2 md:space-y-2">
-              {user.Phone ? (
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <MdPhone className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 text-base leading-6 break-words">
+                  {`${toTitleCase(user.firstName)} ${toTitleCase(user.lastName)}`}
+                </h3>
+                <p className="text-sm text-gray-500 mt-0.5 break-words">
+                  {user.role?.join(', ')}
+                </p>
+              </div>
+              <button
+                onClick={onEdit}
+                className="flex-shrink-0 p-2 text-[#663399] hover:bg-[#663399]/10 
+                  rounded-lg transition-colors"
+                title="Edit profile"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Rest of the card remains unchanged */}
+        <div className="space-y-3 pt-2">
+          {/* Contact Info */}
+          <div className="space-y-2.5">
+            {user.Phone && (
+              <div className="flex items-center gap-3 text-gray-600 group">
+                <div className="flex-shrink-0 p-2 bg-gray-50 rounded-lg 
+                  group-hover:bg-[#663399]/10 transition-colors"
+                >
+                  <MdPhone className="text-[#663399] w-4 h-4" />
+                </div>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <a href={`tel:${user.Phone}`} 
-                    className="text-xs md:text-sm truncate hover:text-[#663399]">
+                    className="text-sm hover:text-[#663399] transition-colors truncate">
                     {user.Phone}
                   </a>
-                  <a href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
-                    target="_blank" 
+                  <a
+                    href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    className="text-green-500 hover:text-green-600 touch-manipulation">
-                    <IoLogoWhatsapp className="w-3.5 h-3.5 md:w-4 md:h-4" fill='green' />
+                    className="flex-shrink-0 p-1 text-green-500 hover:text-green-600 
+                      hover:bg-green-50 rounded transition-colors"
+                  >
+                    <IoLogoWhatsapp className="w-4 h-4" />
                   </a>
                 </div>
-              ) : user.email && (
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <MdEmail className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
-                  <span className="text-xs md:text-sm truncate">{user.email}</span>
+              </div>
+            )}
+
+            {user.email && (
+              <div className="flex items-center gap-3 text-gray-600 group">
+                <div className="flex-shrink-0 p-2 bg-gray-50 rounded-lg 
+                  group-hover:bg-[#663399]/10 transition-colors"
+                >
+                  <MdEmail className="text-[#663399] w-4 h-4" />
+                </div>
+                <a href={`mailto:${user.email}`} 
+                  className="text-sm truncate hover:text-[#663399] transition-colors flex-1">
+                  {user.email}
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Address */}
+          <div className="flex items-start gap-3 text-gray-600 group pt-1">
+            <div className="flex-shrink-0 p-2 bg-gray-50 rounded-lg 
+              group-hover:bg-[#663399]/10 transition-colors"
+            >
+              <HiLocationMarker className="text-[#663399] w-4 h-4" />
+            </div>
+            <div className="text-sm space-y-1 min-w-0 flex-1">
+              {user.address1 && (
+                <div className="text-gray-600 truncate">
+                  {toTitleCase(user.address1)}
                 </div>
               )}
-              <div className="flex gap-1.5 text-gray-600">
-                <HiLocationMarker className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4 mt-0.5" />
-                <div className="text-xs md:text-sm space-y-0.5 flex-1 min-w-0">
-                  <div className="truncate">
-                    {[user.address1, user.address2]
-                      .filter(Boolean)
-                      .map(addr => toTitleCase(addr))
-                      .join(', ')}
-                  </div>
-                  <div className="truncate">
-                    {[user.city, user.state, user.pincode]
-                      .filter(Boolean)
-                      .map(item => toTitleCase(item))
-                      .join(', ')}
-                  </div>
-                </div>
+              <div className="text-gray-500 truncate">
+                {[user.city, user.state, user.pincode]
+                  .filter(Boolean)
+                  .map(item => toTitleCase(item))
+                  .join(', ')}
               </div>
             </div>
           </div>
         </div>
       </div>
-      
-      {isOpen && <UserProfileDrawer user={user} onClose={() => setIsOpen(false)} />}
-    </Drawer>
+    </div>
   );
 };
 
 const SkeletonCard = () => (
-  <div className="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-gray-100 animate-pulse">
-    <div className="flex items-start space-x-3 md:space-x-4">
-      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-full shrink-0" />
-      <div className="flex-1 space-y-3 md:space-y-4">
-        <div className="h-4 md:h-5 bg-gray-200 rounded w-3/4" />
-        <div className="space-y-2 md:space-y-3">
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-200 rounded" />
-            <div className="h-3 md:h-4 bg-gray-200 rounded w-1/2" />
-          </div>
-          <div className="flex space-x-2">
-            <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-200 rounded" />
-            <div className="space-y-1 md:space-y-2 flex-1">
-              <div className="h-3 md:h-4 bg-gray-200 rounded w-full" />
-              <div className="h-3 md:h-4 bg-gray-200 rounded w-4/5" />
-            </div>
-          </div>
+  <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border border-gray-100">
+    <div className="space-y-4">
+      {/* Header with avatar and name */}
+      <div className="flex items-start gap-4">
+        <div className="w-14 h-14 bg-gray-200 rounded-xl animate-pulse" />
+        <div className="flex-1">
+          <div className="h-5 w-2/3 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+      </div>
+
+      {/* Contact Info Skeleton */}
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
         </div>
       </div>
+
+      {/* Address Skeleton */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SkeletonModal = () => (
+  <div className="space-y-6">
+    {/* Personal Information Skeleton */}
+    <div className="space-y-4">
+      <div className="h-5 w-1/4 bg-gray-200 rounded animate-pulse" />
+      <div className="grid grid-cols-2 gap-4">
+        {Array(4).fill(0).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-full bg-gray-200 rounded-md animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Address Information Skeleton */}
+    <div className="space-y-4">
+      <div className="h-5 w-1/4 bg-gray-200 rounded animate-pulse" />
+      <div className="grid grid-cols-2 gap-4">
+        {Array(6).fill(0).map((_, i) => (
+          <div key={i} className={`space-y-2 ${i < 2 ? 'col-span-2' : ''}`}>
+            <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-full bg-gray-200 rounded-md animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Action Buttons Skeleton */}
+    <div className="flex justify-end gap-3 pt-4">
+      <div className="w-20 h-9 bg-gray-200 rounded-md animate-pulse" />
+      <div className="w-32 h-9 bg-gray-200 rounded-md animate-pulse" />
     </div>
   </div>
 );
@@ -351,16 +554,17 @@ const PersonalInfoGrid: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20; // Changed from 15 to 20
+  const [selectedUser, setSelectedUser] = useState<PersonalInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
-      setIsLoading(true); // Add this line
-      const res = await fetch('/api/profile', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
-      
+      setIsLoading(true);
+      const response = await fetch('/api/profile');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const data = await response.json();
       const combinedData = data.personalInfodetails.map((personal: PersonalInfo) => {
         const userDetail = data.userDetails.find((user:UserDetail) => user.id === personal.userid);
         return {
@@ -372,9 +576,10 @@ const PersonalInfoGrid: React.FC = () => {
       });
       setUserData(combinedData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error:', error);
+      toast.error('Failed to load users');
     } finally {
-      setIsLoading(false); // Add this line
+      setIsLoading(false);
     }
   };
 
@@ -426,6 +631,19 @@ const PersonalInfoGrid: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Handle edit click
+  const handleEditClick = (user: PersonalInfo) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  // Handle modal close with data refresh
+  const handleModalClose = async () => {
+    await fetchData(); // Refresh data first
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+
   return (
     <div className="min-h-screen bg-[#fdf0f4]">
       <div className="container mx-auto px-4 py-6 space-y-6">
@@ -459,7 +677,7 @@ const PersonalInfoGrid: React.FC = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {isLoading ? (
             Array(8).fill(0).map((_, index) => <SkeletonCard key={index} />)
           ) : currentUsers.length > 0 ? (
@@ -467,7 +685,7 @@ const PersonalInfoGrid: React.FC = () => {
               <UserCard
                 key={user.userid}
                 user={user}
-                onClick={() => router.push(`userManagement/${user.userid}`)}
+                onEdit={() => handleEditClick(user)}
               />
             ))
           ) : (
@@ -478,6 +696,13 @@ const PersonalInfoGrid: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Edit Modal */}
+        <UserEditModal
+          user={selectedUser}
+          isOpen={isModalOpen}
+          onClose={handleModalClose} // Use the new handler
+        />
 
         {/* Pagination */}
         {!isLoading && filteredUsers.length > itemsPerPage && (
@@ -494,4 +719,5 @@ const PersonalInfoGrid: React.FC = () => {
   );
 };
 
-export default PersonalInfoGrid;
+export default PersonalInfoGrid; 
+
