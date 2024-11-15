@@ -1,4 +1,3 @@
-
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 
@@ -15,12 +14,12 @@ Object.entries(requiredEnvVars).forEach(([key, value]) => {
 });
 
 const serviceAccountAuth = new JWT({
-  email: process.env.CLIENT_EMAIL!,
-  key: process.env.PRIVATE_KEY!.replace(/\\n/g, '\n'),
+  email: process.env.CLIENT_EMAIL,
+  key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-export async function updateGoogleSheet(spreadsheetId: string, sheetTitle: string, data: any[]) {
+export async function updateGoogleSheet(spreadsheetId, sheetTitle, data) {
   console.log('Starting sheet update...');
   if (!data || data.length === 0) {
     throw new Error('No data provided for update');

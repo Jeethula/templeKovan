@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/context/AuthContext.tsx", "src/app/page.tsx", "src/components/Login.jsx", "src/components/TranslateComponent.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/context/AuthContext.tsx", "src/app/page.tsx", "src/components/Login.jsx", "src/components/TranslateComponent.jsx", "src/lib/syncGoogleSheets.js", "src/lib/googleSheets.js"],
   "exclude": ["node_modules"]
 }

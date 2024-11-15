@@ -1,8 +1,8 @@
-// pages/api/sync-google-sheets.ts
-import { NextRequest, NextResponse } from 'next/server';
+
+import { NextResponse } from 'next/server';
 import { syncAllTables } from '../../../../lib/syncGoogleSheets';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
         if (!spreadsheetId) {
