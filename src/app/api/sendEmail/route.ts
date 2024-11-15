@@ -115,15 +115,13 @@ export async function POST(req: Request) {
 </html>
         `,
       });
-    } catch (emailError: any) {
-      console.error('Email sending failed:', emailError);
+    } catch (error) {
+      console.log('Email Error:', error);
       return NextResponse.json(
         { 
-          success: false, 
+          status: 500, 
           message: 'Failed to send confirmation email',
-          error: emailError.message 
         },
-        { status: 500 }
       );
     }
 
@@ -131,11 +129,11 @@ export async function POST(req: Request) {
       success: true, 
       message: 'Seva booked successfully' 
     });
-  } catch (error: any) {
-    console.error('Error:', error);
+  } catch (error) {
+    console.log('Seva Booking Error:', error);
+    
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to book Seva' },
-      { status: 500 }
+      { status: 500, message:'Failed to book Seva' },
     );
   }
 }

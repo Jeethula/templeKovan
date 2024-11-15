@@ -174,4 +174,54 @@ export async function PATCH(req: Request) {
   }
 }
 
+export async function PUT(req: Request) {
+    try {
+        const body = await req.json();
+        const { userId, email, Phone, firstName, lastName, ...addressInfo } = body;
+
+        if (!userId) {
+            return NextResponse.json({ error: "User ID is required", status: 400 });
+        }
+
+        // Update user details
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                email: email,
+                phone: Phone
+            }
+        });
+
+        // Update personal info
+        const updatedPersonalInfo = await prisma.personalInfo.update({
+            where: { 
+                userid: userId 
+            },
+            data: {
+                firstName,
+                lastName,
+                address1: addressInfo.address1,
+                address2: addressInfo.address2,
+                city: addressInfo.city,
+                pincode: addressInfo.pincode,
+                state: addressInfo.state,
+                country: addressInfo.country,
+                phoneNumber: Phone,
+            }
+        });
+
+        return NextResponse.json({ 
+            status: 200, 
+            data: updatedPersonalInfo, 
+            message: "Profile updated successfully" 
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return NextResponse.json({ 
+            error: "Failed to update profile", 
+            status: 500 
+        });
+    }
+}
+
 

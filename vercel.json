@@ -1,0 +1,12 @@
+{
+    "crons": [
+      {
+        "path": "/api/getnallaneram",
+        "schedule": "35 06 * * *"
+      },
+      {
+        "path": "/api/googlesheets/syncGoogleSheets",
+        "schedule": "35 06 * * *"
+      }
+    ]
+  }
