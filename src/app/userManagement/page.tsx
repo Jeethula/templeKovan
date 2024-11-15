@@ -18,8 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import LoadingPageUi from '@/components/LoadingPageUi';
-import EditableSection from '@/components/EditableSection';
 import { toast } from 'react-hot-toast';
 import { Pencil } from 'lucide-react';
 
@@ -58,23 +56,6 @@ const toTitleCase = (str: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
-
-type Profile = {
-  firstName: string;
-  lastName: string;
-  email?: string;
-  phone?: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-  [key: string]: string | undefined;
-};
-
-// Add this type for the save handler
-type SaveHandler = (section: string, values: { [key: string]: string }) => Promise<void>;
 
 // Add the UserEditModal component
 const UserEditModal = ({ user, isOpen, onClose }: { 
