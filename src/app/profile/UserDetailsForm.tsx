@@ -18,6 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ChevronsUpDown, Check } from "lucide-react";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 
 const FloatingInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => {
@@ -113,8 +117,40 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [father, setFather] = useState<string>("");
+  const [mother, setMother] = useState<string>("");
   // const { user } = useAuth();
   const router = useRouter();
+
+  const [eligibleUsers, setEligibleUsers] = useState<Array<{
+    id: string;
+    phone: string;
+    email: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+      uniqueId: number;
+    } | null;
+  }>>([]);
+  // const [selectedChild, setSelectedChild] = useState("");
+  // const [relationshipType, setRelationshipType] = useState<"son" | "daughter">("son");
+
+  interface ChildRelation {
+    id: string;
+    relation: 'son' | 'daughter';
+  }
+
+  const [selectedChildren, setSelectedChildren] = useState<ChildRelation[]>([]);
+
+  interface Relationship {
+    id: string;
+    relation: 'son' | 'daughter';
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  }
+
+  const [existingRelationships, setExistingRelationships] = useState<Relationship[]>([]);
 
   const getData = async () => {
     setIsLoading(true);
@@ -142,6 +178,16 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           comments: res.userDetails.comments,
           unique_id: res.userDetails.uniqueId,
         });
+        
+        // Properly set father and mother names with null checks
+        if (res.father && res.father.firstName && res.father.lastName) {
+          setFather(`${res.father.firstName} ${res.father.lastName}`.trim());
+        }
+        
+        if (res.mother && res.mother.firstName && res.mother.lastName) {
+          setMother(`${res.mother.firstName} ${res.mother.lastName}`.trim());
+        }
+
         setIsEditable(false);
         setIsSubmitted(true);
       } else {
@@ -189,6 +235,55 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     };
     fetchUserDetails();
   }, [router]);
+
+  useEffect(() => {
+    const fetchEligibleUsers = async () => {
+      try {
+        const response = await fetch('/api/eligibleUsers', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        console.log('Received users:', data); // Debug log
+        if (data.status === 200) {
+          setEligibleUsers(data.users);
+        }
+      } catch (error) {
+        console.error('Error fetching eligible users:', error);
+      }
+    };
+
+    fetchEligibleUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchExistingRelationships = async () => {
+      try {
+        const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
+        const response = await fetch(`/api/eligibleUsers/relationships?userId=${userID}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (data.status === 200) {
+          setExistingRelationships(data.relationships);
+          // Initialize selectedChildren with existing relationships
+          setSelectedChildren(data.relationships.map((rel: any) => ({
+            id: rel.id,
+            relation: rel.relation
+          })));
+        }
+      } catch (error) {
+        console.error('Error fetching relationships:', error);
+      }
+    };
+
+    fetchExistingRelationships();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -272,14 +367,10 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
           if (onProfileCompletion) {
             onProfileCompletion?.();
           }
-
-          // await fetch('/api/googlesheets/updaterow', {
-          //     method: 'POST',
-          //     headers: {
-          //         'Content-Type': 'application/json',
-          //     },
-          //     body: JSON.stringify(userDetailsToSend),
-          // });
+          // Refresh the page after successful update
+          window.location.reload();
+          // Or use router.refresh() for Next.js soft refresh:
+          // router.refresh();
         } 
             
         
@@ -294,65 +385,59 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isEditable) {
-      toast.error('Please click the "Edit" button to edit your details.');
-      return;
-    }
+    if (!isEditable) return;
+    
     if (validateForm()) {
-      const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
       setLoading(true);
       try {
-        const userDetailsToSend = {
-          uniqueId: parseInt(userDetails?.unique_id),
-          firstName: userDetails.first_name,
-          lastName: userDetails.last_name,
-          phone: userDetails.phone_number,
-          address1: userDetails.address_line_1,
-          address2: userDetails.address_line_2,
-          city: userDetails.city,
-          state: userDetails.state,
-          pincode: userDetails.pincode,
-          country: userDetails.country,
-          comments: userDetails.comments || "",
-          email: email,
-          avatarUrl:  "",
-          salutation: userDetails.salutation,
-          userId: userID,
-          isfirstTimeLogin:false,
-        };
-
-        const res = await fetch("/api/userDetails", {
-          method: "POST",
+        const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
+        const response = await fetch("/api/userDetails", {
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(userDetailsToSend),
-        });
-        if (res.status === 200) {
-          setIsEditable(false);
-          toast.success("Details submitted successfully!");
-
-          await fetch("/api/googlesheets/addrow", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          body: JSON.stringify({
+            id: userID,
+            userDetails: {
+              salutation: userDetails.salutation,
+              firstName: userDetails.first_name,
+              lastName: userDetails.last_name,
+              address1: userDetails.address_line_1,
+              address2: userDetails.address_line_2,
+              city: userDetails.city,
+              pincode: userDetails.pincode,
+              state: userDetails.state,
+              country: userDetails.country,
             },
-            body: JSON.stringify(userDetailsToSend),
-          });
+            relationships: selectedChildren || []
+          }),
+        });
 
-          if (onProfileCompletion) {
-            onProfileCompletion?.();
-          }
+        const data = await response.json();
+        
+        if (data.status === 200) {
+          toast.success("Profile updated successfully");
+          setIsEditable(false);
+          // Refresh data and page
+          await getData();
+          window.location.reload(); // This will reload the entire page
+          // Alternatively, you can use router.refresh() for Next.js soft refresh:
+          // router.refresh();
         } else {
-          toast.error("Failed to submit details.");
+          toast.error(data.error || "Failed to update profile");
+          console.error('Update error details:', data.details);
         }
       } catch (error) {
-        console.log(error, "error");
-        toast.error("Error: " + error);
+        toast.error("An error occurred while updating profile");
+        console.error('Submit error:', error);
       } finally {
         setLoading(false);
       }
     }
+  };
+
+  const addChildRelation = () => {
+    setSelectedChildren([...selectedChildren, { id: '', relation: 'son' }]);
   };
 
   return (
@@ -483,25 +568,132 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
                   </div>
                 </div>
 
+                {/* assign son or daughter to the user  */}
+                {/* Family Relationship Section */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
+                    {isEditable && (
+                      <button
+                        type="button"
+                        onClick={addChildRelation}
+                        className="text-sm px-3 py-1 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
+                      >
+                        Add Child
+                      </button>
+                    )}
+                  </div>
+
+                  {father && (
+                    <div className="p-3 border rounded-lg bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-medium text-[#663399]">Father: </span>
+                          <span className="text-gray-700">{father}</span>
+                        </div>
+                      </div>
+                    </div>)
+                    }
+
+                  {mother && (
+                    <div className="p-3 border rounded-lg bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-medium text-[#663399]">Mother: </span>
+                          <span className="text-gray-700">{mother}</span>
+                        </div>
+                      </div>
+                    </div>)
+                    }
+
+                  {/* Show existing relationships */}
+                  {existingRelationships.length > 0 ? (
+                    <div className="space-y-3">
+                      {existingRelationships.map((relation, index) => (
+                        <div key={index} className="p-3 border rounded-lg bg-gray-50">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="font-medium text-[#663399] capitalize">{relation.relation}: </span>
+                              <span className="text-gray-700">
+                                {relation.firstName} {relation.lastName}
+                              </span>
+                            </div>
+                            <span className="text-sm text-gray-500">{relation.phone}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500 text-center py-4">
+                      No relationships mapped yet.
+                    </div>
+                  )}
+
+                  {/* Show new relationship form fields in edit mode */}
+                  {isEditable && (
+                    <div className="space-y-3 mt-4">
+                      {selectedChildren.map((child, index) => (
+                        <div key={index} className="flex gap-3 items-center border p-3 rounded-lg bg-white">
+                          <div className="w-1/3">
+                            <FloatingSelect
+                              id={`relationshipType-${index}`}
+                              value={child.relation}
+                              onValueChange={(value) => {
+                                const newChildren = [...selectedChildren];
+                                newChildren[index].relation = value as 'son' | 'daughter';
+                                setSelectedChildren(newChildren);
+                              }}
+                              label="Relation Type"
+                              disabled={false}
+                            >
+                              <SelectContent>
+                                <SelectItem value="son">Son</SelectItem>
+                                <SelectItem value="daughter">Daughter</SelectItem>
+                                </SelectContent>
+                            </FloatingSelect>
+                          </div>
+                          
+                          <div className="w-2/3">
+                            <FloatingSearchCombobox
+                              value={child.id}
+                              onValueChange={(value) => {
+                                const newChildren = [...selectedChildren];
+                                newChildren[index].id = value;
+                                setSelectedChildren(newChildren);
+                              }}
+                              label="Select Person"
+                              disabled={false}
+                              options={eligibleUsers}
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newChildren = selectedChildren.filter((_, i) => i !== index);
+                              setSelectedChildren(newChildren);
+                            }}
+                            className="p-2 text-red-500 hover:text-red-700"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Submit/Update Button */}
                 {isEditable && (
                   <button
-                    type={isSubmitted ? "button" : "submit"}
-                    onClick={isSubmitted ? handleUpdate : undefined}
-                    disabled={loading}
-                    className="w-full h-11 text-base font-medium 
-                         bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
-                         transition-all duration-200 mt-6
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="submit"
+                    className="w-full mt-6 h-11 text-base font-medium 
+                              bg-[#663399] hover:bg-[#663399]/90 text-white rounded-lg
+                              transition-all duration-200"
                   >
-                    {loading ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span className="text-sm">{isSubmitted ? "Updating..." : "Submitting..."}</span>
-                      </div>
-                    ) : (
-                      <span>{isSubmitted ? "Update Profile" : "Complete Profile"}</span>
-                    )}
+                    {loading ? 'Updating Profile...' : 'Update Profile'}
                   </button>
                 )}
               </form>
@@ -512,6 +704,116 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     </div>
   );
 };
+
+// First, create the FloatingSearchCombobox component
+const FloatingSearchCombobox = React.forwardRef<
+  HTMLDivElement,
+  {
+    value: string;
+    onValueChange: (value: string) => void;
+    label: string;
+    disabled?: boolean;
+    options: Array<{
+      id: string;
+      phone: string;
+      personalInfo?: {
+        firstName?: string;
+        lastName?: string;
+      } | null;
+    }>;
+  }
+>(({ value, onValueChange, label, disabled, options }, ref) => {
+  const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredOptions = React.useMemo(() => {
+    return options.filter((option) => {
+      if (!searchQuery.trim()) return true;
+      
+      const query = searchQuery.toLowerCase();
+      const firstName = option.personalInfo?.firstName?.toLowerCase() || '';
+      const lastName = option.personalInfo?.lastName?.toLowerCase() || '';
+      const phone = option.phone.toLowerCase();
+      const fullName = `${firstName} ${lastName}`.trim();
+      
+      // Check if any part contains the search query
+      return fullName.includes(query) || 
+             firstName.includes(query) || 
+             lastName.includes(query) || 
+             phone.includes(query);
+    });
+  }, [options, searchQuery]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={`w-full justify-between border rounded-lg text-left font-normal peer
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {value ? (
+              options.find((option) => option.id === value) ? (
+                `${options.find((option) => option.id === value)?.personalInfo?.firstName || ''} ${
+                  options.find((option) => option.id === value)?.personalInfo?.lastName || ''
+                }`.trim() || 'Unnamed'
+              ) : (
+                'Select person...'
+              )
+            ) : (
+              'Select person...'
+            )}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+          <Command shouldFilter={false}>
+            <CommandInput 
+              placeholder="Search by name or phone..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              className="h-9"
+            />
+            <CommandList className="max-h-[200px] overflow-auto">
+              <CommandEmpty>No person found.</CommandEmpty>
+              <CommandGroup>
+                {filteredOptions.map((option) => (
+                  <CommandItem
+                    key={option.id}
+                    value={option.id}
+                    onSelect={(currentValue) => {
+                      onValueChange(currentValue === value ? '' : currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <div className="flex flex-col">
+                      <span>
+                        {`${option.personalInfo?.firstName || ''} ${option.personalInfo?.lastName || ''}`.trim() || 'Unnamed'}
+                      </span>
+                      <span className="text-sm text-gray-500">{option.phone}</span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      <FloatingLabel htmlFor={label}>{label}</FloatingLabel>
+    </div>
+  );
+});
+FloatingSearchCombobox.displayName = 'FloatingSearchCombobox';
 
 // Update the renderField function styling
 const renderField = (

@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
         status: 400 
       });
     }
-
     // Date parsing logic remains the same
     let parsedDate: Date | undefined;
     if (query.includes('/')) {
@@ -43,7 +42,6 @@ export async function GET(req: NextRequest) {
             { email: { contains: query, mode: "insensitive" } },
             { phone: { contains: query, mode: "insensitive" } },
             { referral: { contains: query, mode: "insensitive" } },
-            { jwtToken: { contains: query, mode: "insensitive" } },
           ],
         },
         select: {
@@ -160,13 +158,13 @@ export async function GET(req: NextRequest) {
       ...users.map(user => ({
         type: 'user',
         label: `User: ${user.email || user.phone}`,
-        url: `/users/${user.id}`,
+        url: `/userManagement/${user.id}`,
         data: user
       })),
       ...personalInfo.map(info => ({
         type: 'profile',
         label: `Profile: ${info.firstName} ${info.lastName || ''} - ${info.city || ''}`,
-        url: `/profile/${info.userid}`,
+        url: `/userManagement/${info.userid}`,
         data: info
       })),
       ...services.map(service => ({
@@ -178,13 +176,13 @@ export async function GET(req: NextRequest) {
       ...serviceAdd.map(service => ({
         type: 'serviceType',
         label: `Service Type: ${service.name} - ₹${service.targetPrice || 'N/A'}`,
-        url: `/serviceTypes/${service.id}`,
+        url: `/addSevas/${service.id}`,
         data: service
       })),
       ...serviceLimits.map(limit => ({
         type: 'serviceLimit',
         label: `Service Limit: Thirumanjanam: ₹${limit.thirumanjanamPrice}, Abhisekam: ₹${limit.abhisekamPrice}`,
-        url: `/serviceLimits/${limit.id}`,
+        url: `/addSevas/${limit.id}`,
         data: limit
       }))
     ];

@@ -224,49 +224,164 @@ export async function PUT(req: Request) {
   }
 }
 
+// export async function GET(req: Request) {
+//   try {
+//     const url = new URL(req.url);
+//     const userId = url.searchParams.get("userId");
+//     if (!userId) {
+//       return NextResponse.json({ error: "User ID is required", status: 400 });
+//     }
+
+//     try {
+//       const userDetails = await prisma.personalInfo.findUnique({
+//         where: {
+//           userid: userId,
+//         },
+//       });
+
+//       const user = await prisma.user.findUnique({
+//         where: {
+//           id: userId,
+//         },
+//       });
+
+//       if (!userDetails) {
+//         return NextResponse.json({ error: "User not found", status: 404 });
+//       }
+
+//       if (!user) {
+//         return NextResponse.json({ error: "User not found", status: 404 });
+//       }
+
+//       return NextResponse.json({
+//         userDetails,
+//         user,
+//         status: 200,
+//         success: "User profile found",
+//       });
+//     } catch (e) {
+//       console.log(e);
+//     }
+//   } catch (e) {
+//     console.error(e);
+//     return NextResponse.json({
+//       error: "Error in getting user profile",
+//       status: 500,
+//     });
+//   }
+// }
+
+// In route.ts, update the relationships GET endpoint
+
+
+// In route.ts, update the GET endpoint
+// In route.ts, update the GET endpoint
 export async function GET(req: Request) {
   try {
-    const url = new URL(req.url);
-    const userId = url.searchParams.get("userId");
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required", status: 400 });
+      return NextResponse.json({ 
+        status: 400, 
+        error: "User ID is required" 
+      });
     }
 
-    try {
-      const userDetails = await prisma.personalInfo.findUnique({
-        where: {
-          userid: userId,
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        personalInfo: true,
+        // Include father's details with their personalInfo
+        father: {
+          include: {
+            personalInfo: {
+              select: {
+                firstName: true,
+                lastName: true,
+                salutation: true,
+                phoneNumber: true
+              }
+            }
+          }
         },
-      });
-
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-
-      if (!userDetails) {
-        return NextResponse.json({ error: "User not found", status: 404 });
+        // Keep existing children relationships
+        children: {
+          include: {
+            personalInfo: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        }
       }
+    });
 
-      if (!user) {
-        return NextResponse.json({ error: "User not found", status: 404 });
-      }
-
-      return NextResponse.json({
-        userDetails,
-        user,
-        status: 200,
-        success: "User profile found",
+    if (!user) {
+      return NextResponse.json({ 
+        status: 404, 
+        error: "User not found" 
       });
-    } catch (e) {
-      console.log(e);
     }
-  } catch (e) {
-    console.error(e);
+
+    // Format relationships including father
+    const relationships = [
+      // Add father if exists
+      ...(user.father ? [{
+        id: user.father.id,
+        relation: 'father',
+        firstName: user.father.personalInfo?.firstName,
+        lastName: user.father.personalInfo?.lastName,
+        salutation: user.father.personalInfo?.salutation,
+        phone: user.father.personalInfo?.phoneNumber
+      }] : []),
+      // Add children
+      ...user.children.map(child => ({
+        id: child.id,
+        relation: 'son', // You might want to determine this based on additional data
+        firstName: child.personalInfo?.firstName,
+        lastName: child.personalInfo?.lastName,
+        phone: child.phone
+      }))
+    ];
+
     return NextResponse.json({
-      error: "Error in getting user profile",
-      status: 500,
+      status: 200,
+      userDetails: {
+        salutation: user.personalInfo?.salutation,
+        firstName: user.personalInfo?.firstName,
+        lastName: user.personalInfo?.lastName,
+        address1: user.personalInfo?.address1,
+        address2: user.personalInfo?.address2,
+        city: user.personalInfo?.city,
+        state: user.personalInfo?.state,
+        country: user.personalInfo?.country,
+        pincode: user.personalInfo?.pincode,
+        phoneNumber: user.phone,
+        uniqueId: user.personalInfo?.uniqueId,
+      },
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+      },
+      relationships,
+      father: user.father ? {
+        id: user.father.id,
+        firstName: user.father.personalInfo?.firstName,
+        lastName: user.father.personalInfo?.lastName,
+        salutation: user.father.personalInfo?.salutation,
+        phone: user.father.personalInfo?.phoneNumber
+      } : null
+    });
+
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return NextResponse.json({ 
+      status: 500, 
+      error: "Internal server error" 
     });
   }
 }
@@ -318,47 +433,120 @@ export async function DELETE(req: Request) {
 }
 
 // for admin to approve user details
+// export async function PATCH(req: Request) {
+//   try {
+//     const body = await req.json();
+//     console.log(body.userId, body.adminEmail, body.isApproved);
+
+//     if (!body.userId || !body.adminEmail || !body.isApproved) {
+//       return NextResponse.json({ error: "data missing", status: 400 });
+//     }
+
+//     const admin = await prisma.user.findUnique({
+//       where: {
+//         email: body.adminEmail,
+//       },
+//     });
+
+//     if (admin?.role.includes("Admin")) {
+//       return NextResponse.json({
+//         error: "You are not authorized",
+//         status: 403,
+//       });
+//     }
+
+//     const userDetails = await prisma.personalInfo.update({
+//       where: {
+//         userid: body.userId,
+//       },
+//       data: {
+//         // isApproved: body.isApproved,
+//       },
+//     });
+
+//     return NextResponse.json({
+//       userDetails,
+//       status: 200,
+//       success: "User profile updated",
+//     });
+//   } catch (e) {
+//     console.error(e);
+//     return NextResponse.json({
+//       error: "Error in updating user profile",
+//       status: 500,
+//     });
+//   }
+// }
+
+// app/api/userDetails/route.ts - Update PATCH endpoint
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    console.log(body.userId, body.adminEmail, body.isApproved);
+    const { id, userDetails, relationships } = body;
 
-    if (!body.userId || !body.adminEmail || !body.isApproved) {
-      return NextResponse.json({ error: "data missing", status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: "User ID is required", status: 400 });
     }
 
-    const admin = await prisma.user.findUnique({
-      where: {
-        email: body.adminEmail,
-      },
-    });
-
-    if (admin?.role.includes("Admin")) {
-      return NextResponse.json({
-        error: "You are not authorized",
-        status: 403,
-      });
-    }
-
-    const userDetails = await prisma.personalInfo.update({
-      where: {
-        userid: body.userId,
-      },
+    // First update personal info
+    const updatedPersonalInfo = await prisma.personalInfo.update({
+      where: { userid: id },
       data: {
-        // isApproved: body.isApproved,
+        salutation: userDetails.salutation,
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        address1: userDetails.address1,
+        address2: userDetails.address2,
+        city: userDetails.city,
+        pincode: userDetails.pincode,
+        state: userDetails.state,
+        country: userDetails.country,
+      }
+    });
+
+    // Then update user relationships
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        sons: {
+          set: relationships
+            ?.filter((r: any) => r.relation === 'son')
+            ?.map((r: any) => ({ id: r.id })) || []
+        },
+        daughters: {
+          set: relationships
+            ?.filter((r: any) => r.relation === 'daughter')
+            ?.map((r: any) => ({ id: r.id })) || []
+        }
       },
+      include: {
+        personalInfo: true,
+        sons: {
+          include: {
+            personalInfo: true
+          }
+        },
+        daughters: {
+          include: {
+            personalInfo: true
+          }
+        }
+      }
     });
 
     return NextResponse.json({
-      userDetails,
       status: 200,
-      success: "User profile updated",
+      updatedUser,
+      updatedPersonalInfo,
+      success: "Profile updated successfully"
     });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({
-      error: "Error in updating user profile",
-      status: 500,
+    
+  } catch (error) {
+    console.error('Update error:', error);
+    return NextResponse.json({ 
+      error: "Internal server error", 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      status: 500 
     });
   }
 }
