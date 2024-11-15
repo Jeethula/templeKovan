@@ -1,6 +1,18 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import {  BookDown, Download } from 'lucide-react';
+import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+    createColumnHelper,
+    ColumnDef,
+    getPaginationRowModel,
+    getFilteredRowModel,
+    ColumnFiltersState,
+    getSortedRowModel,
+    SortingState,
+} from '@tanstack/react-table';
+import {  BookDown, Download, ArrowUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -80,6 +92,180 @@ const isDateInFuture = (date: Date) => {
     return date > today;
 };
 
+const columnHelper = createColumnHelper<ReportData['services'][number]>();
+
+// Replace the TableFilters component
+const TableFilters = ({ table, data }: { table: any, data: ReportData['services'] }) => {
+    const uniqueServices = Array.from(new Set(data.map(item => item.nameOfTheService.name)));
+
+    return (
+        <div className="flex flex-col md:flex-row gap-4 mb-4 items-start md:items-center">
+            <Select
+                value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
+                onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? '' : value)}
+            >
+                <SelectTrigger className="w-full md:w-[150px]">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <div className="w-full md:w-auto">
+                <DatePicker
+                    date={table.getColumn('date')?.getFilterValue() as Date}
+                    onDateChange={(date) => table.getColumn('date')?.setFilterValue(date)}
+                />
+            </div>
+
+            <Select
+                value={(table.getColumn('service')?.getFilterValue() as string) ?? 'all'}
+                onValueChange={(value) => table.getColumn('service')?.setFilterValue(value === 'all' ? '' : value)}
+            >
+                <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Filter service..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Services</SelectItem>
+                    {uniqueServices.map((service) => (
+                        <SelectItem key={service} value={service}>
+                            {service}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            
+            <Select
+                value={(table.getColumn('posUser')?.getFilterValue() as string) ?? 'all'}
+                onValueChange={(value) => table.getColumn('posUser')?.setFilterValue(value === 'all' ? '' : value)}
+            >
+                <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Filter POS User..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All POS Users</SelectItem>
+                    {Array.from(new Set(data.map(item => item.posUser?.email))).filter(Boolean).map((email) => (
+                        <SelectItem key={email} value={email || ''}>
+                            {email}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <input
+                type="text"
+                placeholder="Search..."
+                value={(table.getColumn('search')?.getFilterValue() as string) ?? ''}
+                onChange={(e) => table.getColumn('search')?.setFilterValue(e.target.value)}
+                className="w-full md:w-[250px] p-2 border rounded"
+            />
+
+        </div>
+    );
+};
+
+const columns: ColumnDef<ReportData['services'][number], any>[] = [
+    columnHelper.accessor(row => `${row.nameOfTheService?.name} ${row.posUser?.email} ${row.status} ${row.price}`, {
+        id: 'search',
+        cell: () => null,
+        filterFn: (row, id, filterValue) => {
+            if (!filterValue) return true;
+            const value = row.getValue(id);
+            return typeof value === 'string' ? value.toLowerCase().includes(filterValue.toLowerCase()) : false;
+        }
+    }),
+    columnHelper.accessor(row => new Date(row.serviceDate).toLocaleDateString(), {
+        id: 'date',
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Date
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        filterFn: (row, id, filterValue) => {
+            if (!filterValue) return true;
+            const rowDate = new Date(row.getValue(id));
+            const filterDate = new Date(filterValue);
+            return rowDate.toDateString() === filterDate.toDateString();
+        }
+    }),
+    columnHelper.accessor(row => row.nameOfTheService?.name, {
+        id: 'service',
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Service
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        filterFn: (row, id, filterValue) => {
+            if (!filterValue) return true;
+            const value = row.getValue(id);
+            return typeof value === 'string' ? value.toLowerCase().includes(filterValue.toLowerCase()) : false;
+        }
+    }),
+    columnHelper.accessor(row => row.posUser?.email, {
+        id: 'posUser',
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                POS User
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: info => info.getValue() || 'N/A',
+    }),
+    columnHelper.accessor('status', {
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Status
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: info => (
+            <span className={`px-2 py-1 rounded text-xs ${
+                info.getValue() === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                info.getValue() === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+            }`}>
+                {info.getValue()}
+            </span>
+        ),
+        filterFn: 'equals'
+    }),
+    columnHelper.accessor('price', {
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Amount
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: info => `₹${info.getValue() || 0}`,
+        filterFn: (row, id, filterValue) => {
+            if (!filterValue) return true;
+            const value = row.getValue(id);
+            return typeof value === 'number' ? value >= filterValue : false;
+        }
+    }),
+];
 
 const DailyDatePicker = ({ date, onDateChange }: { date: Date, onDateChange: (date: Date) => void }) => {
     return (
@@ -119,6 +305,8 @@ export default function ReportsPage() {
         from: new Date(),
         to: new Date(),
     });
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [sorting, setSorting] = useState<SortingState>([]);
 
     const router = useRouter();
 
@@ -277,6 +465,21 @@ export default function ReportsPage() {
         }
     };
 
+    const table = useReactTable({
+        data: reportData?.services || [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            columnFilters,
+            sorting,
+        },
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+    });
+
     const renderReportContent = () => {
         if (loading) {
             return (
@@ -320,39 +523,68 @@ export default function ReportsPage() {
                         <CardTitle>Services Breakdown</CardTitle>
                     </CardHeader>
                     <CardContent>
+                        <TableFilters table={table} data={reportData.services} />
                         <div className="relative overflow-x-auto">
-                            <table className="w-full text-sm text-left text-gray-500">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3">Date</th>
-                                        <th className="px-6 py-3">Service</th>
-                                        <th className="px-6 py-3">POS User</th>
-                                        <th className="px-6 py-3">Status</th>
-                                        <th className="px-6 py-3">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {Array.isArray(reportData.services) && reportData.services.map((service) => (
-                                        <tr key={service.id} className="bg-white border-b">
-                                            <td className="px-6 py-4">
-                                                {new Date(service.serviceDate).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-6 py-4">{service.nameOfTheService?.name || 'N/A'}</td>
-                                            <td className="px-6 py-4">{service.posUser?.email || 'N/A'}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 rounded text-xs ${
-                                                    service.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                                                        service.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {service.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">₹{service.price || 0}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <div className="min-w-full overflow-x-auto">
+                                <table className="w-full text-sm text-left border">
+                                    <thead className="text-xs uppercase bg-gray-50">
+                                        {table.getHeaderGroups().map(headerGroup => (
+                                            <tr key={headerGroup.id}>
+                                                {headerGroup.headers.map(header => (
+                                                    <th key={header.id} className="px-6 py-3 font-medium text-gray-900">
+                                                        {header.isPlaceholder
+                                                            ? null
+                                                            : flexRender(
+                                                                header.column.columnDef.header,
+                                                                header.getContext()
+                                                            )}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </thead>
+                                    <tbody>
+                                        {table.getRowModel().rows.map(row => (
+                                            <tr key={row.id} className="bg-white border-b hover:bg-gray-50">
+                                                {row.getVisibleCells().map(cell => (
+                                                    <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row items-center justify-between mt-4 gap-4">
+                                <div className="text-sm text-gray-500 text-center md:text-left">
+                                    Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
+                                    {Math.min(
+                                        (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                                        table.getFilteredRowModel().rows.length
+                                    )}{' '}
+                                    of {table.getFilteredRowModel().rows.length} results
+                                </div>
+                                <div className="flex gap-2 w-full md:w-auto justify-center md:justify-end">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => table.previousPage()}
+                                        disabled={!table.getCanPreviousPage()}
+                                        className="w-full md:w-auto"
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => table.nextPage()}
+                                        disabled={!table.getCanNextPage()}
+                                        className="w-full md:w-auto"
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
