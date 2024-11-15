@@ -12,6 +12,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import LoadingPageUi from '@/components/LoadingPageUi';
+import EditableSection from '@/components/EditableSection';
+import { toast } from 'react-toastify';
 
 type PersonalInfo = {
   userid: string;
@@ -49,67 +58,183 @@ const toTitleCase = (str: string) => {
     .join(' ');
 };
 
-const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => (
-  <div 
-    onClick={onClick}
-    className="bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all 
-      active:bg-gray-50 touch-manipulation md:p-4"
-  >
-    <div className="flex items-center gap-3 md:gap-4"> {/* Changed items-start to items-center */}
-      {/* Avatar - adjusted sizing and centering */}
-      <div className="self-start w-10 h-10 md:w-12 md:h-12 shrink-0 bg-[#663399] rounded-full 
-        flex items-center justify-center text-white text-sm md:text-base font-semibold">
-        {toTitleCase(user.firstName)[0]}{toTitleCase(user.lastName)[0]}
-      </div>
+type Profile = {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  [key: string]: string | undefined;
+};
 
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        <h3 className="font-semibold text-sm md:text-base text-gray-800 truncate">
-          {`${toTitleCase(user.firstName)} ${toTitleCase(user.lastName)}`}
-        </h3>
-        <div className="mt-1 space-y-1.5 md:mt-2 md:space-y-2">
-          {user.Phone ? (
-            <div className="flex items-center gap-1.5 text-gray-600">
-              <MdPhone className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
-              <a href={`tel:${user.Phone}`} 
-                className="text-xs md:text-sm truncate hover:text-[#663399]">
-                {user.Phone}
-              </a>
-              <a href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-green-500 hover:text-green-600 touch-manipulation">
-                <IoLogoWhatsapp className="w-3.5 h-3.5 md:w-4 md:h-4" fill='green' />
-              </a>
-            </div>
-          ) : user.email && (
-            <div className="flex items-center gap-1.5 text-gray-600">
-              <MdEmail className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="text-xs md:text-sm truncate">{user.email}</span>
-            </div>
-          )}
-          <div className="flex gap-1.5 text-gray-600">
-            <HiLocationMarker className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4 mt-0.5" />
-            <div className="text-xs md:text-sm space-y-0.5 flex-1 min-w-0">
-              <div className="truncate">
-                {[user.address1, user.address2]
-                  .filter(Boolean)
-                  .map(addr => toTitleCase(addr))
-                  .join(', ')}
-              </div>
-              <div className="truncate">
-                {[user.city, user.state, user.pincode]
-                  .filter(Boolean)
-                  .map(item => toTitleCase(item))
-                  .join(', ')}
+// Add this type for the save handler
+type SaveHandler = (section: string, values: { [key: string]: string }) => Promise<void>;
+
+// Modify the UserProfileDrawer component
+const UserProfileDrawer = ({ user, onClose }: { user: PersonalInfo; onClose: () => void }) => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: user.userid }),
+        });
+        const data = await res.json();
+        if (data.status === 200) {
+          setProfile(data.details);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user.userid]);
+
+  // Add the save handler function
+  const handleSave: SaveHandler = async (section, values) => {
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.userid,
+          section,
+          ...values,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      const updatedData = await response.json();
+      
+      if (updatedData.status === 200) {
+        setProfile(prev => prev ? { ...prev, ...values } : null);
+        toast.success('Profile updated successfully');
+      } else {
+        throw new Error(updatedData.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
+    }
+  };
+
+  return (
+    <DrawerContent className="h-[85vh] overflow-y-auto">
+      <DrawerHeader>
+        <DrawerTitle className="text-[#663399]">User Profile</DrawerTitle>
+      </DrawerHeader>
+      <div className="px-4 pb-8">
+        {loading ? (
+          <LoadingPageUi />
+        ) : profile ? (
+          <div className="space-y-4">
+            <EditableSection
+              section="personalInfo"
+              fields={['firstName', 'lastName', 'email', 'phone']}
+              profile={profile}
+              onSave={handleSave}
+            />
+            <EditableSection
+              section="address"
+              fields={['address1', 'address2', 'city', 'state', 'pincode', 'country']}
+              profile={profile}
+              onSave={handleSave}
+            />
+          </div>
+        ) : (
+          <div className="text-center text-red-500">Profile not found</div>
+        )}
+      </div>
+    </DrawerContent>
+  );
+};
+
+const UserCard: React.FC<{ user: PersonalInfo; onClick: () => void }> = ({ user, onClick }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <div 
+        onClick={() => setIsOpen(true)}
+        className="bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all 
+          active:bg-gray-50 touch-manipulation md:p-4"
+      >
+        <div className="flex items-center gap-3 md:gap-4"> {/* Changed items-start to items-center */}
+          {/* Avatar - adjusted sizing and centering */}
+          <div className="self-start w-10 h-10 md:w-12 md:h-12 shrink-0 bg-[#663399] rounded-full 
+            flex items-center justify-center text-white text-sm md:text-base font-semibold">
+            {toTitleCase(user.firstName)[0]}{toTitleCase(user.lastName)[0]}
+          </div>
+
+          {/* Content */}
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-sm md:text-base text-gray-800 truncate">
+              {`${toTitleCase(user.firstName)} ${toTitleCase(user.lastName)}`}
+            </h3>
+            <div className="mt-1 space-y-1.5 md:mt-2 md:space-y-2">
+              {user.Phone ? (
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <MdPhone className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <a href={`tel:${user.Phone}`} 
+                    className="text-xs md:text-sm truncate hover:text-[#663399]">
+                    {user.Phone}
+                  </a>
+                  <a href={`https://wa.me/${user.Phone?.replace(/\D/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-green-500 hover:text-green-600 touch-manipulation">
+                    <IoLogoWhatsapp className="w-3.5 h-3.5 md:w-4 md:h-4" fill='green' />
+                  </a>
+                </div>
+              ) : user.email && (
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <MdEmail className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="text-xs md:text-sm truncate">{user.email}</span>
+                </div>
+              )}
+              <div className="flex gap-1.5 text-gray-600">
+                <HiLocationMarker className="text-[#663399] shrink-0 w-3.5 h-3.5 md:w-4 md:h-4 mt-0.5" />
+                <div className="text-xs md:text-sm space-y-0.5 flex-1 min-w-0">
+                  <div className="truncate">
+                    {[user.address1, user.address2]
+                      .filter(Boolean)
+                      .map(addr => toTitleCase(addr))
+                      .join(', ')}
+                  </div>
+                  <div className="truncate">
+                    {[user.city, user.state, user.pincode]
+                      .filter(Boolean)
+                      .map(item => toTitleCase(item))
+                      .join(', ')}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-);
+      
+      {isOpen && <UserProfileDrawer user={user} onClose={() => setIsOpen(false)} />}
+    </Drawer>
+  );
+};
 
 const SkeletonCard = () => (
   <div className="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-gray-100 animate-pulse">
