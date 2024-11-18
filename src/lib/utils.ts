@@ -1,18 +1,29 @@
 import { type ClassValue, clsx } from "clsx"
+import { console } from "inspector";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// First add this helper function
+function toUTC(date: Date): Date {
+  // Convert to UTC considering IST offset
+  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+}
+
 // /lib/utils.ts
+// Update getDateRange function
 export function getDateRange(reportType: string, baseDate: Date) {
+  // Create new dates in local timezone first
   const startDate = new Date(baseDate);
   const endDate = new Date(baseDate);
 
   switch (reportType) {
     case 'daily':
+      // Set to start of day (00:00:00) in local time
       startDate.setHours(0, 0, 0, 0);
+      // Set to end of day (23:59:59.999) in local time
       endDate.setHours(23, 59, 59, 999);
       break;
 
@@ -37,7 +48,10 @@ export function getDateRange(reportType: string, baseDate: Date) {
       break;
   }
 
-  return { startDate, endDate };
+  return {
+    startDate: toUTC(startDate),
+    endDate: toUTC(endDate)
+  };
 }
 
 export async function convertToCSV(data: Record<string, unknown>[]) {
@@ -101,10 +115,14 @@ export async function convertToCSV(data: Record<string, unknown>[]) {
 // };
 
 // /lib/validation.ts
-export function validateDateRange(startDate: Date, endDate: Date) {
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+// Update validateDateRange function 
+export function validateDateRange(startDateN: Date, endDateN: Date) {
+  if (isNaN(startDateN.getTime()) || isNaN(endDateN.getTime())) {
     throw new Error('Invalid date format');
   }
+
+  const startDate = toUTC(new Date(startDateN));
+  const endDate = toUTC(new Date(endDateN));
 
   if (startDate > endDate) {
     throw new Error('Start date must be before end date');
@@ -124,31 +142,3 @@ export function validateReportType(reportType: string) {
     throw new Error('Invalid report type');
   }
 }
-
-// // /lib/rate-limit.ts
-// import { Redis } from '@upstash/redis';
-
-// const redis = Redis.fromEnv();
-
-// export async function checkRateLimit(ip: string) {
-//   const REQUESTS_PER_MINUTE = 60;
-//   const now = Date.now();
-//   const key = `rate-limit:${ip}`;
-  
-//   const [count] = await redis.pipeline()
-//     .incr(key)
-//     .expire(key, 60)
-//     .exec();
-
-//   if (count > REQUESTS_PER_MINUTE) {
-//     return {
-//       allowed: false,
-//       retryAfter: 60,
-//     };
-//   }
-
-//   return {
-//     allowed: true,
-//     retryAfter: 0,
-//   };
-// }

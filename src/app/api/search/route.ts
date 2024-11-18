@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
       ...services.map(service => ({
         type: 'service',
         label: `Service: ${service.nameOfTheService.name} - ${service.status} - ₹${service.price}`,
-        url: `/services/${service.id}`,
+        url: `/serviceManagement/${service.id}`,
         data: service
       })),
       ...serviceAdd.map(service => ({

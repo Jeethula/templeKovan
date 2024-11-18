@@ -25,9 +25,11 @@ export async function GET(request: NextRequest) {
 
     // Calculate date range
     const { startDate, endDate } = getDateRange(reportType, new Date(date));
-    
+    console.log('startDate:', startDate, 'endDate:', endDate,"===================.............");
+
     // Validate date range
     validateDateRange(startDate, endDate);
+    console.log('startDate:', startDate, 'endDate:', endDate,".............");
 
     // Build where clause
     const whereClause: {

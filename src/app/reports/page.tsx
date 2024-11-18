@@ -24,6 +24,7 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { Table } from '@tanstack/react-table'
 
 export interface ReportFilters {
     reportType: 'daily' | 'weekly' | 'monthly' | 'custom';
@@ -98,8 +99,7 @@ const isDateInFuture = (date: Date) => {
 // const columnHelper = createColumnHelper<ReportData['services'][number]>();
 
 // Add this type definition at the top with other interfaces
-import { Table } from '@tanstack/react-table'
-import { console } from 'inspector';
+
 
 interface TableFiltersProps {
   table: Table<ReportData['services'][number]>;
@@ -399,15 +399,20 @@ export default function ReportsPage() {
         }
     };
 
+    console.log('reportData:', reportData);
+
     const fetchReportData = async () => {
         setLoading(true);
         try {
-            const today = new Date();
+            const today = new Date(filters.startDate.getTime() - filters.startDate.getTimezoneOffset() * 60000)
+            .toISOString()
+            .split('T')[0];
+
             const params = new URLSearchParams({
                 reportType: filters.reportType,
                 serviceId: selectedService === 'all' ? '' : selectedService,
                 posUserId: selectedPosUser === 'all' ? '' : selectedPosUser,
-                date: today.toISOString()
+                date: today
             });
 
             const response = await fetch(`/api/reports?${params}`);

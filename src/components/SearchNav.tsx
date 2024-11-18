@@ -131,51 +131,52 @@ const SearchNav = () => {
             </div>
 
             {/* Right side - Search */}
-            { (role.includes('Admin') || role.includes('superadmin') ) &&
+            {(role.includes('Admin') || role.includes('superadmin')) && (
               <div className="flex-shrink-0 relative w-[250px] md:w-[400px]">
-              <div className="flex items-center">
-                <FaSearch className="absolute left-3 text-gray-500" />
-                <input
-                  type="text"
-                  className="w-full pl-10 pr-3 py-2 rounded-md"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-              </div>
-              {showPopover && searchResults.length > 0 && (
-                <div className="absolute right-0 w-full bg-white border rounded-md mt-1 z-10 shadow-lg">
-                  <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    {searchResults.map((result, index) => (
-                      <Link 
-                        href={result.url} 
-                        key={index} 
-                        className="block p-3 hover:bg-gray-100 border-b last:border-b-0"
-                        onClick={() => {
-                          setShowPopover(false);
-                          setSearchQuery('');
-                        }}
-                      >
-                        <div className="text-sm font-medium text-gray-800">
-                          {result.label}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {result.type} {index + 1}/{searchResults.length}
-                        </div>
-                      </Link>
-                    ))}
-                    {isLoading && (
-                      <div className="p-3 text-center text-sm text-gray-500">
-                        Searching...
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2 text-center text-xs text-gray-500 bg-gray-50 border-t">
-                    Total results: {searchResults.length}
-                  </div>
+                <div className="flex items-center">
+                  <FaSearch className="absolute left-3 text-gray-500" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-3 py-2 rounded-md"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                  />
                 </div>
-              )}
-            </div>}
+                {showPopover && searchQuery.trim() && searchResults.length > 0 && (
+                  <div className="absolute right-0 w-full bg-white border rounded-md mt-1 z-10 shadow-lg">
+                    <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      {searchResults.map((result, index) => (
+                        <Link 
+                          href={result.url} 
+                          key={index} 
+                          className="block p-3 hover:bg-gray-100 border-b last:border-b-0"
+                          onClick={() => {
+                            setShowPopover(false);
+                            setSearchQuery('');
+                          }}
+                        >
+                          <div className="text-sm font-medium text-gray-800">
+                            {result.label}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {result.type} {index + 1}/{searchResults.length}
+                          </div>
+                        </Link>
+                      ))}
+                      {isLoading && (
+                        <div className="p-3 text-center text-sm text-gray-500">
+                          Searching...
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2 text-center text-xs text-gray-500 bg-gray-50 border-t">
+                      Total results: {searchResults.length}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </nav>
