@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
+interface Relationship {
+  id: string;
+  relation: 'son' | 'daughter';
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+}
+
+
+
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
@@ -11,6 +21,12 @@ export async function GET() {
           select: {
             firstName: true,
             lastName: true,
+            address1: true,
+        address2: true,
+        city: true,
+        state: true,
+        pincode: true,
+        country: true
           }
         },
         sons: {
@@ -146,13 +162,13 @@ export async function PATCH(req: Request) {
       data: {
         sons: {
           set: relationships
-            .filter((r: any) => r.relation === 'son')
-            .map((r: any) => ({ id: r.id }))
+            .filter((r:Relationship) => r.relation === 'son')
+            .map((r:Relationship) => ({ id: r.id }))
         },
         daughters: {
           set: relationships
-            .filter((r: any) => r.relation === 'daughter')
-            .map((r: any) => ({ id: r.id }))
+            .filter((r:Relationship) => r.relation === 'daughter')
+            .map((r:Relationship) => ({ id: r.id }))
         }
       },
       include: {

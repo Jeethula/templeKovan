@@ -108,17 +108,17 @@ interface UserDetailsFormProps {
   onProfileCompletion?: () => void;
 }
 
-const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }) => {
+const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
   const [userDetails, setUserDetails] =
     useState<UserDetails>(initialUserDetails);
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
   const [isEditable, setIsEditable] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>("");
+  // const [ setIsSubmitted] = useState<boolean>(false);
+  // const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const [father, setFather] = useState<string>("");
-  const [mother, setMother] = useState<string>("");
+  // const [father, setFather] = useState<string>("");
+  // const [mother, setMother] = useState<string>("");
   // const { user } = useAuth();
   const router = useRouter();
 
@@ -180,16 +180,16 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         });
         
         // Properly set father and mother names with null checks
-        if (res.father && res.father.firstName && res.father.lastName) {
-          setFather(`${res.father.firstName} ${res.father.lastName}`.trim());
-        }
+        // if (res.father && res.father.firstName && res.father.lastName) {
+        //   setFather(`${res.father.firstName} ${res.father.lastName}`.trim());
+        // }
         
-        if (res.mother && res.mother.firstName && res.mother.lastName) {
-          setMother(`${res.mother.firstName} ${res.mother.lastName}`.trim());
-        }
+        // if (res.mother && res.mother.firstName && res.mother.lastName) {
+        //   setMother(`${res.mother.firstName} ${res.mother.lastName}`.trim());
+        // }
 
         setIsEditable(false);
-        setIsSubmitted(true);
+        // setIsSubmitted(true);
       } else {
         setIsEditable(true);
         toast.success("Please fill the profile info to start");
@@ -223,7 +223,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         // await UserDetails();
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
         if (user) {
-          setEmail(user.email);
+     //     setEmail(user.email);
           await getData();
         } else {
           router.push("/");
@@ -272,7 +272,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
         if (data.status === 200) {
           setExistingRelationships(data.relationships);
           // Initialize selectedChildren with existing relationships
-          setSelectedChildren(data.relationships.map((rel: any) => ({
+          setSelectedChildren(data.relationships.map((rel:Relationship) => ({
             id: rel.id,
             relation: rel.relation
           })));
@@ -324,64 +324,64 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
     return isValid;
   };
 
-  const handleUpdate = async () => {
-    if (validateForm()) {
-      const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
-      setLoading(true);
-      try {
-        const userDetailsToSend = {
-          firstName: userDetails.first_name,
-          lastName: userDetails.last_name,
-          address1: userDetails.address_line_1,
-          address2: userDetails.address_line_2,
-          city: userDetails.city,
-          state: userDetails.state,
-          pincode: userDetails.pincode,
-          country: userDetails.country,
-          comments: userDetails.comments || "",
-          salutation: userDetails.salutation,
-          uniqueId: parseInt(userDetails?.unique_id),
-          userId: userID,
-          email: email || ""  ,
-          phone: userDetails.phone_number,
-          isfirstTimeLogin:false,
-        };
+  // const handleUpdate = async () => {
+  //   if (validateForm()) {
+  //     const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
+  //     setLoading(true);
+  //     try {
+  //       const userDetailsToSend = {
+  //         firstName: userDetails.first_name,
+  //         lastName: userDetails.last_name,
+  //         address1: userDetails.address_line_1,
+  //         address2: userDetails.address_line_2,
+  //         city: userDetails.city,
+  //         state: userDetails.state,
+  //         pincode: userDetails.pincode,
+  //         country: userDetails.country,
+  //         comments: userDetails.comments || "",
+  //         salutation: userDetails.salutation,
+  //         uniqueId: parseInt(userDetails?.unique_id),
+  //         userId: userID,
+  //         email: email || ""  ,
+  //         phone: userDetails.phone_number,
+  //         isfirstTimeLogin:false,
+  //       };
 
-        const res = await fetch("/api/userDetails", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(userDetailsToSend),
-        });
+  //       const res = await fetch("/api/userDetails", {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(userDetailsToSend),
+  //       });
 
-        const resBody = await res.json();
-            if(resBody.error === "Phone number already exists"){
-                toast.error("Phone number already exists");
-                toast.error("Failed to update details.");
-                return;
-            }
+  //       const resBody = await res.json();
+  //           if(resBody.error === "Phone number already exists"){
+  //               toast.error("Phone number already exists");
+  //               toast.error("Failed to update details.");
+  //               return;
+  //           }
 
-        if (res.status === 200) {
-          toast.success("Details updated successfully!");
-          if (onProfileCompletion) {
-            onProfileCompletion?.();
-          }
-          // Refresh the page after successful update
-          window.location.reload();
-          // Or use router.refresh() for Next.js soft refresh:
-          // router.refresh();
-        } 
+  //       if (res.status === 200) {
+  //         toast.success("Details updated successfully!");
+  //         if (onProfileCompletion) {
+  //           onProfileCompletion?.();
+  //         }
+  //         // Refresh the page after successful update
+  //         window.location.reload();
+  //         // Or use router.refresh() for Next.js soft refresh:
+  //         // router.refresh();
+  //       } 
             
         
-      } catch (error) {
-        toast.error("Error: " + error);
-      } finally {
-        setLoading(false);
-        setIsEditable(false);
-      }
-    }
-  };
+  //     } catch (error) {
+  //       toast.error("Error: " + error);
+  //     } finally {
+  //       setLoading(false);
+  //       setIsEditable(false);
+  //     }
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -579,12 +579,12 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
                         onClick={addChildRelation}
                         className="text-sm px-3 py-1 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
                       >
-                        Add Child
+                        Add member
                       </button>
                     )}
                   </div>
 
-                  {father && (
+                  {/* {father && (
                     <div className="p-3 border rounded-lg bg-gray-50">
                       <div className="flex justify-between items-center">
                         <div>
@@ -604,7 +604,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onProfileCompletion }
                         </div>
                       </div>
                     </div>)
-                    }
+                    } */}
 
                   {/* Show existing relationships */}
                   {existingRelationships.length > 0 ? (

@@ -4,7 +4,7 @@ import {
     useReactTable,
     getCoreRowModel,
     flexRender,
-    createColumnHelper,
+    // createColumnHelper,
     ColumnDef,
     getPaginationRowModel,
     getFilteredRowModel,
@@ -33,6 +33,8 @@ export interface ReportFilters {
     posUserId?: string;
 }
 
+// type ColumnValue = string | number | Date | null;
+
 export interface ServiceStats {
     serviceName: string;
     count: number;
@@ -58,6 +60,7 @@ export interface DailyTrend {
 export interface ReportData {
     services: Array<{
         id: string;
+        createdAt: Date;
         serviceDate: Date;
         nameOfTheService: {
             name: string;
@@ -92,10 +95,19 @@ const isDateInFuture = (date: Date) => {
     return date > today;
 };
 
-const columnHelper = createColumnHelper<ReportData['services'][number]>();
+// const columnHelper = createColumnHelper<ReportData['services'][number]>();
 
-// Replace the TableFilters component
-const TableFilters = ({ table, data }: { table: any, data: ReportData['services'] }) => {
+// Add this type definition at the top with other interfaces
+import { Table } from '@tanstack/react-table'
+import { console } from 'inspector';
+
+interface TableFiltersProps {
+  table: Table<ReportData['services'][number]>;
+  data: ReportData['services'];
+}
+
+// Update the TableFilters component definition
+const TableFilters = ({ table, data }: TableFiltersProps) => {
     const uniqueServices = Array.from(new Set(data.map(item => item.nameOfTheService.name)));
 
     return (
@@ -169,36 +181,79 @@ const TableFilters = ({ table, data }: { table: any, data: ReportData['services'
     );
 };
 
-const columns: ColumnDef<ReportData['services'][number], any>[] = [
-    columnHelper.accessor(row => `${row.nameOfTheService?.name} ${row.posUser?.email} ${row.status} ${row.price}`, {
-        id: 'search',
-        cell: () => null,
-        filterFn: (row, id, filterValue) => {
-            if (!filterValue) return true;
-            const value = row.getValue(id);
-            return typeof value === 'string' ? value.toLowerCase().includes(filterValue.toLowerCase()) : false;
-        }
-    }),
-    columnHelper.accessor(row => new Date(row.serviceDate).toLocaleDateString(), {
+// First, define proper interface for the service data structure
+interface ServiceData {
+  id: string;
+  serviceDate: string | Date;
+  createdAt: string | Date;
+  nameOfTheService: {
+    name: string;
+  };
+  description: string;
+  price: number;
+  status: string;
+  posUser?: {
+    email: string;
+    personalInfo?: {
+      firstName?: string;
+      lastName?: string;
+    };
+  };
+}
+
+// Update the column definitions with proper typing
+const columns: ColumnDef<ServiceData>[] = [
+    // {
+    //     id: 'search',
+    //     accessorFn: (row) => `${row.nameOfTheService?.name} ${row.posUser?.email} ${row.status} ${row.price}`,
+    //     cell: () => null,
+    //     filterFn: (row, id, value: string) => {
+    //         if (!value) return true;
+    //         const rowValue = row.getValue(id) as string;
+    //         return rowValue.toLowerCase().includes(value.toLowerCase());
+    //     }
+    // },
+    {
         id: 'date',
+        accessorFn: (row) => new Date(row.createdAt).toLocaleDateString(),
         header: ({ column }) => (
             <Button
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
-                Date
+                Booked On
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        filterFn: (row, id, filterValue) => {
-            if (!filterValue) return true;
-            const rowDate = new Date(row.getValue(id));
-            const filterDate = new Date(filterValue);
+        filterFn: (row, id, value: Date) => {
+            if (!value) return true;
+            const rowDate = new Date(row.getValue(id) as string);
+            const filterDate = new Date(value);
             return rowDate.toDateString() === filterDate.toDateString();
         }
-    }),
-    columnHelper.accessor(row => row.nameOfTheService?.name, {
+    },
+    {
+        id: 'date',
+        accessorFn: (row) => new Date(row.serviceDate).toLocaleDateString(),
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Seva Date
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        filterFn: (row, id, value: Date) => {
+            if (!value) return true;
+            const rowDate = new Date(row.getValue(id) as string);
+            const filterDate = new Date(value);
+            return rowDate.toDateString() === filterDate.toDateString();
+        }
+    },
+    {
         id: 'service',
+        accessorFn: (row) => row.nameOfTheService?.name,
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -208,14 +263,15 @@ const columns: ColumnDef<ReportData['services'][number], any>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        filterFn: (row, id, filterValue) => {
-            if (!filterValue) return true;
-            const value = row.getValue(id);
-            return typeof value === 'string' ? value.toLowerCase().includes(filterValue.toLowerCase()) : false;
+        filterFn: (row, id, value: string) => {
+            if (!value) return true;
+            const rowValue = row.getValue(id) as string;
+            return rowValue.toLowerCase().includes(value.toLowerCase());
         }
-    }),
-    columnHelper.accessor(row => row.posUser?.email, {
+    },
+    {
         id: 'posUser',
+        accessorFn: (row) => row.posUser?.email,
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -225,9 +281,11 @@ const columns: ColumnDef<ReportData['services'][number], any>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: info => info.getValue() || 'N/A',
-    }),
-    columnHelper.accessor('status', {
+        cell: (info) => info.getValue() || 'N/A',
+    },
+    {
+        id: 'status',
+        accessorKey: 'status',
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -237,18 +295,20 @@ const columns: ColumnDef<ReportData['services'][number], any>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: info => (
+        cell: (info) => (
             <span className={`px-2 py-1 rounded text-xs ${
                 info.getValue() === 'COMPLETED' ? 'bg-green-100 text-green-800' :
                 info.getValue() === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
             }`}>
-                {info.getValue()}
+                {info.getValue() as string}
             </span>
         ),
         filterFn: 'equals'
-    }),
-    columnHelper.accessor('price', {
+    },
+    {
+        id: 'price',
+        accessorKey: 'price',
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -258,13 +318,13 @@ const columns: ColumnDef<ReportData['services'][number], any>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: info => `₹${info.getValue() || 0}`,
-        filterFn: (row, id, filterValue) => {
-            if (!filterValue) return true;
-            const value = row.getValue(id);
-            return typeof value === 'number' ? value >= filterValue : false;
+        cell: (info) => `₹${info.getValue() || 0}`,
+        filterFn: (row, id, value: number) => {
+            if (!value) return true;
+            const rowValue = row.getValue(id) as number;
+            return rowValue >= value;
         }
-    }),
+    }
 ];
 
 const DailyDatePicker = ({ date, onDateChange }: { date: Date, onDateChange: (date: Date) => void }) => {
@@ -465,9 +525,9 @@ export default function ReportsPage() {
         }
     };
 
-    const table = useReactTable({
+    const table = useReactTable<ReportData['services'][number]>({
         data: reportData?.services || [],
-        columns,
+        columns: columns as ColumnDef<ReportData['services'][number]>[],
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -677,9 +737,4 @@ export default function ReportsPage() {
         </div>
     );
 }
-
-
-
-
-
 
