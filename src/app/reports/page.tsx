@@ -19,10 +19,10 @@ import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
-import { cn } from "@/lib/utils";
-import toast from 'react-hot-toast';
+// import { Calendar as CalendarIcon } from "lucide-react";
+// import { DateRange } from "react-day-picker";
+// import { cn } from "@/lib/utils";
+// import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { Table } from '@tanstack/react-table'
 
@@ -90,11 +90,11 @@ export interface ReportData {
 }
 
 // Add this validation function at the top level
-const isDateInFuture = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date > today;
-};
+// const isDateInFuture = (date: Date) => {
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
+//     return date > today;
+// };
 
 // const columnHelper = createColumnHelper<ReportData['services'][number]>();
 // Add this type definition at the top with other interfaces
@@ -158,7 +158,7 @@ const TableFilters = ({ table, data }: TableFiltersProps) => {
                     <SelectValue placeholder="Filter POS User..." />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All POS Users</SelectItem>
+                    <SelectItem value="all">All Users</SelectItem>
                     {Array.from(new Set(data.map(item => item.posUser?.email))).filter(Boolean).map((email) => (
                         <SelectItem key={email} value={email || ''}>
                             {email}
@@ -350,11 +350,11 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<Array<{ id: string; name: string }>>([]);
     const [posUsers, setPosUsers] = useState<Array<{ id: string; email: string; personalInfo?: { firstName?: string; lastName?: string } }>>([]);
-    const [date] = useState<Date>(new Date());
-    const [dateRange, setDateRange] = useState<DateRange | undefined>({
-        from: new Date(),
-        to: new Date(),
-    });
+    // const [date] = useState<Date>(new Date());
+    // const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    //     from: new Date(),
+    //     to: new Date(),
+    // });
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -442,9 +442,27 @@ export default function ReportsPage() {
     };
 
     const renderDateSelector = () => {
-        const today = new Date();
-
         switch (filters.reportType) {
+            case 'weekly':
+                // Get current date
+                const currentDate = new Date(filters.startDate);
+                // Get Sunday (start) of the week
+                const weekStart = new Date(currentDate);
+                weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+                weekStart.setHours(0, 0, 0, 0);
+                // Get Saturday (end) of the week
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                weekEnd.setHours(23, 59, 59, 999);
+                
+                return (
+                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm w-full overflow-x-auto">
+                        <span className="whitespace-nowrap">
+                            {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
+                        </span>
+                    </div>
+                );
+
             case 'daily':
                 return (
                     <div className="flex flex-col gap-2">
@@ -455,68 +473,26 @@ export default function ReportsPage() {
                     </div>
                 );
 
-            // Update weekly and monthly date display containers
-            case 'weekly':
-                const weekStart = new Date(today.setDate(today.getDate() - 7));
-                return (
-                    <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm w-full overflow-x-auto">
-                        <span className="whitespace-nowrap">
-                            {format(weekStart, "MMM d")} - {format(new Date(), "MMM d, yyyy")}
-                        </span>
-                    </div>
-                );
-
             case 'monthly':
-                const monthStart = new Date(today.setDate(today.getDate() - 30));
+                // Get current date
+                const monthDate = new Date(filters.startDate);
+                // Set to first day of month
+                const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+                monthStart.setHours(0, 0, 0, 0);
+                // Set to last day of month
+                const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+                monthEnd.setHours(23, 59, 59, 999);
+                
                 return (
                     <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 text-sm w-full overflow-x-auto">
                         <span className="whitespace-nowrap">
-                            {format(monthStart, "MMM d")} - {format(new Date(), "MMM d, yyyy")}
+                            {format(monthStart, "MMM d")} - {format(monthEnd, "MMM d, yyyy")}
                         </span>
                     </div>
                 );
 
-            case 'custom':
-                return (
-                    <div className="grid gap-2">
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full md:w-[300px] justify-start text-left font-normal text-sm",
-                                !dateRange && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-                            <span className="truncate">
-                                {dateRange?.from ? (
-                                    dateRange.to ? (
-                                        <>
-                                            {format(dateRange.from, "LLL dd, y")} -{" "}
-                                            {format(dateRange.to, "LLL dd, y")}
-                                        </>
-                                    ) : (
-                                        format(dateRange.from, "LLL dd, y")
-                                    )
-                                ) : (
-                                    <span>Pick a date range</span>
-                                )}
-                            </span>
-                        </Button>
-                        <DatePicker
-                            date={dateRange?.from || date}
-                            onDateChange={(newDate) => {
-                                if (isDateInFuture(newDate)) {
-                                    toast.error("Cannot select future dates");
-                                    return;
-                                }
-                                setDateRange({ from: newDate, to: dateRange?.to });
-                            }}
-                        />
-                        {dateRange?.from && isDateInFuture(dateRange.from) && (
-                            <p className="text-sm text-red-500">Future dates are not allowed</p>
-                        )}
-                    </div>
-                );
+            default:
+                return null;
         }
     };
 
@@ -671,7 +647,7 @@ export default function ReportsPage() {
                                     <TabsTrigger value="daily">Daily</TabsTrigger>
                                     <TabsTrigger value="weekly">Weekly</TabsTrigger>
                                     <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                                    <TabsTrigger value="custom">Custom</TabsTrigger>
+                                    {/* <TabsTrigger value="custom">Custom</TabsTrigger> */}
                                 </TabsList>
                             </Tabs>
                         </div>
@@ -705,7 +681,7 @@ export default function ReportsPage() {
                                     <SelectValue placeholder="Select POS User" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All POS Users</SelectItem>
+                                    <SelectItem value="all">All Users</SelectItem>
                                     {posUsers.map((user) => (
                                         <SelectItem key={user.id} value={user.id}>
                                             {user.personalInfo?.firstName} {user.personalInfo?.lastName}
