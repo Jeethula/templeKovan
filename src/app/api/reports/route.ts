@@ -33,11 +33,11 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const whereClause: {
-      serviceDate: { gte: Date; lte: Date };
+      createdAt: { gte: Date; lte: Date };
       nameOfTheServiceId?: string;
       posUserId?: string;
     } = {
-      serviceDate: {
+      createdAt: {
         gte: startDate,
         lte: endDate,
       },
@@ -67,10 +67,10 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: {
-        serviceDate: 'desc',
-      },
-    });
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
     // Calculate statistics
     const totalAmount = services.reduce((sum, service) => sum + service.price, 0);

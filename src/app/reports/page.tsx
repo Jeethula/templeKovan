@@ -97,9 +97,7 @@ const isDateInFuture = (date: Date) => {
 };
 
 // const columnHelper = createColumnHelper<ReportData['services'][number]>();
-
 // Add this type definition at the top with other interfaces
-
 
 interface TableFiltersProps {
   table: Table<ReportData['services'][number]>;
@@ -129,8 +127,8 @@ const TableFilters = ({ table, data }: TableFiltersProps) => {
 
             <div className="w-full md:w-auto">
                 <DatePicker
-                    date={table.getColumn('date')?.getFilterValue() as Date}
-                    onDateChange={(date) => table.getColumn('date')?.setFilterValue(date)}
+                    date={table.getColumn('createdAt')?.getFilterValue() as Date}
+                    onDateChange={(date) => table.getColumn('createdAt')?.setFilterValue(date)}
                 />
             </div>
 
@@ -203,19 +201,9 @@ interface ServiceData {
 
 // Update the column definitions with proper typing
 const columns: ColumnDef<ServiceData>[] = [
-    // {
-    //     id: 'search',
-    //     accessorFn: (row) => `${row.nameOfTheService?.name} ${row.posUser?.email} ${row.status} ${row.price}`,
-    //     cell: () => null,
-    //     filterFn: (row, id, value: string) => {
-    //         if (!value) return true;
-    //         const rowValue = row.getValue(id) as string;
-    //         return rowValue.toLowerCase().includes(value.toLowerCase());
-    //     }
-    // },
     {
-        id: 'date',
-        accessorFn: (row) => new Date(row.createdAt).toLocaleDateString(),
+        id: 'createdAt', // Change from 'date' to 'createdAt'
+        accessorFn: (row) => new Date(row.createdAt),
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -225,16 +213,17 @@ const columns: ColumnDef<ServiceData>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        cell: (info) => (info.getValue() as Date)?.toLocaleDateString('en-GB'),
         filterFn: (row, id, value: Date) => {
             if (!value) return true;
-            const rowDate = new Date(row.getValue(id) as string);
+            const rowDate = row.getValue(id) as Date;
             const filterDate = new Date(value);
-            return rowDate.toDateString() === filterDate.toDateString();
+            return rowDate.toLocaleDateString('en-GB') === filterDate.toLocaleDateString('en-GB');
         }
     },
     {
-        id: 'date',
-        accessorFn: (row) => new Date(row.serviceDate).toLocaleDateString(),
+        id: 'serviceDate',
+        accessorFn: (row) => new Date(row.serviceDate),
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -244,11 +233,12 @@ const columns: ColumnDef<ServiceData>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        cell: (info) => (info.getValue() as Date)?.toLocaleDateString('en-GB'),
         filterFn: (row, id, value: Date) => {
             if (!value) return true;
-            const rowDate = new Date(row.getValue(id) as string);
+            const rowDate = row.getValue(id) as Date;
             const filterDate = new Date(value);
-            return rowDate.toDateString() === filterDate.toDateString();
+            return rowDate.toLocaleDateString('en-GB') === filterDate.toLocaleDateString('en-GB');
         }
     },
     {
