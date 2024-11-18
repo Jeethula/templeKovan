@@ -114,7 +114,7 @@ const DateCheckModal: React.FC<DateCheckModalProps> = ({
 
             <Button 
               onClick={checkAvailability} 
-              className="w-full bg-[rgb(102,51,153)]" 
+              className="w-full bg-[rgb(102,51,153)] hover:bg-[#6a32a5]" 
               disabled={isLoading}
             >
               {isLoading ? (

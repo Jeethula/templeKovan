@@ -227,7 +227,7 @@ const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen,minAmount, 
             </div>
 
             <Button
-              className="w-full bg-[rgb(102,51,153)] text-white"
+              className="w-full bg-[rgb(102,51,153)] text-white hover:bg-[#6a32a5]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
