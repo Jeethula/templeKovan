@@ -41,12 +41,36 @@ interface PersonalInfo {
   state?: string;
   pincode?: string;
   country?: string;
+  [key: string]: string | undefined;
 }
 
+interface Relationship {
+  id: string;
+  relation: 'son' | 'daughter';
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+}
+
+// Update the Profile interface
 interface Profile {
-  user: User;
-  personalInfo: PersonalInfo;
-  [key: string]: string | User | PersonalInfo;
+  user: {
+    id: string;
+    email: string;
+    phone: string;
+  };
+  personalInfo: {
+    firstName?: string;
+    lastName?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    country?: string;
+    [key: string]: string | undefined;
+  };
+  relationships: Relationship[];
 }
 
 interface HistoryItem {
@@ -58,6 +82,13 @@ interface Change {
   field: string;
   from: string | User | PersonalInfo | undefined;
   to: string | User | PersonalInfo | undefined;
+}
+
+interface EditableSectionProps {
+  section: string;
+  fields: string[];
+  profile: Profile | null;
+  onSave: (section: string, updatedData: { [key: string]: string }) => void;
 }
 
 const formatPhoneNumber = (phone: string) => {
@@ -115,8 +146,18 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  const handleEditSubmit = async (section: string, updatedData: Partial<Profile>) => {
+  // Update handleEditSubmit function
+  const handleEditSubmit = async (section: string, updatedData: { [key: string]: string }) => {
     if (!profile) return;
+
+    const payload = {
+      userId: profile.user.id,
+      email: updatedData.email || profile.user.email,
+      phone: updatedData.phone || profile.user.phone,
+      firstName: updatedData.firstName || profile.personalInfo?.firstName,
+      lastName: updatedData.lastName || profile.personalInfo?.lastName,
+      ...updatedData
+    };
 
     try {
       const response = await fetch('/api/userDetails', {
@@ -124,23 +165,27 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userId: profile.user?.id,
-          ...updatedData,
-          uniqueId: profile.personalInfo?.uniqueId ?? 0,
-          isApproved: profile.personalInfo?.isApproved ?? "pending",
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        setProfile(prevProfile => ({
-          ...(prevProfile ?? {}),
-          ...updatedData,
-          personalInfo: { ...(prevProfile?.personalInfo ?? {}), ...result.userDetails },
-          user: { ...(prevProfile?.user ?? {}), ...result.user },
-        }));
+        setProfile(prevProfile => {
+          if (!prevProfile) return null;
+          return {
+            ...prevProfile,
+            user: {
+              ...prevProfile.user,
+              email: updatedData.email || prevProfile.user.email,
+              phone: updatedData.phone || prevProfile.user.phone,
+            },
+            personalInfo: {
+              ...prevProfile.personalInfo,
+              ...result.userDetails,
+            }
+          };
+        });
         toast.success('Profile updated successfully');
       } else {
         toast.error(result.error || 'Failed to update profile');
@@ -167,8 +212,11 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     const personalInfoFields = ['salutation', 'firstName', 'lastName', 'phoneNumber', 'address1', 'address2', 'city', 'pincode', 'state', 'country', 'avatarUrl', 'comments'];
 
     personalInfoFields.forEach(field => {
-      if (current[field] !== previous[field]) {
-        changes.push({ field, from: previous[field], to: current[field] });
+      const currentValue = (current as HistoryItem)[field] || (current as Profile).personalInfo?.[field];
+      const previousValue = (previous as HistoryItem)[field] || (previous as Profile).personalInfo?.[field];
+      
+      if (currentValue !== previousValue) {
+        changes.push({ field, from: previousValue, to: currentValue });
       }
     });
 
@@ -181,7 +229,7 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   //   </p>
   // );
 
-  const EditableSection = ({ section, fields, profile, onSave }: { section: string, fields: string[], profile: Profile, onSave: (section: string, values: {[key: string]: string}) => void }) => {
+  const EditableSection = ({ section, fields, profile, onSave }: EditableSectionProps) => {
     const [editedValues, setEditedValues] = useState<{[key: string]: string}>({});
     const inputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
 
@@ -218,11 +266,20 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       }
     };
 
+    // Update the getValue function in EditableSection
     const getValue = (field: string) => {
-      if (field === 'email' || field === 'phone') {
-        return profile.user?.[field] || '';
+      if (!profile) return '';
+      
+      // Handle email and phone separately since they're in user object
+      if (field === 'email') {
+        return profile.user?.email || '';
       }
-      return profile[field]?.toString() || '';
+      if (field === 'phone') {
+        return profile.user?.phone || '';
+      }
+      
+      // Handle personal info fields
+      return profile.personalInfo?.[field]?.toString() || '';
     };
 
     return (
@@ -318,6 +375,54 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     );
   };
 
+  const RelationshipsSection = ({ relationships }: { relationships: Relationship[] }) => {
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
+        <h3 className="text-lg font-semibold text-[#663399] mb-4">Family Members</h3>
+        
+        {relationships.length === 0 ? (
+          <p className="text-gray-600">No family members added</p>
+        ) : (
+          <div className="space-y-4">
+            {relationships.map((relation) => (
+              <div 
+                key={relation.id} 
+                className="p-4 bg-[#fdf0f4] rounded-lg flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-medium text-[#663399] capitalize">
+                    {relation.firstName} {relation.lastName}
+                  </p>
+                  <p className="text-sm text-gray-600 capitalize">
+                    {relation.relation}
+                  </p>
+                </div>
+                {relation.phone && (
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`tel:${formatPhoneNumber(relation.phone)}`}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <Phone size={18} />
+                    </a>
+                    <a
+                      href={`https://wa.me/${formatPhoneNumber(relation.phone)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <BsWhatsapp size={18} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf0f4] to-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -342,13 +447,20 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
             <EditableSection
               section="personalInfo"
               fields={[
-                'firstName',
-                'lastName',
                 'email',
-                'phone'
+                'phone',
+                'firstName',
+                'lastName'
               ]}
               profile={profile}
-              onSave={handleEditSubmit}
+              onSave={(section, values) => {
+                handleEditSubmit(section, {
+                  email: values.email,
+                  phone: values.phone,
+                  firstName: values.firstName,
+                  lastName: values.lastName
+                });
+              }}
             />
 
             {/* Address Information Section */}
@@ -365,6 +477,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               profile={profile}
               onSave={handleEditSubmit}
             />
+
+            {/* Add the new RelationshipsSection */}
+            <RelationshipsSection relationships={profile.relationships || []} />
 
             {/* History Section remains the same */}
             <div className="bg-white rounded-xl shadow-md border border-[#663399]/20 p-4 sm:p-6">
