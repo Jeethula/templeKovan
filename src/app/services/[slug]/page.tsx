@@ -125,7 +125,7 @@ const ServicePage = () => {
                   {service.targetDate && (
                     <div className="bg-[#fdf0f4] p-4 rounded-lg">
                       <span className="text-sm text-gray-600">Target Date</span>
-                      <p className="text-xl font-semibold text-[#663399]">{new Date(service.targetDate).toLocaleDateString()}</p>
+                      <p className="text-xl font-semibold text-[#663399]">{new Date(service.targetDate).toLocaleDateString('en-GB')}</p>
                     </div>
                   )}
                   {service.maxCount &&(

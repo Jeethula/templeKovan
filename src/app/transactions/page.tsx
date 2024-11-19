@@ -505,6 +505,7 @@ const TransactionsPage = () => {
   const StatusIcon = ({ status }: { status: string }) => {
     switch (status) {
       case 'PENDING':
+        
         return <Clock className="w-3 h-3" />;
       case 'APPROVED':
         return <IoCheckmarkDone className="w-3 h-3" />;
