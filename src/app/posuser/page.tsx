@@ -56,57 +56,60 @@ const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToSer
         onOpenChange={(open) => !open && setShowDetailsModal(false)}
       >
         <DialogContent className="sm:max-w-[500px]">
-          <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Full Name</p>
-                  <p className="text-gray-900">
-                    {user.personalInfo.salutation} {user.personalInfo.firstName} {user.personalInfo.lastName}
-                  </p>
-                </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="text-gray-900">{user.phone}</p>
-                </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-gray-900">{user.email}</p>
-                </div>
-                <div className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">Address</p>
-                  <p className="text-gray-900">
-                    {user.personalInfo.address1}
-                    {user.personalInfo.address2 && <>, {user.personalInfo.address2}</>}
-                    {`, ${user.personalInfo.city}, ${user.personalInfo.state}`}
-                    {`, ${user.personalInfo.country} - ${user.personalInfo.pincode}`}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
-                  onClick={() => setShowContributionModal(true)}
-                >
-                  Contribution
-                </button>
-
-                <button
-                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
-                  onClick={() => goToService(user.id)}
-                >
-                  Services
-                </button>
-                <button
-                  className="mt-4 w-full bg-[#663399] text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm"
-                  onClick={() => goToEvents(user.id)}
-                >
-                 Events
-                </button>
-              </div>
+          <div className="p-2 sm:p-3">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="border-b border-gray-100 pb-2">
+          <p className="text-sm text-gray-500">Full Name</p>
+          <p className="text-gray-900 break-words">
+            {user.personalInfo.salutation} {user.personalInfo.firstName} {user.personalInfo.lastName}
+          </p>
             </div>
+            <div className="border-b border-gray-100 pb-2">
+          <p className="text-sm text-gray-500">Phone</p>
+          <p className="text-gray-900">{user.phone}</p>
+            </div>
+            <div className="border-b border-gray-100 pb-2">
+          <p className="text-sm text-gray-500">Email</p>
+          <p className="text-gray-900 break-words">{user.email}</p>
+            </div>
+            <div className="border-b border-gray-100 pb-2">
+          <p className="text-sm text-gray-500">Address</p>
+          <p className="text-gray-900 break-words">
+            {user.personalInfo.address1}
+            {user.personalInfo.address2 && <>, {user.personalInfo.address2}</>}
+            {`, ${user.personalInfo.city}, ${user.personalInfo.state}`}
+            {`, ${user.personalInfo.country} - ${user.personalInfo.pincode}`}
+          </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-1/3">
+          <button
+            className="w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm text-sm"
+            onClick={() => setShowContributionModal(true)}
+          >
+            Contribution
+          </button>
+            </div>
+            <div className="flex w-full gap-2 sm:w-2/3">
+              <button
+          className="w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm text-sm"
+          onClick={() => goToService(user.id)}
+              >
+          Services
+              </button>
+              <button
+          className="w-full bg-[#663399] text-white font-medium py-2 px-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm text-sm"
+          onClick={() => goToEvents(user.id)}
+              >
+          Events
+              </button>
+            </div>
+          </div>
+        </div>
           </div>
         </DialogContent>
       </Dialog>
