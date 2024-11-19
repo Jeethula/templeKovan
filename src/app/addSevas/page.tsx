@@ -81,7 +81,7 @@ export default function AddSevas() {
             const response = await fetch('/api/services/addservices');
             if (!response.ok) throw new Error('Failed to fetch services');
             const data = await response.json();
-            setServices(data.services)
+            setServices(data.services.filter((service:Service) => service.isActive && service.name !== 'Contribution'));
         } catch (error) {
             console.error(error);
             toast.error('Error fetching services');
