@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
@@ -364,10 +364,35 @@ const TransactionsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
   const [totalCount, setTotalCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [showFilters, setShowFilters] = useState(false);
+
+  const handleSearch = debounce((value: string) => {
+    setSearchTerm(value);
+  }, 300);
+  
+  // Move all useEffect hooks here, at the top level
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const searchContainer = document.getElementById('search-container');
+      if (searchContainer && !searchContainer.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchHistory(1);
+  }, [activeFilter, searchTerm]);
+
+  // Rest of your component logic...
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const fetchHistory = async (page: number) => {
     try {
@@ -403,27 +428,17 @@ const TransactionsPage = () => {
     }
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-    fetchHistory(1);
-  }, [activeFilter, searchTerm]);
+  // Move the error check after all hooks
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={() => fetchHistory(currentPage)}>Retry</Button>
+      </div>
+    );
+  }
 
-  // Debounced search handler
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((term: string) => {
-        setSearchTerm(term);
-      }, 300),
-    []
-  );
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value.toLowerCase();
-    debouncedSearch(term);
-  };
-
-  const totalPages = Math.ceil(totalCount / itemsPerPage);
-
+  // Rest of your component JSX...
   const Pagination = () => {
     if (totalCount <= itemsPerPage) return null;
 
@@ -479,15 +494,6 @@ const TransactionsPage = () => {
       </div>
     );
   };
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-500 mb-4">{error}</p>
-        <Button onClick={() => fetchHistory(currentPage)}>Retry</Button>
-      </div>
-    );
-  }
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -557,18 +563,6 @@ const TransactionsPage = () => {
     );
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const searchContainer = document.getElementById('search-container');
-      if (searchContainer && !searchContainer.contains(event.target as Node)) {
-        setShowFilters(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 px-4 py-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -585,7 +579,7 @@ const TransactionsPage = () => {
               type="text"
               placeholder="Search transactions..."
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => setShowFilters(true)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-purple-200 rounded-xl 
                        focus:border-purple-400 focus:ring-2 focus:ring-purple-100 bg-white/80
@@ -761,19 +755,22 @@ const TransactionsPage = () => {
 };
 
 // Helper function to debounce search
-function debounce<F extends (...args: any[]) => any>(
-  func: F,
+function debounce<T>(
+  func: (arg: T) => void,
   waitFor: number
-) {
-  let timeout: ReturnType<typeof setTimeout>;
+): (arg: T) => Promise<void> {
+  let timeout: NodeJS.Timeout;
 
-  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+  return (arg: T): Promise<void> =>
     new Promise(resolve => {
       if (timeout) {
         clearTimeout(timeout);
       }
 
-      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+      timeout = setTimeout(() => {
+        func(arg);
+        resolve();
+      }, waitFor);
     });
 }
 
