@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent,DialogTitle } from "@/components/ui/dialog";
 import DetailsModal from "../../components/posusermodals/DetailsModal";
 import { LucideUsers2 } from "lucide-react";
 
@@ -57,7 +57,7 @@ const UserDetailsModal = ({ user, showDetailsModal, setShowDetailsModal, goToSer
       >
         <DialogContent className="sm:max-w-[500px]">
           <div className="p-2 sm:p-3">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">User Details</h2>
+        <DialogTitle className="text-xl font-semibold mb-4 text-gray-900">User Details</DialogTitle>
         <div className="space-y-3">
           <div className="grid grid-cols-1 gap-3">
             <div className="border-b border-gray-100 pb-2">

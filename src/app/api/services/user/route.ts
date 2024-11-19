@@ -63,7 +63,7 @@ export async function GET(req:NextRequest) {
             prisma.services.findMany({
                 where: whereClause,
                 skip: offset,
-                take: limit,
+                take: limit, 
                 select: {
                     id: true,
                     nameOfTheService: {

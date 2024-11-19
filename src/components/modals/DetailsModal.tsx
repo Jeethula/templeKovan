@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent } from 'react';
-import { Dialog, DialogContent } from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -144,7 +144,7 @@ const DetailsModal = ({ nameOfTheServiceId,serviceName, date, isOpen,minAmount, 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <div>
-          <h1 className="text-2xl font-bold mb-5">{serviceName} Details</h1>
+          <DialogTitle className="text-2xl font-bold mb-5">{serviceName} Details</DialogTitle>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">

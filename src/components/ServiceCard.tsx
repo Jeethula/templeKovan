@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 import DateCheckModal from "../components/modals/DateCheckModal";
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface ServiceCardProps {
   id: string;
@@ -55,6 +55,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       {/* Service Details Modal */}
       <Dialog open={isServiceModalOpen} onOpenChange={setIsServiceModalOpen}>
         <DialogContent className="sm:max-w-[425px] md:max-w-[525px] lg:max-w-[625px]">
+          <DialogTitle className="sr-only">{title}</DialogTitle>
           <div className="relative">
             <div className="relative h-64 w-full">
               <Image
