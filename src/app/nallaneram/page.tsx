@@ -40,9 +40,9 @@ interface Muhurat {
   end: string;
 }
 
-const formatTime = (dateString: string) => {
-  return format(new Date(dateString), 'hh:mm a');
-};
+// const formatTime = (dateString: string) => {
+//   return format(new Date(dateString), 'hh:mm a');
+// };
 
 
 export default async function NallaneramPage() {

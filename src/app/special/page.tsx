@@ -3,18 +3,18 @@ import ServiceCard from '../../components/ServiceCard';
 import { PiHandsPrayingBold } from 'react-icons/pi';
 import prisma from '@/utils/prisma';
 
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  targetDate: string | null;
-  targetPrice: number;
-  minAmount: number;
-  maxCount: number;
-  isActive: boolean;
-  isSeva: boolean;
-}
+// interface Service {
+//   id: string;
+//   name: string;
+//   description: string;
+//   image: string;
+//   targetDate: string | null;
+//   targetPrice: number;
+//   minAmount: number;
+//   maxCount: number;
+//   isActive: boolean;
+//   isSeva: boolean;
+// }
 
 async function getServices() {
   try {
