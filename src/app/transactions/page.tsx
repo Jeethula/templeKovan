@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { IoCheckmarkDone } from 'react-icons/io5';
 import { RxCross1 } from 'react-icons/rx';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
@@ -357,75 +357,97 @@ const TransactionSkeleton = () => (
 
 const TransactionsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<Service[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const sessionData = JSON.parse(sessionStorage.getItem("user") || "{}");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const [totalCount, setTotalCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
+  const fetchHistory = async (page: number) => {
     try {
-      setIsLoading(true);
+      setIsLoadingMore(true);
+      setError(null);
       const userId: string = sessionData.id;
-      const response = await fetch(`/api/services/user?userId=${userId}`);
+      const offset = (page - 1) * itemsPerPage;
+      
+      const url = `/api/services/user?userId=${userId}&limit=${itemsPerPage}&offset=${offset}${
+        activeFilter !== "All" ? `&serviceName=${encodeURIComponent(activeFilter)}` : ''
+      }${searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : ''}`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch data');
+      
       const data = await response.json();
-      setHistory(data.services.services);
-      setFilteredHistory(data.services.services);
+      
+      if (page === 1) {
+        setHistory(data.services.services);
+        setFilteredHistory(data.services.services);
+      } else {
+        setHistory(prev => [...prev, ...data.services.services]);
+        setFilteredHistory(prev => [...prev, ...data.services.services]);
+      }
+      
+      setTotalCount(data.services.total);
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred');
       console.error('Error fetching history:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value.toLowerCase();
-    setSearchTerm(term);
-    
-    // Filter the complete history dataset with null checks
-    const filtered = history.filter(service => 
-      (service.nameOfTheService?.name?.toLowerCase() || '').includes(term) ||
-      (service.transactionId?.toLowerCase() || '').includes(term) ||
-      (service.description?.toLowerCase() || '').includes(term) ||
-      (service.status?.toLowerCase() || '').includes(term) ||
-      (service.paymentMode?.toLowerCase() || '').includes(term) ||
-      (service.serviceDate && new Date(service.serviceDate).toLocaleDateString().toLowerCase().includes(term)) ||
-      service.price?.toString().includes(term)
-    );
-    
-    setFilteredHistory(filtered);
+  useEffect(() => {
     setCurrentPage(1);
-  };
+    fetchHistory(1);
+  }, [activeFilter, searchTerm]);
 
-  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
-  const paginatedTransactions = filteredHistory.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  // Debounced search handler
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((term: string) => {
+        setSearchTerm(term);
+      }, 300),
+    []
   );
 
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value.toLowerCase();
+    debouncedSearch(term);
+  };
+
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
   const Pagination = () => {
+    if (totalCount <= itemsPerPage) return null;
+
     return (
       <div className="flex items-center justify-center space-x-2 py-4">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(1)}
-          disabled={currentPage === 1}
+          onClick={() => {
+            setCurrentPage(1);
+            fetchHistory(1);
+          }}
+          disabled={currentPage === 1 || isLoadingMore}
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
+          onClick={() => {
+            setCurrentPage(currentPage - 1);
+            fetchHistory(currentPage - 1);
+          }}
+          disabled={currentPage === 1 || isLoadingMore}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -435,22 +457,37 @@ const TransactionsPage = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          onClick={() => {
+            setCurrentPage(currentPage + 1);
+            fetchHistory(currentPage + 1);
+          }}
+          disabled={currentPage === totalPages || isLoadingMore}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(totalPages)}
-          disabled={currentPage === totalPages}
+          onClick={() => {
+            setCurrentPage(totalPages);
+            fetchHistory(totalPages);
+          }}
+          disabled={currentPage === totalPages || isLoadingMore}
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
       </div>
     );
   };
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={() => fetchHistory(currentPage)}>Retry</Button>
+      </div>
+    );
+  }
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -617,7 +654,7 @@ const TransactionsPage = () => {
             ))
           ) : filteredHistory.length > 0 ? (
             <>
-              {paginatedTransactions.map((transaction, index) => (
+              {filteredHistory.map((transaction, index) => (
                 <div
                   key={index}
                   className="bg-white rounded-xl border border-purple-100 shadow-sm hover:shadow-md 
@@ -721,5 +758,22 @@ const TransactionsPage = () => {
     </div>
   );
 };
+
+// Helper function to debounce search
+function debounce<F extends (...args: any[]) => any>(
+  func: F,
+  waitFor: number
+) {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+    });
+}
 
 export default TransactionsPage;
