@@ -95,7 +95,7 @@ const DonationPage = () => {
         <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-6">
           <div className="space-y-4">
             <h1 className='text-2xl font-bold text-[#663399] mb-4'>Choose Payment Method</h1>
-            <div className="flex flex-row space-x-5">
+            <div className="flex flex-row space-x-3">
               {['NEFT', 'UPI', 'QR'].map((method) => (
                 <label key={method} className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200">
                   <input

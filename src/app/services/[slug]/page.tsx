@@ -100,19 +100,17 @@ const ServicePage = () => {
           {service ? (
             <>
               <div className="space-y-4">
-                <div className="flex items-center gap-6">
                   <img
                     src={service.image}
                     alt={service.name}
-                    className="w-24 h-24 rounded-lg object-cover"
+                    className="w-full h-fit rounded-lg object-cover"
                   />
                   <div>
                     <h1 className="text-3xl font-bold text-[#663399]">{service.name}</h1>
                     <p className="text-gray-600 mt-1">{service.description}</p>
-                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="grid grid-cols-2 gap-4">
                 {service.targetPrice && (
                   <div className="bg-[#fdf0f4] p-4 rounded-lg">
                     <span className="text-sm text-gray-600">Target Amount</span>
@@ -165,7 +163,7 @@ const ServicePage = () => {
         <div className="bg-white rounded-2xl shadow-md border border-[#663399]/20 p-6">
           <div className="space-y-4">
             <h1 className='text-2xl font-bold text-[#663399] mb-4'>Choose Payment Method</h1>
-            <div className="flex flex-row space-x-5">
+            <div className="flex flex-row space-x-3">
               {['NEFT', 'UPI', 'QR'].map((method) => (
                 <label key={method} className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200">
                   <input
