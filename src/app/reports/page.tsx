@@ -643,7 +643,7 @@ export default function ReportsPage() {
                         {/* Date Type Selection - Full width on small, half on medium */}
                         <div className="col-span-1 sm:col-span-2 lg:col-span-1">
                             <Tabs value={filters.reportType} onValueChange={(value: string) => setFilters(prev => ({ ...prev, reportType: value as 'daily' | 'weekly' | 'monthly' | 'custom' }))}>
-                                <TabsList className="grid w-full grid-cols-4">
+                                <TabsList className="grid w-full grid-cols-3">
                                     <TabsTrigger value="daily">Daily</TabsTrigger>
                                     <TabsTrigger value="weekly">Weekly</TabsTrigger>
                                     <TabsTrigger value="monthly">Monthly</TabsTrigger>
