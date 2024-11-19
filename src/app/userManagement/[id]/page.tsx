@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Pencil, User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from "react";import { useRouter } from "next/navigation";
+import {  User, Mail, Phone, MapPin, Home, Flag, Building2, ChevronLeft } from 'lucide-react';
 import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill } from "react-icons/pi";
 import { BsWhatsapp } from "react-icons/bs";
@@ -54,11 +53,10 @@ interface Relationship {
 
 // Update the Profile interface
 interface Profile {
-  user: {
     id: string;
     email: string;
     phone: string;
-  };
+
   personalInfo: {
     firstName?: string;
     lastName?: string;
@@ -84,11 +82,14 @@ interface Change {
   to: string | User | PersonalInfo | undefined;
 }
 
+// First, update the EditableSectionProps interface to include a new ref
 interface EditableSectionProps {
   section: string;
   fields: string[];
   profile: Profile | null;
-  onSave: (section: string, updatedData: { [key: string]: string }) => void;
+  isEditing: boolean;
+  editedValues: {[key: string]: string};
+  onInputChange: (field: string, value: string) => void;
 }
 
 const formatPhoneNumber = (phone: string) => {
@@ -102,6 +103,8 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedValues, setEditedValues] = useState<{[key: string]: string}>({});
 
   const fetchData = async () => {
     try {
@@ -151,9 +154,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
     if (!profile) return;
 
     const payload = {
-      userId: profile.user.id,
-      email: updatedData.email || profile.user.email,
-      phone: updatedData.phone || profile.user.phone,
+      userId: profile.id,
+      email: updatedData.email || profile.email,
+      phone: updatedData.phone || profile.phone,
       firstName: updatedData.firstName || profile.personalInfo?.firstName,
       lastName: updatedData.lastName || profile.personalInfo?.lastName,
       ...updatedData
@@ -176,9 +179,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           return {
             ...prevProfile,
             user: {
-              ...prevProfile.user,
-              email: updatedData.email || prevProfile.user.email,
-              phone: updatedData.phone || prevProfile.user.phone,
+              ...prevProfile,
+              email: updatedData.email || prevProfile.email,
+              phone: updatedData.phone || prevProfile.phone,
             },
             personalInfo: {
               ...prevProfile.personalInfo,
@@ -194,6 +197,31 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
     }
+  };
+
+  // Update the parent component's handleEditAll function
+  const handleEditAll = useCallback(() => {
+    if (!profile) return;
+    
+    setEditedValues({
+      email: profile.email || '',
+      phone: profile.phone || '',
+      firstName: profile.personalInfo?.firstName || '',
+      lastName: profile.personalInfo?.lastName || '',
+      address1: profile.personalInfo?.address1 || '',
+      address2: profile.personalInfo?.address2 || '',
+      city: profile.personalInfo?.city || '',
+      state: profile.personalInfo?.state || '',
+      pincode: profile.personalInfo?.pincode || '',
+      country: profile.personalInfo?.country || '',
+    });
+    setIsEditing(true);
+  }, [profile]);
+
+  const handleSaveAll = async () => {
+    await handleEditSubmit('all', editedValues);
+    setIsEditing(false);
+    setEditedValues({});
   };
 
   useEffect(() => {
@@ -229,58 +257,83 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
   //   </p>
   // );
 
-  const EditableSection = ({ section, fields, profile, onSave }: EditableSectionProps) => {
-    const [editedValues, setEditedValues] = useState<{[key: string]: string}>({});
-    const inputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
+  const handleInputChange = (field: string, value: string) => {
+    setEditedValues(prev => ({ ...prev, [field]: value }));
+  };
 
+  // Update the EditableSection component
+  const getIcon = (field: string) => {
+    switch (field) {
+      case 'email':
+        return <Mail className="w-5 h-5 text-gray-500" />;
+      case 'phone':
+        return <Phone className="w-5 h-5 text-gray-500" />;
+      case 'firstName':
+      case 'lastName':
+        return <User className="w-5 h-5 text-gray-500" />;
+      case 'address1':
+      case 'address2':
+        return <Home className="w-5 h-5 text-gray-500" />;
+      case 'city':
+        return <Building2 className="w-5 h-5 text-gray-500" />;
+      case 'state':
+      case 'country':
+        return <Flag className="w-5 h-5 text-gray-500" />;
+      case 'pincode':
+        return <MapPin className="w-5 h-5 text-gray-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const EditableSection = React.memo(({ 
+    section, 
+    fields, 
+    profile,
+    isEditing,
+    editedValues,
+    onInputChange
+  }: EditableSectionProps) => {
+    // Move all hooks to the top level
+    const inputRefs = useRef<{[key: string]: HTMLInputElement}>({});
     const handleInputChange = useCallback((field: string, value: string) => {
-      setEditedValues(prev => ({ ...prev, [field]: value }));
-    }, []);
+      onInputChange(field, value);
+    }, [onInputChange]);
 
-    const handleSave = useCallback(() => {
-      onSave(section, editedValues);
-      setEditedValues({});
-    }, [section, editedValues, onSave]);
-
-    const getIcon = (field: string) => {
-      switch (field) {
-        case 'firstName':
-        case 'lastName':
-          return <User size={18} className="mr-2" />;
-        case 'email':
-          return <Mail size={18} className="mr-2" />;
-        case 'phone':
-          return <Phone size={18} className="mr-2" />;
-        case 'address1':
-        case 'address2':
-          return <Home size={18} className="mr-2" />;
-        case 'city':
-          return <Building2  size={18} className="mr-2" />;
-        case 'state':
-        case 'country':
-          return <Flag size={18} className="mr-2" />;
-        case 'pincode':
-          return <MapPin size={18} className="mr-2" />;
-        default:
-          return null;
-      }
-    };
-
-    // Update the getValue function in EditableSection
-    const getValue = (field: string) => {
+    const getValue = useCallback((field: string): string => {
       if (!profile) return '';
-      
-      // Handle email and phone separately since they're in user object
-      if (field === 'email') {
-        return profile.user?.email || '';
+      return profile[field as keyof Profile] as string || 
+             profile.personalInfo?.[field as keyof PersonalInfo] || '';
+    }, [profile]);
+
+    useEffect(() => {
+      if (!isEditing) return;
+
+      const handleFocus = (field: string) => {
+        localStorage.setItem('lastFocusedField', field);
+      };
+
+      fields.forEach(field => {
+        const input = inputRefs.current[field];
+        if (input) {
+          input.addEventListener('focus', () => handleFocus(field));
+        }
+      });
+
+      const lastFocused = localStorage.getItem('lastFocusedField');
+      if (lastFocused && inputRefs.current[lastFocused]) {
+        inputRefs.current[lastFocused].focus();
       }
-      if (field === 'phone') {
-        return profile.user?.phone || '';
-      }
-      
-      // Handle personal info fields
-      return profile.personalInfo?.[field]?.toString() || '';
-    };
+
+      return () => {
+        fields.forEach(field => {
+          const input = inputRefs.current[field];
+          if (input) {
+            input.removeEventListener('focus', () => handleFocus(field));
+          }
+        });
+      };
+    }, [isEditing, fields]);
 
     return (
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg mb-4 sm:mb-6 relative">
@@ -295,85 +348,52 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
               </>
             )}
           </h3>
-          {Object.keys(editedValues).length === 0 && (
-            <button 
-              onClick={() => setEditedValues(Object.fromEntries(
-                fields.map(field => [field, getValue(field)])
-              ))} 
-              className="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors"
-            >
-              <Pencil className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          )}
         </div>
 
-        {Object.keys(editedValues).length > 0 ? (
-          <>
-            {fields.map(field => (
-              <div key={field} className="mb-3">
+        <div className="space-y-2">
+          {fields.map(field => (
+            <div key={field} className="flex items-center text-sm sm:text-base text-gray-700 py-1">
+              {getIcon(field)}
+              {isEditing ? (
                 <input
+                  ref={el => {
+                    if (el) inputRefs.current[field] = el;
+                  }}
                   type="text"
-                  id={field}
-                  ref={(el: HTMLInputElement | null) => { inputRefs.current[field] = el; }}
-                  value={editedValues[field] || getValue(field)}
+                  value={editedValues[field] ?? getValue(field)}
                   onChange={(e) => handleInputChange(field, e.target.value)}
-                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg
+                  onFocus={() => localStorage.setItem('lastFocusedField', field)}
+                  className="w-full px-3 py-2 ml-2 text-sm sm:text-base border border-gray-300 rounded-lg
                     focus:outline-none focus:ring-2 focus:ring-[#663399] focus:border-transparent
                     transition-shadow"
                 />
-              </div>
-            ))}
-            <div className="flex justify-end gap-2 mt-4">
-              <button 
-                onClick={() => setEditedValues({})} 
-                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500 hover:bg-red-600 
-                  text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 
-                  focus:ring-offset-2"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleSave} 
-                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 
-                  text-white transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 
-                  focus:ring-offset-2"
-              >
-                Save
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="space-y-2">
-            {fields.map(field => (
-              <p key={field} className="flex items-center text-sm sm:text-base text-gray-700 py-1">
-                {getIcon(field)}
-                {field === 'phone' ? (
-                  <span className="flex items-center gap-2">
-                    <a
-                      href={`tel:${formatPhoneNumber(getValue(field))}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
+              ) : (
+                field === 'phone' ? (
+                  <span className="flex items-center gap-2 ml-2">
+                    <a href={`tel:${formatPhoneNumber(getValue(field))}`}
+                      className="text-blue-600 hover:text-blue-800 hover:underline">
                       {getValue(field)}
                     </a>
-                    <a
-                      href={`https://wa.me/${formatPhoneNumber(getValue(field))}`}
+                    <a href={`https://wa.me/${formatPhoneNumber(getValue(field))}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-green-600 hover:text-green-700 p-1 hover:bg-green-50 rounded-full transition-colors"
-                    >
+                      className="text-green-600 hover:text-green-700 p-1 hover:bg-green-50 rounded-full transition-colors">
                       <BsWhatsapp className="w-4 h-4 sm:w-5 sm:h-5" />
                     </a>
                   </span>
                 ) : (
                   <span className="ml-2">{getValue(field)}</span>
-                )}
-              </p>
-            ))}
-          </div>
-        )}
+                )
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     );
-  };
+  });
+
+  // Add display name for memo component
+  EditableSection.displayName = 'EditableSection';
 
   const RelationshipsSection = ({ relationships }: { relationships: Relationship[] }) => {
     return (
@@ -443,6 +463,36 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
           <LoadingPageUi />
         ) : profile ? (
           <div className="space-y-4 sm:space-y-6">
+            {/* Add Edit/Save buttons at the top */}
+            <div className="flex justify-end">
+              {isEditing ? (
+                <div className="space-x-2">
+                  <button 
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedValues({});
+                    }}
+                    className="px-4 py-2 text-sm font-medium rounded-lg bg-red-500 hover:bg-red-600 
+                      text-white transition-colors">
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleSaveAll}
+                    className="px-4 py-2 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 
+                      text-white transition-colors">
+                    Save All
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleEditAll}
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-500 hover:bg-blue-600 
+                    text-white transition-colors">
+                  Edit Profile
+                </button>
+              )}
+            </div>
+
             {/* Personal Information Section */}
             <EditableSection
               section="personalInfo"
@@ -453,14 +503,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 'lastName'
               ]}
               profile={profile}
-              onSave={(section, values) => {
-                handleEditSubmit(section, {
-                  email: values.email,
-                  phone: values.phone,
-                  firstName: values.firstName,
-                  lastName: values.lastName
-                });
-              }}
+              isEditing={isEditing}
+              editedValues={editedValues}
+              onInputChange={handleInputChange}
             />
 
             {/* Address Information Section */}
@@ -475,7 +520,9 @@ export default function Page({ params }: Readonly<{ params: { id: string } }>) {
                 'country'
               ]}
               profile={profile}
-              onSave={handleEditSubmit}
+              isEditing={isEditing}
+              editedValues={editedValues}
+              onInputChange={handleInputChange}
             />
 
             {/* Add the new RelationshipsSection */}

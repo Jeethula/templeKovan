@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UserCard } from "./UserCard";
 import { UserEditModal } from "./UserEditModal";
 import { SearchHeader } from "./SearchHeader";
@@ -8,8 +9,10 @@ import { Pagination } from "./Pagination";
 import { PersonalInfo } from "./types";
 
 export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [selectedUser, setSelectedUser] = useState<PersonalInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const itemsPerPage = 20;
@@ -50,6 +53,7 @@ export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
+    updateURL(value, 1);
   };
 
   const handleEditClick = (user: PersonalInfo) => {
@@ -57,17 +61,33 @@ export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
     setIsModalOpen(true);
   };
 
-  // const handleModalClose = () => {
-  //   setIsModalOpen(false);
-  //   setSelectedUser(null);
-  //   // Optionally refresh the page to get latest data
-  //   window.location.reload();
-  // };
+  const updateURL = useCallback((search: string, page: number) => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (page > 1) params.set("page", page.toString());
+    
+    const newURL = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    router.replace(newURL);
+  }, [router]);
+
+  // Update URL when page changes
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL(searchTerm, page);
+  };
 
   const refreshData = useCallback(() => {
-    // Add your data refresh logic here
-    window.location.reload(); // Or use a more elegant solution like React Query
+    window.location.href = window.location.href; // This preserves the current URL with search params
   }, []);
+
+  // Restore state from URL on mount
+  useEffect(() => {
+    const search = searchParams.get("search");
+    const page = searchParams.get("page");
+    
+    if (search) setSearchTerm(search);
+    if (page) setCurrentPage(Number(page));
+  }, [searchParams]);
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -129,7 +149,7 @@ export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
         />
       )}
     </div>

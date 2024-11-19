@@ -39,7 +39,7 @@ export function SearchHeader({
           <div className="relative">
             <input
               type="text"
-              value={searchTerm}
+              value={searchTerm} // This will now show the persisted search term
               onChange={(e) => onSearch(e.target.value)}
               placeholder="Search users..."
               className="w-full px-4 py-2.5 border border-[#663399]/20 rounded-lg 

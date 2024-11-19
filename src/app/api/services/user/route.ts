@@ -16,7 +16,16 @@ export async function GET(req:NextRequest) {
 
     try {
         // Fixed where clause
-        const whereClause: any = {
+        const whereClause: {
+            userId: string;
+            nameOfTheService?: { name: string };
+            OR?: Array<{
+            nameOfTheService?: { name: { contains: string; mode: 'insensitive' } };
+            description?: { contains: string; mode: 'insensitive' };
+            transactionId?: { contains: string; mode: 'insensitive' };
+            status?: { contains: string; mode: 'insensitive' };
+            }>;
+        } = {
             userId: userId
         };
 
