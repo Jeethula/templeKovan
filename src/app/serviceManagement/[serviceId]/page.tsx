@@ -459,7 +459,7 @@ const ServiceManagementPage = ({ params }: { params: { serviceId: string } }) =>
   return (
     <div className="min-h-screen bg-[#fdf0f4] pb-6">
       {service ? (
-        <div className="max-w-3xl mx-auto px-4">
+        <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="py-4 flex items-center gap-3">
             <Link
