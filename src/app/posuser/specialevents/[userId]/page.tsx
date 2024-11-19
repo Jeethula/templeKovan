@@ -58,9 +58,10 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
       try {
         const response = await fetch('/api/services/addservices');
         const data = await response.json();
+        console.log(data);
         
-        setServices(data.services.filter((service: Service) => service.isActive&&service.isSeva===true&&service.name !== 'Contribution'));
-        setFilteredServices(data.services.filter((service: Service) => service.isActive&&service.isSeva===true&&service.name !== 'Contribution'));
+        setServices(data.services.filter((service: Service) => service.isActive&&service.name !== 'Contribution'));
+        setFilteredServices(data.services.filter((service: Service) => service.isActive&&service.name !== 'Contribution'));
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -124,7 +125,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ params }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {filteredServices.filter((service) => service.isSeva).map((service) => (
+            {filteredServices.filter((service) => service.isSeva==false).map((service) => (
               <ServiceCard
                 key={service.id}
                 userId={userId}

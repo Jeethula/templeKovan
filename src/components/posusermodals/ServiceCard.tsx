@@ -58,13 +58,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       <Dialog open={isServiceModalOpen} onOpenChange={setIsServiceModalOpen}>
         <DialogContent className="sm:max-w-[425px] md:max-w-[525px] lg:max-w-[625px]">
           <div className="relative">
-            <div className="relative h-64 w-full">
+            <div className="relative h-44 w-full">
               <Image
                 src={imageSrc}
                 alt={title}
                 layout="fill"
                 objectFit="cover"
-                className="rounded-t-xl"
+                className="rounded-t-xl object-cover"
               />
             </div>
 
