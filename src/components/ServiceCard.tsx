@@ -1,8 +1,10 @@
+"use client";
 import Image from "next/image";
 import { useState } from "react";
 import DateCheckModal from "../components/modals/DateCheckModal";
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
 
 interface ServiceCardProps {
   id: string;

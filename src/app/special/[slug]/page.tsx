@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ServiceCard from '../../../components/ServiceCard';
 import {  FaSearch } from 'react-icons/fa';
 import { PiHandsPrayingBold } from 'react-icons/pi';
+import withProfileCheck from '../../../components/withProfileCheck';
 
 interface Service {
   id: string;
@@ -114,4 +115,4 @@ const ServicesPage: React.FC = () => {
   );
 };
 
-export default ServicesPage;
+export default withProfileCheck(ServicesPage);
