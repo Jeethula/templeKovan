@@ -72,7 +72,9 @@ async function fetchAndStoreNallaNeram() {
   });
 
 
+
   
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(`API request failed: ${response.status} - ${JSON.stringify(errorData)}`);
