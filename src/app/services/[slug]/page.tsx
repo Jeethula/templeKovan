@@ -4,6 +4,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import DetailsModal from '@/components/modals/DetailsModal';
 import { FaDownload, FaCheck } from 'react-icons/fa';
 import { IoCopyOutline } from "react-icons/io5";
+import withProfileCheck from '@/components/withProfileCheck';
 
 type PaymentMethod = 'NEFT' | 'UPI' | 'QR';
 
@@ -268,4 +269,4 @@ const ServicePage = () => {
   );
 };
 
-export default ServicePage;
+export default withProfileCheck(ServicePage);
