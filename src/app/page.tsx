@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "./context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";//dumi
 import { useRouter } from "next/navigation"; // Import useRouter
 import { quotes } from "./data";
 import Link from "next/link";
