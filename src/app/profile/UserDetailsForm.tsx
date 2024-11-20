@@ -633,8 +633,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                   {isEditable && (
                     <div className="space-y-3 mt-4">
                       {selectedChildren.map((child, index) => (
-                        <div key={index} className="flex gap-3 items-center border p-3 rounded-lg bg-white">
-                          <div className="w-1/3">
+                        <div key={index} className="flex flex-wrap gap-3 items-center border p-3 rounded-lg bg-white">
+                          {/* Relation Type Select */}
+                          <div className="w-full sm:w-1/3">
                             <FloatingSelect
                               id={`relationshipType-${index}`}
                               value={child.relation}
@@ -649,11 +650,12 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                               <SelectContent>
                                 <SelectItem value="son">Son</SelectItem>
                                 <SelectItem value="daughter">Daughter</SelectItem>
-                                </SelectContent>
+                              </SelectContent>
                             </FloatingSelect>
                           </div>
                           
-                          <div className="w-2/3">
+                          {/* Person Select */}
+                          <div className="w-full sm:w-[55%]">
                             <FloatingSearchCombobox
                               value={child.id}
                               onValueChange={(value) => {
@@ -667,18 +669,19 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                             />
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newChildren = selectedChildren.filter((_, i) => i !== index);
-                              setSelectedChildren(newChildren);
-                            }}
-                            className="p-2 text-red-500 hover:text-red-700"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                          {/* Delete Button */}
+                          <div className="flex justify-end w-full sm:w-auto">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newChildren = selectedChildren.filter((_, i) => i !== index);
+                                setSelectedChildren(newChildren);
+                              }}
+                              className="p-2 text-red-500 hover:text-red-700"
+                            >
+                            Remove 
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -753,21 +756,23 @@ const FloatingSearchCombobox = React.forwardRef<
             role="combobox"
             aria-expanded={open}
             disabled={disabled}
-            className={`w-full justify-between border rounded-lg text-left font-normal peer
+            className={`w-full justify-between border rounded-lg text-left font-normal peer overflow-hidden
               ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {value ? (
-              options.find((option) => option.id === value) ? (
-                `${options.find((option) => option.id === value)?.personalInfo?.firstName || ''} ${
-                  options.find((option) => option.id === value)?.personalInfo?.lastName || ''
-                }`.trim() || 'Unnamed'
+            <div className="truncate flex-1 mr-2">
+              {value ? (
+                options.find((option) => option.id === value) ? (
+                  `${options.find((option) => option.id === value)?.personalInfo?.firstName || ''} ${
+                    options.find((option) => option.id === value)?.personalInfo?.lastName || ''
+                  }`.trim() || 'Unnamed'
+                ) : (
+                  'Select person...'
+                )
               ) : (
                 'Select person...'
-              )
-            ) : (
-              'Select person...'
-            )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              )}
+            </div>
+            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 flex-none" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
@@ -789,18 +794,21 @@ const FloatingSearchCombobox = React.forwardRef<
                       onValueChange(currentValue === value ? '' : currentValue);
                       setOpen(false);
                     }}
+                    className="flex items-center justify-between"
                   >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === option.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    <div className="flex flex-col">
-                      <span>
-                        {`${option.personalInfo?.firstName || ''} ${option.personalInfo?.lastName || ''}`.trim() || 'Unnamed'}
-                      </span>
-                      <span className="text-sm text-gray-500">{option.phone}</span>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Check
+                        className={cn(
+                          "h-4 w-4 flex-none",
+                          value === option.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="truncate">
+                          {`${option.personalInfo?.firstName || ''} ${option.personalInfo?.lastName || ''}`.trim() || 'Unnamed'}
+                        </span>
+                        <span className="text-sm text-gray-500 truncate">{option.phone}</span>
+                      </div>
                     </div>
                   </CommandItem>
                 ))}
