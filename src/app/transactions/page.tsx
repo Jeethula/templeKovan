@@ -410,14 +410,9 @@ const TransactionsPage = () => {
       
       const data = await response.json();
       
-      if (page === 1) {
-        setHistory(data.services.services);
-        setFilteredHistory(data.services.services);
-      } else {
-        setHistory(prev => [...prev, ...data.services.services]);
-        setFilteredHistory(prev => [...prev, ...data.services.services]);
-      }
-      
+      // Replace the existing data instead of concatenating
+      setHistory(data.services.services);
+      setFilteredHistory(data.services.services);
       setTotalCount(data.services.total);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
@@ -459,8 +454,9 @@ const TransactionsPage = () => {
           variant="outline"
           size="sm"
           onClick={() => {
-            setCurrentPage(currentPage - 1);
-            fetchHistory(currentPage - 1);
+            const newPage = currentPage - 1;
+            setCurrentPage(newPage);
+            fetchHistory(newPage);
           }}
           disabled={currentPage === 1 || isLoadingMore}
         >
@@ -473,8 +469,9 @@ const TransactionsPage = () => {
           variant="outline"
           size="sm"
           onClick={() => {
-            setCurrentPage(currentPage + 1);
-            fetchHistory(currentPage + 1);
+            const newPage = currentPage + 1;
+            setCurrentPage(newPage);
+            fetchHistory(newPage);
           }}
           disabled={currentPage === totalPages || isLoadingMore}
         >
