@@ -571,44 +571,79 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                 {/* assign son or daughter to the user  */}
                 {/* Family Relationship Section */}
                 <div className="space-y-4 pt-2">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
+                  <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
+                  
+                  {/* Add Member Button and New Fields */}
+                  <div className="space-y-3">
                     {isEditable && (
                       <button
                         type="button"
                         onClick={addChildRelation}
-                        className="text-sm px-3 py-1 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
+                        className="w-full text-sm px-3 py-1.5 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
                       >
                         Add member
                       </button>
                     )}
+
+                    {/* New relationship fields appear here */}
+                    {isEditable && selectedChildren.map((child, index) => (
+                      <div key={index} className="flex flex-wrap gap-3 items-center border p-3 rounded-lg bg-white">
+                        {/* Relation Type Select */}
+                        <div className="w-full sm:w-1/3">
+                          <FloatingSelect
+                            id={`relationshipType-${index}`}
+                            value={child.relation}
+                            onValueChange={(value) => {
+                              const newChildren = [...selectedChildren];
+                              newChildren[index].relation = value as 'son' | 'daughter';
+                              setSelectedChildren(newChildren);
+                            }}
+                            label="Relation Type"
+                            disabled={false}
+                          >
+                            <SelectContent>
+                              <SelectItem value="son">Son</SelectItem>
+                              <SelectItem value="daughter">Daughter</SelectItem>
+                            </SelectContent>
+                          </FloatingSelect>
+                        </div>
+                        
+                        {/* Person Select */}
+                        <div className="w-full sm:w-[55%]">
+                          <FloatingSearchCombobox
+                            value={child.id}
+                            onValueChange={(value) => {
+                              const newChildren = [...selectedChildren];
+                              newChildren[index].id = value;
+                              setSelectedChildren(newChildren);
+                            }}
+                            label="Select Person"
+                            disabled={false}
+                            options={eligibleUsers}
+                          />
+                        </div>
+
+                        {/* Delete Button */}
+                        <div className="flex justify-end w-full sm:w-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newChildren = selectedChildren.filter((_, i) => i !== index);
+                              setSelectedChildren(newChildren);
+                            }}
+                            className="p-2 text-red-500 hover:text-red-700"
+                          >
+                            Remove 
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* {father && (
-                    <div className="p-3 border rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="font-medium text-[#663399]">Father: </span>
-                          <span className="text-gray-700">{father}</span>
-                        </div>
-                      </div>
-                    </div>)
-                    }
-
-                  {mother && (
-                    <div className="p-3 border rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="font-medium text-[#663399]">Mother: </span>
-                          <span className="text-gray-700">{mother}</span>
-                        </div>
-                      </div>
-                    </div>)
-                    } */}
-
-                  {/* Show existing relationships */}
-                  {existingRelationships.length > 0 ? (
-                    <div className="space-y-3">
+                  {/* Existing Relationships */}
+                  {!isLoading && existingRelationships.length > 0 && (
+                    <div className="space-y-3 mt-6 border-t pt-4">
+                      <div className="text-sm font-medium text-gray-500">Existing Relationships</div>
                       {existingRelationships.map((relation, index) => (
                         <div key={index} className="p-3 border rounded-lg bg-gray-50">
                           <div className="flex justify-between items-center">
@@ -619,68 +654,6 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                               </span>
                             </div>
                             <span className="text-sm text-gray-500">{relation.phone}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-500 text-center py-4">
-                      No relationships mapped yet.
-                    </div>
-                  )}
-
-                  {/* Show new relationship form fields in edit mode */}
-                  {isEditable && (
-                    <div className="space-y-3 mt-4">
-                      {selectedChildren.map((child, index) => (
-                        <div key={index} className="flex flex-wrap gap-3 items-center border p-3 rounded-lg bg-white">
-                          {/* Relation Type Select */}
-                          <div className="w-full sm:w-1/3">
-                            <FloatingSelect
-                              id={`relationshipType-${index}`}
-                              value={child.relation}
-                              onValueChange={(value) => {
-                                const newChildren = [...selectedChildren];
-                                newChildren[index].relation = value as 'son' | 'daughter';
-                                setSelectedChildren(newChildren);
-                              }}
-                              label="Relation Type"
-                              disabled={false}
-                            >
-                              <SelectContent>
-                                <SelectItem value="son">Son</SelectItem>
-                                <SelectItem value="daughter">Daughter</SelectItem>
-                              </SelectContent>
-                            </FloatingSelect>
-                          </div>
-                          
-                          {/* Person Select */}
-                          <div className="w-full sm:w-[55%]">
-                            <FloatingSearchCombobox
-                              value={child.id}
-                              onValueChange={(value) => {
-                                const newChildren = [...selectedChildren];
-                                newChildren[index].id = value;
-                                setSelectedChildren(newChildren);
-                              }}
-                              label="Select Person"
-                              disabled={false}
-                              options={eligibleUsers}
-                            />
-                          </div>
-
-                          {/* Delete Button */}
-                          <div className="flex justify-end w-full sm:w-auto">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newChildren = selectedChildren.filter((_, i) => i !== index);
-                                setSelectedChildren(newChildren);
-                              }}
-                              className="p-2 text-red-500 hover:text-red-700"
-                            >
-                            Remove 
-                            </button>
                           </div>
                         </div>
                       ))}

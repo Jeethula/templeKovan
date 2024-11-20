@@ -20,6 +20,7 @@ export async function getAllUsers() {
             state: true,
             pincode: true,
             country: true,
+            uniqueId:true
           },
         },
         sons: {
@@ -62,6 +63,7 @@ export async function getAllUsers() {
       state: user.personalInfo?.state || "",
       pincode: user.personalInfo?.pincode || "",
       country: user.personalInfo?.country || "",
+      unique_id:user.personalInfo?.uniqueId || "",
       relationships: [
         ...user.sons.map((son) => ({
           id: son.id,

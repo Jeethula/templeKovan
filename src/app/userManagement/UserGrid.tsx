@@ -18,11 +18,35 @@ export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
   const itemsPerPage = 20;
 
   // Filter users based on search
+  // const filteredUsers = initialUsers.filter((user) => {
+  //   const searchValue = searchTerm.toLowerCase();
+  //   const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+  //   const phone = user.Phone?.toLowerCase() || "";
+  //   const email = user.email?.toLowerCase() || "";
+  //   const address = [
+  //     user.address1,
+  //     user.address2,
+  //     user.city,
+  //     user.state,
+  //     user.pincode,
+  //   ]
+  //     .filter(Boolean)
+  //     .join(" ")
+  //     .toLowerCase();
+
+  //   return (
+  //     fullName.includes(searchValue) ||
+  //     phone.includes(searchValue) ||
+  //     email.includes(searchValue) ||
+  //     address.includes(searchValue)
+  //   );
+  // });
   const filteredUsers = initialUsers.filter((user) => {
     const searchValue = searchTerm.toLowerCase();
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
     const phone = user.Phone?.toLowerCase() || "";
     const email = user.email?.toLowerCase() || "";
+    const unique_id = user.unique_id?.toString().toLowerCase() || ""; // Add uniqueid
     const address = [
       user.address1,
       user.address2,
@@ -36,9 +60,11 @@ export function UserGrid({ initialUsers }: { initialUsers: PersonalInfo[] }) {
 
     return (
       fullName.includes(searchValue) ||
+      unique_id.includes(searchValue)  ||
       phone.includes(searchValue) ||
       email.includes(searchValue) ||
-      address.includes(searchValue)
+      address.includes(searchValue) 
+  // Add uniqueid to search criteria
     );
   });
 

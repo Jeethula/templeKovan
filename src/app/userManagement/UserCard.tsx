@@ -50,6 +50,12 @@ export const UserCard: FC<UserCardProps> = memo(({ user, onEdit, isLoading = fal
               {formattedUser.email.toLowerCase()}
             </a>
           )}
+          {formattedUser.unique_id && (
+            <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+              Unique ID : <span>{formattedUser.unique_id}</span>
+              
+            </p>
+          )}
         </div>
         <button
           onClick={onEdit}
