@@ -6,6 +6,7 @@ export default async function PersonalInfoPage() {
   const users = await getAllUsers();
   const mappedUsers = users.map(user => ({
     ...user,
+    unique_id: String(user.unique_id),
     relationships: user.relationships.map(rel => ({
       ...rel,
       lastName: rel.lastName || undefined

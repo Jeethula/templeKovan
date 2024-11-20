@@ -292,6 +292,7 @@ const UserDetailsForm: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoFocus
                 className="w-full border border-[#663399]/20 rounded-lg text-sm"
               />
               {errors.email && (
@@ -300,7 +301,7 @@ const UserDetailsForm: React.FC = () => {
             </div>
 
             <div>
-            {renderField("unique_id", "Unique ID")}
+             {renderField("unique_id", "Unique ID")}
             </div>
 
             {/* Name Section */}

@@ -81,7 +81,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                       <span className="text-lg font-semibold text-green-600">₹{minAmount}</span>
                     </div>
                   )}
-                  {maxCount && (
+                  {typeof maxCount === 'number' && maxCount > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-700">Maximum Participants</span>
                       <span className="text-lg font-semibold text-blue-600">{maxCount}</span>

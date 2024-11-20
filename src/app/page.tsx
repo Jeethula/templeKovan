@@ -446,13 +446,26 @@ function HomePage() {
                     setShowingCard('welcome');
                   }
                 }}
-                initial={{ opacity: 0, x: 300 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -300 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30
+                initial={{ opacity: 0, x: 300, rotate: -10 }} // Added rotation
+                animate={{ 
+                  opacity: 1, 
+                  x: 0, 
+                  rotate: 0,
+                  transition: {
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30
+                  }
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  x: -300, 
+                  rotate: 10, // Rotate in opposite direction when exiting
+                  transition: {
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30
+                  }
                 }}
                 className="min-h-[200px] w-full rounded-lg shadow-lg md:h-full cursor-grab active:cursor-grabbing"
               >
