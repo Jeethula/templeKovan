@@ -81,17 +81,14 @@ async function fetchAndStoreNallaNeram() {
   const istDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   istDate.setHours(0, 0, 0, 0);
 
-  await prisma.nallaNeram.upsert({  
-    where: { date: istDate },
-    update: {
-      muhurat: data.data.muhurat,
-      updatedAt: new Date(),
-    },
-    create: {
+  await prisma.nallaNeram.deleteMany()
+
+  await prisma.nallaNeram.create({
+    data: {
       date: istDate,
       muhurat: data.data.muhurat,
-    },
-  });
+    }
+  })
 
   return  data;
 }
