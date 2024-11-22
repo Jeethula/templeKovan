@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { ChevronsUpDown, Check, Trash2 } from "lucide-react";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 
 const FloatingInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -587,9 +587,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
 
                     {/* New relationship fields appear here */}
                     {isEditable && selectedChildren.map((child, index) => (
-                      <div key={index} className="flex flex-wrap gap-3 items-center border p-3 rounded-lg bg-white">
+                      <div key={index} className="flex flex-wrap items-center gap-3 border p-3 rounded-lg bg-white">
                         {/* Relation Type Select */}
-                        <div className="w-full sm:w-1/3">
+                        <div className="flex-[0.3] min-w-[120px]">
                           <FloatingSelect
                             id={`relationshipType-${index}`}
                             value={child.relation}
@@ -609,7 +609,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                         </div>
                         
                         {/* Person Select */}
-                        <div className="w-full sm:w-[55%]">
+                        <div className="flex-1 min-w-[200px]">
                           <FloatingSearchCombobox
                             value={child.id}
                             onValueChange={(value) => {
@@ -623,19 +623,18 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                           />
                         </div>
 
-                        {/* Delete Button */}
-                        <div className="flex justify-end w-full sm:w-auto">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newChildren = selectedChildren.filter((_, i) => i !== index);
-                              setSelectedChildren(newChildren);
-                            }}
-                            className="p-2 text-red-500 hover:text-red-700"
-                          >
-                            Remove 
-                          </button>
-                        </div>
+                        {/* Delete Icon */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newChildren = selectedChildren.filter((_, i) => i !== index);
+                            setSelectedChildren(newChildren);
+                          }}
+                          className="flex-none p-2 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
+                          title="Remove relationship"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
