@@ -144,13 +144,21 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
 
   interface Relationship {
     id: string;
-    relation: 'son' | 'daughter';
+    relation: 'son' | 'daughter' | 'father';
     firstName?: string;
     lastName?: string;
     phone?: string;
   }
 
   const [existingRelationships, setExistingRelationships] = useState<Relationship[]>([]);
+
+  const [fatherDetails, setFatherDetails] = useState<{
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    salutation?: string;
+    phone?: string;
+  } | null>(null);
 
   const getData = async () => {
     setIsLoading(true);
@@ -177,19 +185,15 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
           pincode: res.userDetails.pincode,
           comments: res.userDetails.comments,
           unique_id: res.userDetails.uniqueId,
+          fatherId: res.father?.id || '',
         });
         
-        // Properly set father and mother names with null checks
-        // if (res.father && res.father.firstName && res.father.lastName) {
-        //   setFather(`${res.father.firstName} ${res.father.lastName}`.trim());
-        // }
+        // Set father details
+        if (res.father) {
+          setFatherDetails(res.father);
+        }
         
-        // if (res.mother && res.mother.firstName && res.mother.lastName) {
-        //   setMother(`${res.mother.firstName} ${res.mother.lastName}`.trim());
-        // }
-
         setIsEditable(false);
-        // setIsSubmitted(true);
       } else {
         setIsEditable(true);
         toast.success("Please fill the profile info to start");
@@ -324,65 +328,6 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
     return isValid;
   };
 
-  // const handleUpdate = async () => {
-  //   if (validateForm()) {
-  //     const userID = JSON.parse(sessionStorage.getItem("user") || "{}").id;
-  //     setLoading(true);
-  //     try {
-  //       const userDetailsToSend = {
-  //         firstName: userDetails.first_name,
-  //         lastName: userDetails.last_name,
-  //         address1: userDetails.address_line_1,
-  //         address2: userDetails.address_line_2,
-  //         city: userDetails.city,
-  //         state: userDetails.state,
-  //         pincode: userDetails.pincode,
-  //         country: userDetails.country,
-  //         comments: userDetails.comments || "",
-  //         salutation: userDetails.salutation,
-  //         uniqueId: parseInt(userDetails?.unique_id),
-  //         userId: userID,
-  //         email: email || ""  ,
-  //         phone: userDetails.phone_number,
-  //         isfirstTimeLogin:false,
-  //       };
-
-  //       const res = await fetch("/api/userDetails", {
-  //         method: "PUT",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(userDetailsToSend),
-  //       });
-
-  //       const resBody = await res.json();
-  //           if(resBody.error === "Phone number already exists"){
-  //               toast.error("Phone number already exists");
-  //               toast.error("Failed to update details.");
-  //               return;
-  //           }
-
-  //       if (res.status === 200) {
-  //         toast.success("Details updated successfully!");
-  //         if (onProfileCompletion) {
-  //           onProfileCompletion?.();
-  //         }
-  //         // Refresh the page after successful update
-  //         window.location.reload();
-  //         // Or use router.refresh() for Next.js soft refresh:
-  //         // router.refresh();
-  //       } 
-            
-        
-  //     } catch (error) {
-  //       toast.error("Error: " + error);
-  //     } finally {
-  //       setLoading(false);
-  //       setIsEditable(false);
-  //     }
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isEditable) return;
@@ -409,7 +354,15 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
               state: userDetails.state,
               country: userDetails.country,
             },
-            relationships: selectedChildren || []
+            relationships: [
+              // Include father relationship if selected
+              ...(userDetails.fatherId ? [{
+                id: userDetails.fatherId,
+                relation: 'father'
+              }] : []),
+              // Include children relationships
+              ...selectedChildren
+            ]
           }),
         });
 
@@ -418,14 +371,9 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
         if (data.status === 200) {
           toast.success("Profile updated successfully");
           setIsEditable(false);
-          // Refresh data and page
           await getData();
-          window.location.reload(); // This will reload the entire page
-          // Alternatively, you can use router.refresh() for Next.js soft refresh:
-          // router.refresh();
         } else {
           toast.error(data.error || "Failed to update profile");
-          console.error('Update error details:', data.details);
         }
       } catch (error) {
         toast.error("An error occurred while updating profile");
@@ -438,6 +386,18 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
 
   const addChildRelation = () => {
     setSelectedChildren([...selectedChildren, { id: '', relation: 'son' }]);
+  };
+
+  const removeChild = (index: number) => {
+    setSelectedChildren(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateChildRelation = (index: number, newRelation: 'son' | 'daughter') => {
+    setSelectedChildren(prev => 
+      prev.map((child, i) => 
+        i === index ? { ...child, relation: newRelation } : child
+      )
+    );
   };
 
   return (
@@ -573,91 +533,144 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ }) => {
                 <div className="space-y-4 pt-2">
                   <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
                   
-                  {/* Add Member Button and New Fields */}
+                  {/* Father Section */}
                   <div className="space-y-3">
-                    {isEditable && (
-                      <button
-                        type="button"
-                        onClick={addChildRelation}
-                        className="w-full text-sm px-3 py-1.5 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
-                      >
-                        Add member
-                      </button>
-                    )}
-
-                    {/* New relationship fields appear here */}
-                    {isEditable && selectedChildren.map((child, index) => (
-                      <div key={index} className="flex flex-wrap items-center gap-3 border p-3 rounded-lg bg-white">
-                        {/* Relation Type Select */}
+                    {isEditable ? (
+                      <div className="flex flex-wrap items-center gap-3 border p-3 rounded-lg bg-white">
                         <div className="flex-[0.3] min-w-[120px]">
                           <FloatingSelect
-                            id={`relationshipType-${index}`}
-                            value={child.relation}
-                            onValueChange={(value) => {
-                              const newChildren = [...selectedChildren];
-                              newChildren[index].relation = value as 'son' | 'daughter';
-                              setSelectedChildren(newChildren);
-                            }}
+                            id="relationshipType"
+                            value="father"
+                            onValueChange={() => {}}
                             label="Relation Type"
-                            disabled={false}
+                            disabled={true}
                           >
                             <SelectContent>
-                              <SelectItem value="son">Son</SelectItem>
-                              <SelectItem value="daughter">Daughter</SelectItem>
+                              <SelectItem value="father">Father</SelectItem>
                             </SelectContent>
                           </FloatingSelect>
                         </div>
                         
-                        {/* Person Select */}
                         <div className="flex-1 min-w-[200px]">
                           <FloatingSearchCombobox
-                            value={child.id}
+                            value={userDetails.fatherId || ''}
                             onValueChange={(value) => {
-                              const newChildren = [...selectedChildren];
-                              newChildren[index].id = value;
-                              setSelectedChildren(newChildren);
+                              setUserDetails(prev => ({
+                                ...prev,
+                                fatherId: value
+                              }));
                             }}
-                            label="Select Person"
+                            label="Select Father"
                             disabled={false}
                             options={eligibleUsers}
                           />
                         </div>
-
-                        {/* Delete Icon */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newChildren = selectedChildren.filter((_, i) => i !== index);
-                            setSelectedChildren(newChildren);
-                          }}
-                          className="flex-none p-2 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
-                          title="Remove relationship"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Existing Relationships */}
-                  {!isLoading && existingRelationships.length > 0 && (
-                    <div className="space-y-3 mt-6 border-t pt-4">
-                      <div className="text-sm font-medium text-gray-500">Existing Relationships</div>
-                      {existingRelationships.map((relation, index) => (
-                        <div key={index} className="p-3 border rounded-lg bg-gray-50">
+                    ) : (
+                      // Display existing father info or no father message
+                      fatherDetails ? (
+                        <div className="p-3 border rounded-lg bg-gray-50">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="font-medium text-[#663399] capitalize">{relation.relation}: </span>
+                              <span className="font-medium text-[#663399] capitalize">Father: </span>
                               <span className="text-gray-700">
-                                {relation.firstName} {relation.lastName}
+                                {fatherDetails.salutation} {fatherDetails.firstName} {fatherDetails.lastName}
                               </span>
                             </div>
-                            <span className="text-sm text-gray-500">{relation.phone}</span>
+                            <span className="text-sm text-gray-500">{fatherDetails.phone}</span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      ) : (
+                        <NoFatherMessage />
+                      )
+                    )}
+                  </div>
+
+                  {/* Existing Children Section */}
+                  <div className="space-y-3">
+  {isEditable && (
+    <button
+      type="button"
+      onClick={addChildRelation}
+      className="w-fit text-sm px-3 py-1.5 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
+    >
+      Add Child
+    </button>
+  )}
+
+  {isEditable ? (
+    selectedChildren.length > 0 ? (
+      selectedChildren.map((child, index) => (
+        <div key={index} className="flex flex-wrap items-center gap-3 border p-3 rounded-lg bg-white">
+          <div className="flex-[0.3] min-w-[120px]">
+            <FloatingSelect
+              id={`relationshipType-${index}`}
+              value={child.relation}
+              onValueChange={(value) => updateChildRelation(index, value as 'son' | 'daughter')}
+              label="Relation Type"
+            >
+              <SelectContent>
+                <SelectItem value="son">Son</SelectItem>
+                <SelectItem value="daughter">Daughter</SelectItem>
+              </SelectContent>
+            </FloatingSelect>
+          </div>
+          
+          <div className="flex-1 min-w-[200px]">
+            <FloatingSearchCombobox
+              value={child.id}
+              onValueChange={(value) => {
+                setSelectedChildren(prev => 
+                  prev.map((c, i) => 
+                    i === index ? { ...c, id: value } : c
+                  )
+                );
+              }}
+              label="Select Child"
+              options={eligibleUsers}
+            />
+          </div>
+          
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => removeChild(index)}
+            className="p-2"
+          >
+            <Trash2 className="h-4 w-4 text-red-500" />
+          </Button>
+        </div>
+      ))
+    ) : (
+      <NoChildMessage />
+    )
+  ) : (
+    <>
+      {existingRelationships
+        .filter(rel => rel.relation === 'son' || rel.relation === 'daughter')
+        .length > 0 ? (
+        existingRelationships
+          .filter(rel => rel.relation === 'son' || rel.relation === 'daughter')
+          .map((child, index) => (
+            <div key={index} className="p-3 border rounded-lg bg-gray-50">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-medium text-[#663399] capitalize">{child.relation}: </span>
+                  <span className="text-gray-700">
+                    {child.firstName} {child.lastName}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500">{child.phone}</span>
+              </div>
+            </div>
+          ))
+      ) : (
+        <NoChildMessage />
+      )}
+    </>
+  )}
+</div>
+
                 </div>
 
                 {/* Submit/Update Button */}
@@ -852,6 +865,18 @@ const renderField = (
     {errors[name] && (
       <p className="mt-1 text-xs text-red-500">{errors[name]}</p>
     )}
+  </div>
+);
+
+const NoChildMessage = () => (
+  <div className="p-3 border rounded-lg bg-gray-50">
+    <p className="text-gray-500 text-center text-sm">No child mapped yet</p>
+  </div>
+);
+
+const NoFatherMessage = () => (
+  <div className="p-3 border rounded-lg bg-gray-50">
+    <p className="text-gray-500 text-center text-sm">No father mapped yet</p>
   </div>
 );
 

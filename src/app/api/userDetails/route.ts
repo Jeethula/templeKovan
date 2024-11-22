@@ -3,7 +3,7 @@ import prisma from "../../../utils/prisma";
 
 interface Relationship {
   id: string;
-  relation: 'son' | 'daughter';
+  relation: 'son' | 'daughter' | 'father';
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -496,10 +496,29 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "User ID is required", status: 400 });
     }
 
-    // First update personal info
-    const updatedPersonalInfo = await prisma.personalInfo.update({
-      where: { userid: id },
-      data: {
+    // First check if personal info exists
+    const existingPersonalInfo = await prisma.personalInfo.findUnique({
+      where: { userid: id }
+    });
+
+    // Update or create personal info
+    const updatedPersonalInfo = await prisma.personalInfo.upsert({
+      where: { 
+        userid: id 
+      },
+      create: {
+        userid: id,
+        salutation: userDetails.salutation,
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        address1: userDetails.address1,
+        address2: userDetails.address2,
+        city: userDetails.city,
+        pincode: userDetails.pincode,
+        state: userDetails.state,
+        country: userDetails.country,
+      },
+      update: {
         salutation: userDetails.salutation,
         firstName: userDetails.firstName,
         lastName: userDetails.lastName,
@@ -512,23 +531,37 @@ export async function PATCH(req: Request) {
       }
     });
 
-    // Then update user relationships
+    // Extract father and children relationships
+    const fatherRelation = relationships?.find((r: Relationship) => r.relation === 'father');
+    const childrenRelations = relationships?.filter((r: Relationship) => 
+      r.relation === 'son' || r.relation === 'daughter'
+    );
+
+    // Update user with relationships
     const updatedUser = await prisma.user.update({
       where: { id },
       data: {
+        father: fatherRelation ? {
+          connect: { id: fatherRelation.id }
+        } : undefined,
         sons: {
-          set: relationships
-            ?.filter((r:Relationship) => r.relation === 'son')
-            ?.map((r:Relationship) => ({ id: r.id })) || []
+          set: childrenRelations
+            ?.filter((r: Relationship) => r.relation === 'son')
+            ?.map((r: Relationship) => ({ id: r.id })) || []
         },
         daughters: {
-          set: relationships
+          set: childrenRelations
             ?.filter((r: Relationship) => r.relation === 'daughter')
             ?.map((r: Relationship) => ({ id: r.id })) || []
         }
       },
       include: {
         personalInfo: true,
+        father: {
+          include: {
+            personalInfo: true
+          }
+        },
         sons: {
           include: {
             personalInfo: true
