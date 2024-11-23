@@ -173,3 +173,23 @@ export const FloatingSearchCombobox = React.forwardRef<HTMLDivElement, FloatingS
 );
 FloatingSearchCombobox.displayName = "FloatingSearchCombobox";
 
+export const FloatingLabel = React.forwardRef<
+  HTMLLabelElement,
+  React.LabelHTMLAttributes<HTMLLabelElement>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <label
+      ref={ref}
+      className={cn(
+        "absolute left-2 -top-2 z-10 bg-white px-1 text-xs text-gray-500",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </label>
+  );
+});
+
+FloatingLabel.displayName = "FloatingLabel";
+

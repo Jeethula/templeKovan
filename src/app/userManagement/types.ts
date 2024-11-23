@@ -35,17 +35,18 @@ export interface PersonalInfo {
     comments?: string;
     salutation?: string;
     unique_id?: string;
+    fatherId?: string;
     familyMembers?: FamilyMember[];
   }
   
   export interface ChildRelation {
     id: string;
-    relation: 'son' | 'daughter';
+    relation: 'son' | 'daughter' | 'father';
   }
   
   export interface Relationship {
     id: string;
-    relation: 'son' | 'daughter';
+    relation: 'son' | 'daughter' | 'father';
     firstName?: string;
     lastName?: string;
     phone?: string;
