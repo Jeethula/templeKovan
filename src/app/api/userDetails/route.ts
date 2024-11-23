@@ -300,7 +300,6 @@ export async function GET(req: Request) {
       where: { id: userId },
       include: {
         personalInfo: true,
-        // Include father's details with their personalInfo
         father: {
           include: {
             personalInfo: {
@@ -313,13 +312,25 @@ export async function GET(req: Request) {
             }
           }
         },
-        // Keep existing children relationships
-        children: {
+        // Include both sons and daughters
+        sons: {
           include: {
             personalInfo: {
               select: {
                 firstName: true,
-                lastName: true
+                lastName: true,
+                phoneNumber: true
+              }
+            }
+          }
+        },
+        daughters: {
+          include: {
+            personalInfo: {
+              select: {
+                firstName: true,
+                lastName: true,
+                phoneNumber: true
               }
             }
           }
@@ -334,7 +345,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // Format relationships including father
+    // Format relationships including both father and children
     const relationships = [
       // Add father if exists
       ...(user.father ? [{
@@ -345,30 +356,28 @@ export async function GET(req: Request) {
         salutation: user.father.personalInfo?.salutation,
         phone: user.father.personalInfo?.phoneNumber
       }] : []),
-      // Add children
-      ...user.children.map(child => ({
-        id: child.id,
-        relation: 'son', // You might want to determine this based on additional data
-        firstName: child.personalInfo?.firstName,
-        lastName: child.personalInfo?.lastName,
-        phone: child.phone
+      // Add sons
+      ...user.sons.map(son => ({
+        id: son.id,
+        relation: 'son',
+        firstName: son.personalInfo?.firstName,
+        lastName: son.personalInfo?.lastName,
+        phone: son.personalInfo?.phoneNumber
+      })),
+      // Add daughters
+      ...user.daughters.map(daughter => ({
+        id: daughter.id,
+        relation: 'daughter',
+        firstName: daughter.personalInfo?.firstName,
+        lastName: daughter.personalInfo?.lastName,
+        phone: daughter.personalInfo?.phoneNumber
       }))
     ];
 
     return NextResponse.json({
       status: 200,
       userDetails: {
-        salutation: user.personalInfo?.salutation,
-        firstName: user.personalInfo?.firstName,
-        lastName: user.personalInfo?.lastName,
-        address1: user.personalInfo?.address1,
-        address2: user.personalInfo?.address2,
-        city: user.personalInfo?.city,
-        state: user.personalInfo?.state,
-        country: user.personalInfo?.country,
-        pincode: user.personalInfo?.pincode,
-        phoneNumber: user.phone,
-        uniqueId: user.personalInfo?.uniqueId,
+        // ...existing userDetails...
       },
       user: {
         id: user.id,
@@ -497,9 +506,9 @@ export async function PATCH(req: Request) {
     }
 
     // First check if personal info exists
-    const existingPersonalInfo = await prisma.personalInfo.findUnique({
-      where: { userid: id }
-    });
+    // const existingPersonalInfo = await prisma.personalInfo.findUnique({
+    //   where: { userid: id }
+    // });
 
     // Update or create personal info
     const updatedPersonalInfo = await prisma.personalInfo.upsert({

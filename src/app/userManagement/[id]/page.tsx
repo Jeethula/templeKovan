@@ -5,6 +5,37 @@ import LoadingPageUi from "@/components/LoadingPageUi";
 import { PiMapPinFill } from "react-icons/pi";
 import { BsWhatsapp } from "react-icons/bs";
 import toast from "react-hot-toast";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+
+// Common Components (same as UserDetailsForm.tsx)
+const FloatingInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...props }, ref) => {
+    return <Input placeholder=" " className={cn('peer', className)} ref={ref} {...props} />;
+  },
+);
+FloatingInput.displayName = 'FloatingInput';
+
+// FloatingLabel component (same as before)
+const FloatingLabel = React.forwardRef<
+  React.ElementRef<typeof Label>,
+  React.ComponentPropsWithoutRef<typeof Label>
+>(({ className, ...props }, ref) => {
+  return (
+    <Label
+      className={cn(
+        'peer-focus:secondary peer-focus:dark:secondary absolute start-2 top-2...',
+        className,
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+FloatingLabel.displayName = 'FloatingLabel';
+
+// FloatingLabelInput and other components (same as before)
 
 interface Post {
   id: string;

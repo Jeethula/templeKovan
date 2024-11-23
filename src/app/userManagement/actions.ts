@@ -20,7 +20,20 @@ export async function getAllUsers() {
             state: true,
             pincode: true,
             country: true,
-            uniqueId:true
+            uniqueId: true
+          },
+        },
+        father: {
+          select: {
+            id: true,
+            phone: true,
+            personalInfo: {
+              select: {
+                firstName: true,
+                lastName: true,
+                salutation: true
+              },
+            },
           },
         },
         sons: {
@@ -31,6 +44,7 @@ export async function getAllUsers() {
               select: {
                 firstName: true,
                 lastName: true,
+                salutation: true
               },
             },
           },
@@ -43,6 +57,7 @@ export async function getAllUsers() {
               select: {
                 firstName: true,
                 lastName: true,
+                salutation: true
               },
             },
           },
@@ -63,13 +78,22 @@ export async function getAllUsers() {
       state: user.personalInfo?.state || "",
       pincode: user.personalInfo?.pincode || "",
       country: user.personalInfo?.country || "",
-      unique_id:user.personalInfo?.uniqueId || "",
+      unique_id: user.personalInfo?.uniqueId || "",
       relationships: [
+        ...(user.father ? [{
+          id: user.father.id,
+          relation: "father" as const,
+          firstName: user.father.personalInfo?.firstName,
+          lastName: user.father.personalInfo?.lastName,
+          salutation: user.father.personalInfo?.salutation,
+          phone: user.father.phone,
+        }] : []),
         ...user.sons.map((son) => ({
           id: son.id,
           relation: "son" as const,
           firstName: son.personalInfo?.firstName,
           lastName: son.personalInfo?.lastName,
+          salutation: son.personalInfo?.salutation,
           phone: son.phone,
         })),
         ...user.daughters.map((daughter) => ({
@@ -77,6 +101,7 @@ export async function getAllUsers() {
           relation: "daughter" as const,
           firstName: daughter.personalInfo?.firstName,
           lastName: daughter.personalInfo?.lastName,
+          salutation: daughter.personalInfo?.salutation,
           phone: daughter.phone,
         })),
       ],

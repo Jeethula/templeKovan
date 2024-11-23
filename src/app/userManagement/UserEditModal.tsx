@@ -17,25 +17,18 @@ import {
 import { FloatingLabelInput, FloatingSelect } from "@/components/ui/floating";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "cmdk";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton";
 
 
 interface Relationship {
-  id?: string;
-  relation: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
+  id: string;
+  relation: 'son' | 'daughter' | 'father';
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
 }
-
-// interface FamilyMember {
-//   id?: string;
-//   name: string;
-//   relationship: string;
-//   age: string;
-// }
 
 interface UserEditModalProps {
   user: PersonalInfo;
@@ -54,60 +47,76 @@ export function UserEditModal({
   const [errors, setErrors] = useState<Partial<PersonalInfo>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isEditable] = useState(true);
-  const [existingRelationships, setExistingRelationships] = useState<Relationship[]>([]);
-  // const [setEligibleUsers] = useState<Array<{
-  //   id: string;
-  //   phone: string;
-  //   email: string;
-  //   personalInfo: {
-  //     firstName: string;
-  //     lastName: string;
-  //   } | null;
-  // }>>([]);
+  const [eligibleUsers, setEligibleUsers] = useState<Array<{
+    id: string;
+    phone: string;
+    personalInfo: {
+      firstName: string;
+      lastName: string;
+    } | null;
+  }>>([]);
+  const [selectedChildren, setSelectedChildren] = useState<Array<{id: string, relation: 'son' | 'daughter', firstName?: string, lastName?: string}>>([]);
+  const [fatherDetails, setFatherDetails] = useState<Relationship | null>(null);
   const [isLoadingRelationships, setIsLoadingRelationships] = useState(true);
 
   useEffect(() => {
-    // const fetchEligibleUsers = async () => {
-    //   try {
-    //     const response = await fetch('/api/eligibleUsers', {
-    //       method: 'GET',
-    //       headers: { 'Content-Type': 'application/json' },
-    //     });
-    //     const data = await response.json();
-    //   } catch (error) {
-    //     console.error('Error fetching eligible users:', error);
-    //   }
-    // };
-
-    const fetchExistingRelationships = async () => {
+    const fetchData = async () => {
+      if (!isOpen) return;
+      
       setIsLoadingRelationships(true);
       try {
-        const userID = user.userid;
-        const response = await fetch(`/api/eligibleUsers/relationships?userId=${userID}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await response.json();
+        // First fetch eligible users
+        const eligibleResponse = await fetch('/api/eligibleUsers');
+        const eligibleData = await eligibleResponse.json();
+        if (eligibleData.status === 200) {
+          setEligibleUsers(eligibleData.users);
+        }
+
+        // Then fetch user details with relationships
+        const userResponse = await fetch(`/api/userDetails?userId=${user.userid}`);
+        const data = await userResponse.json();
+        console.log('API Response:', data); // Debug log
+
         if (data.status === 200) {
-          setExistingRelationships(data.relationships);
+          // Handle father relationship
+          if (data.father) {
+            setFatherDetails({
+              id: data.father.id,
+              relation: 'father',
+              firstName: data.father.firstName,
+              lastName: data.father.lastName,
+              phone: data.father.phone
+            });
+          }
+
+          // Handle children relationships
+          if (data.relationships) {
+            const childrenRelations = data.relationships
+              .filter((rel: Relationship) => rel.relation === 'son' || rel.relation === 'daughter')
+              .map((child: Relationship) => ({
+                id: child.id,
+                relation: child.relation as 'son' | 'daughter',
+                firstName: child.firstName,
+                lastName: child.lastName
+              }));
+            console.log('Setting children:', childrenRelations); // Debug log
+            setSelectedChildren(childrenRelations);
+          }
         }
       } catch (error) {
-        console.error('Error fetching relationships:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoadingRelationships(false);
       }
     };
 
-    // fetchEligibleUsers();
-    fetchExistingRelationships();
-  }, [user.userid]);
+    fetchData();
+  }, [user.userid, isOpen]);
 
   useEffect(() => {
     setFormData(user);
-    // Reset other states when user changes
     setErrors({});
-    setExistingRelationships([]);
-  }, [user]); // Add user as dependency
+  }, [user]); // Only depend on user changes
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -152,32 +161,49 @@ export function UserEditModal({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      // Update the request to match the API route structure
-      const response = await fetch('/api/profile', {  // Remove the user ID from URL
-        method: "PUT",
+      const response = await fetch('/api/userDetails', {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          userId: user.userid,
+          id: user.userid,
+          userDetails: {
+            salutation: formData.salutation,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address1: formData.address1,
+            address2: formData.address2,
+            city: formData.city,
+            pincode: formData.pincode,
+            state: formData.state,
+            country: formData.country,
+          },
+          relationships: [
+            ...(fatherDetails ? [{
+              id: fatherDetails.id,
+              relation: 'father',
+              firstName: fatherDetails.firstName,
+              lastName: fatherDetails.lastName
+            }] : []),
+            ...selectedChildren.filter(child => child.id) // Only include children with valid IDs
+          ]
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update user");
-      }
-
       const data = await response.json();
-      toast.success(data.message || "User updated successfully");
-      if (refreshData) {
-        refreshData();
+      
+      if (data.status === 200) {
+        toast.success("User updated successfully");
+        if (refreshData) {
+          refreshData();
+        }
+        onClose();
+      } else {
+        throw new Error(data.error || "Failed to update user");
       }
-      onClose();
     } catch (error) {
       console.error("Error updating user:", error);
       toast.error(error instanceof Error ? error.message : "Failed to update user");
@@ -191,9 +217,6 @@ export function UserEditModal({
       open={isOpen} 
       onOpenChange={(open) => {
         if (!open) {
-          setFormData(user); // Reset to current user data
-          setErrors({}); 
-          setExistingRelationships([]); // Reset relationships
           onClose();
         }
       }}
@@ -357,25 +380,120 @@ export function UserEditModal({
                     </div>
                   ))}
                 </div>
-              ) : existingRelationships.length > 0 ? (
-                <div className="space-y-3">
-                  {existingRelationships.map((relation, index) => (
-                    <div key={index} className="flex gap-3 items-center border p-3 rounded-lg">
-                      <div className="w-1/3">
-                        <div className="text-sm text-gray-600 capitalize">{relation.relation}</div>
+              ) : (
+                <div className="space-y-4 pt-2">
+                  <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
+
+                  {/* Father Selection */}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-3 border p-3 rounded-lg">
+                      <div className="flex-[0.3] min-w-[120px]">
+                        <FloatingSelect
+                          id="fatherRelation"
+                          value="father"
+                          onValueChange={() => {}}
+                          label="Relation Type"
+                          disabled={true}
+                        >
+                          <SelectContent>
+                            <SelectItem value="father">Father</SelectItem>
+                          </SelectContent>
+                        </FloatingSelect>
                       </div>
-                      <div className="w-2/3">
-                        <div className="text-sm font-medium">
-                          {`${relation.firstName} ${relation.lastName}`}
-                        </div>
-                        <div className="text-xs text-gray-500">{relation.phone}</div>
+                      
+                      <div className="flex-1 min-w-[200px]">
+                        <FloatingSearchCombobox
+                          value={fatherDetails?.id || ''}
+                          onValueChange={(value) => {
+                            if (!value) {
+                              setFatherDetails(null);
+                            } else {
+                              const selectedUser = eligibleUsers.find(u => u.id === value);
+                              setFatherDetails({
+                                id: value,
+                                relation: 'father',
+                                firstName: selectedUser?.personalInfo?.firstName,
+                                lastName: selectedUser?.personalInfo?.lastName,
+                                phone: selectedUser?.phone
+                              });
+                            }
+                          }}
+                          label="Select Father"
+                          options={eligibleUsers}
+                        />
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-500 text-center py-4 border rounded-lg">
-                  No family relationships found.
+                  </div>
+
+                  {/* Children Section */}
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedChildren([...selectedChildren, { id: '', relation: 'son' }])}
+                      className="w-fit text-sm px-3 py-1.5 bg-[#663399] text-white rounded-lg hover:bg-[#663399]/90"
+                    >
+                      Add Child
+                    </button>
+
+                    {selectedChildren.length > 0 ? (
+                      selectedChildren.map((child, index) => (
+                        <div key={index} className="flex flex-wrap items-center gap-3 border p-3 rounded-lg">
+                          <div className="flex-[0.3] min-w-[120px]">
+                            <FloatingSelect
+                              id={`childRelation-${index}`}
+                              value={child.relation}
+                              onValueChange={(value) => {
+                                const updatedChildren = [...selectedChildren];
+                                updatedChildren[index].relation = value as 'son' | 'daughter';
+                                setSelectedChildren(updatedChildren);
+                              }}
+                              label="Relation Type"
+                            >
+                              <SelectContent>
+                                <SelectItem value="son">Son</SelectItem>
+                                <SelectItem value="daughter">Daughter</SelectItem>
+                              </SelectContent>
+                            </FloatingSelect>
+                          </div>
+
+                          <div className="flex-1 min-w-[200px]">
+                            <FloatingSearchCombobox
+                              value={child.id}
+                              onValueChange={(value) => {
+                                const selectedUser = eligibleUsers.find(u => u.id === value);
+                                const updatedChildren = [...selectedChildren];
+                                updatedChildren[index] = {
+                                  ...updatedChildren[index],
+                                  id: value,
+                                  firstName: selectedUser?.personalInfo?.firstName,
+                                  lastName: selectedUser?.personalInfo?.lastName
+                                };
+                                setSelectedChildren(updatedChildren);
+                              }}
+                              label="Select Child"
+                              options={eligibleUsers}
+                              initialDisplay={child.firstName && child.lastName ? `${child.firstName} ${child.lastName}` : undefined}
+                            />
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedChildren(selectedChildren.filter((_, i) => i !== index));
+                            }}
+                            className="p-2"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-3 border rounded-lg bg-gray-50">
+                        <p className="text-gray-500 text-center text-sm">No children mapped yet</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -423,7 +541,8 @@ const FloatingSearchCombobox = React.forwardRef<HTMLDivElement, {
       lastName?: string;
     } | null;
   }>;
-}>(({ value, onValueChange, disabled, options }, ref) => {
+  initialDisplay?: string;
+}>(({ value, onValueChange, disabled, options, initialDisplay }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -465,7 +584,7 @@ const FloatingSearchCombobox = React.forwardRef<HTMLDivElement, {
                 options.find(opt => opt.id === value)?.personalInfo ?
                 `${options.find(opt => opt.id === value)?.personalInfo?.firstName || ''} ${options.find(opt => opt.id === value)?.personalInfo?.lastName || ''}`.trim() :
                 'Select person...'
-              ) : 'Select person...'}
+              ) : initialDisplay || 'Select person...'}
             </span>
             <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
           </Button>

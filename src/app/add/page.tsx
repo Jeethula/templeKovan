@@ -110,10 +110,51 @@ const UserDetailsForm: React.FC = () => {
   
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState({
+    email: false,
+    phone: false,
+    uniqueId: false
+  });
 
+  // Add debounced validation functions
+  const validateField = async (field: string, value: string) => {
+    if (!value) return;
+    setIsValidating(prev => ({ ...prev, [field]: true }));
+    
+    try {
+      const res = await fetch(`/api/validate/${field}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value })
+      });
+      
+      const data = await res.json();
+      
+      // Map the field names to their corresponding error keys
+      const fieldToErrorKey = {
+        phone: 'phone_number',
+        uniqueId: 'unique_id',
+        email: 'email'
+      };
+      
+      const errorKey = fieldToErrorKey[field as keyof typeof fieldToErrorKey];
+      
+      if (data.exists) {
+        setErrors(prev => ({
+          ...prev,
+          [errorKey]: `This ${field.replace('Id', ' ID')} is already registered`
+        }));
+      } else {
+        setErrors(prev => ({ ...prev, [errorKey]: '' }));
+      }
+    } catch (error) {
+      console.error(`Error validating ${field}:`, error);
+    } finally {
+      setIsValidating(prev => ({ ...prev, [field]: false }));
+    }
+  };
 
-
-
+  // Modify handleChange to include validation
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -123,26 +164,92 @@ const UserDetailsForm: React.FC = () => {
     if (name === "phone_number" && isNaN(Number(value))) return;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    if (value.trim() === "") {
+      setErrors(prev => ({
+        ...prev,
+        [name]: `${name.replace(/_/g, " ")} is required`
+      }));
+      return;
+    }
+
+    // Debounce validation for specific fields
+    const timeoutId = setTimeout(() => {
+      if (name === 'phone_number') {
+        validateField('phone', value);
+      } else if (name === 'unique_id') {
+        validateField('uniqueId', value);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   };
+
+  // Add email change handler with validation
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setEmail(value);
+    setErrors(prev => ({ ...prev, email: '' }));
+
+    // Debounce email validation
+    const timeoutId = setTimeout(() => {
+      validateField('email', value);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  };
+
+  // Modify the email input rendering to show validation state
+  const renderEmailInput = () => (
+    <div className="relative">
+      <FloatingLabelInput
+        type="email"
+        id="email"
+        name="email"
+        label="Email"
+        value={email}
+        onChange={handleEmailChange}
+        required
+        autoFocus
+        className={`w-full border ${
+          errors.email ? 'border-red-500' : 'border-[#663399]/20'
+        } rounded-lg text-sm`}
+      />
+      {isValidating.email && (
+        <span className="absolute right-3 top-3 text-gray-400">
+          Checking...
+        </span>
+      )}
+      {errors.email && (
+        <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+      )}
+    </div>
+  );
 
   const validateForm = (): boolean => {
     const newErrors: Partial<UserDetails> = {};
     let isValid = true;
 
-    // Skip validation for optional fields
+    // Validate required fields
     const requiredFields = Object.entries(userDetails).filter(([key]) => 
       key !== 'comments' && key !== 'address_line_2'
     );
 
     requiredFields.forEach(([key, value]) => {
-      if (value === "") {
-        console.log(`${key} validation failed`);
-        newErrors[key as keyof UserDetails] = `${key.replace("_", " ")} is required`;
+      if (!value || value.trim() === "") {
+        newErrors[key as keyof UserDetails] = `${key.replace(/_/g, " ")} is required`;
         isValid = false;
       }
     });
 
-    // Rest of validation logic...
+    // Check for existing validation errors
+    if (errors.email || errors.phone_number || errors.unique_id) {
+      isValid = false;
+    }
+
+    // Update errors state
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    
     return isValid;
   };
 
@@ -163,7 +270,7 @@ const UserDetailsForm: React.FC = () => {
       state: userDetails.state,
       pincode: userDetails.pincode,
       country: userDetails.country,
-      comments: userDetails.comments,
+      // comments: userDetails.comments,
       avatarUrl: "",
       salutation: userDetails.salutation,
       uniqueId: parseInt(userDetails.unique_id)
@@ -222,7 +329,7 @@ const UserDetailsForm: React.FC = () => {
     type: string = "text",
     options?: string[]
   ) => (
-    <div className="mb-4">
+    <div className="relative mb-4">
       {type === "select" ? (
         <FloatingSelect
           id={name}
@@ -257,12 +364,20 @@ const UserDetailsForm: React.FC = () => {
           maxLength={
             name === "phone_number" ? 10 : name === "pincode" ? 6 : undefined
           }
-          className={`w-full ${
-            errors[name] ? "ring-2 ring-red-500" : "focus:ring-blue-500"
-          }`}
+          className={`w-full border ${
+            errors[name] ? 'border-red-500' : 'border-[#663399]/20'
+          } rounded-lg text-sm`}
         />
       )}
-      {errors[name] && <p className="text-red-500">{errors[name]}</p>}
+      {(name === 'phone_number' || name === 'unique_id') && 
+        isValidating[name === 'phone_number' ? 'phone' : 'uniqueId'] && (
+          <span className="absolute right-3 top-3 text-gray-400">
+            Checking...
+          </span>
+        )}
+      {errors[name] && (
+        <p className="mt-1 text-xs text-red-500">{errors[name]}</p>
+      )}
     </div>
   );
 
@@ -283,22 +398,7 @@ const UserDetailsForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Section */}
-            <div className="relative">
-              <FloatingLabelInput
-                type="email"
-                id="email"
-                name="email"
-                label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-                className="w-full border border-[#663399]/20 rounded-lg text-sm"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-              )}
-            </div>
+            {renderEmailInput()}
 
             <div>
              {renderField("unique_id", "Unique ID")}

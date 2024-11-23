@@ -158,13 +158,13 @@ export async function GET(req: NextRequest) {
       ...users.map(user => ({
         type: 'user',
         label: `User: ${user.email || user.phone}`,
-        url: `/userManagement/${user.id}`,
+        url: `/userManagement?search=${user.email || user.phone}`,
         data: user
       })),
       ...personalInfo.map(info => ({
         type: 'profile',
         label: `Profile: ${info.firstName} ${info.lastName || ''} - ${info.city || ''}`,
-        url: `/userManagement/${info.userid}`,
+        url: `/userManagement?search=${info.firstName}`,
         data: info
       })),
       ...services.map(service => ({
