@@ -364,12 +364,8 @@ export function UserEditModal({
                 </div>
               </div>
             </div>
-
             {/* Family Relationships Section */}
             <div className="col-span-2 space-y-4 pt-2">
-              <div className="flex justify-between items-center">
-                <div className="text-sm font-medium text-[#663399]/80 pb-1">Family Relationships</div>
-              </div>
 
               {isLoadingRelationships ? (
                 <div className="space-y-3">

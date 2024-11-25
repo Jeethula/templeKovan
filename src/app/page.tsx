@@ -222,12 +222,9 @@ function HomePage() {
   };
 
   useEffect(() => {
-    // Only set up random selection if there are special events
     if (services.filter(service => !service.isSeva).length > 0) {
-      // Randomly choose which card to show initially
       setShowingCard(Math.random() < 0.5 ? 'welcome' : 'special');
       
-      // Change card every 10 seconds
       const timer = setInterval(() => {
         setShowingCard(prev => prev === 'welcome' ? 'special' : 'welcome');
       }, 10000);
@@ -285,11 +282,8 @@ function HomePage() {
 
   return (
     <div className="bg-[#fdf0f4] w-full h-full min-w-screen min-h-screen flex flex-col justify-start px-2 md:px-6 lg:px-12">
-      {/* Content wrapper */}
       <div className="w-full max-w-7xl mx-auto">
-        {/* Desktop layout */}
         <div className="hidden md:grid md:grid-cols-3 gap-6 mt-3">
-          {/* Welcome Card */}
           <div className="min-h-[200px] w-full bg-white rounded-lg shadow-lg flex flex-col px-3 py-4">
             <div className="flex justify-between">
               <div className="flex flex-col">
