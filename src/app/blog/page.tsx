@@ -318,6 +318,15 @@ function Posts() {
                   />
                 </div>
               )}
+              {post.video && (
+                <div className="flex justify-center mb-2">
+                  <video
+                    src={post.video}
+                    controls
+                    className="w-[200px] h-[150px] mt-2 rounded-lg"
+                  />
+                </div>
+              )}
               <div className="mt-2">
                 <p className="text-lg text-wrap font-sans mt-4 tracking-wide whitespace-pre-line line-clamp-4">
                   {post?.content}

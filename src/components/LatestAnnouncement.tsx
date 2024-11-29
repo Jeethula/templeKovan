@@ -12,6 +12,7 @@ interface Post {
     };
   };
   likes: number;
+  video?: string;
 }
 
 export default function LatestAnnouncement({ post }: { post: Post }) {
@@ -42,6 +43,15 @@ export default function LatestAnnouncement({ post }: { post: Post }) {
         <h3 className="text-xl font-bold mb-2 hover:text-purple-600">
           {post.title}
         </h3>
+        {post.video && (
+          <div className="flex justify-center mb-2">
+            <video
+              src={post.video}
+              controls
+              className="w-full h-auto mt-2 rounded-lg"
+            />
+          </div>
+        )}
         <p className="text-gray-600 line-clamp-2 mb-4">
           {post.content}
         </p>

@@ -11,6 +11,7 @@ interface PostData {
   title: string;
   content: string;
   image: string;
+  video: string;
   postType: string;
 }
 
@@ -24,12 +25,14 @@ function WritePost() {
     title: "",
     content: "",
     image: "",
+    video: "",
     postType: "public",
   });
   const [error, setError] = useState<ErrorState>({ title: "", content: "" });
   const sessionData = JSON.parse(sessionStorage.getItem('user') || '{}');
   const userId = sessionData.id;
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -46,11 +49,19 @@ function WritePost() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setData((prev) => ({
-          ...prev,
-          image: reader.result as string,
-        }));
-        setImagePreview(reader.result as string);
+        if (file.type.startsWith("image/")) {
+          setData((prev) => ({
+            ...prev,
+            image: reader.result as string,
+          }));
+          setImagePreview(reader.result as string);
+        } else if (file.type.startsWith("video/")) {
+          setData((prev) => ({
+            ...prev,
+            video: reader.result as string,
+          }));
+          setVideoPreview(reader.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -184,7 +195,7 @@ function WritePost() {
               <Input
                 type="file"
                 name="image"
-                accept="image/*"
+                accept="image/*,video/*"
                 onChange={handleImageChange}
                 className="w-full border border-gray-400 p-2 mt-2 mb-2 rounded-md"
               />
@@ -192,6 +203,13 @@ function WritePost() {
                 <img
                   src={imagePreview}
                   alt="Preview"
+                  className="mt-2 max-w-full h-auto"
+                />
+              )}
+              {videoPreview && (
+                <video
+                  src={videoPreview}
+                  controls
                   className="mt-2 max-w-full h-auto"
                 />
               )}

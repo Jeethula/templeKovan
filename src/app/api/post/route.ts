@@ -10,6 +10,7 @@ export async function GET() {
                 title:true,
                 content:true,
                 image:true,
+                video:true,
                 likes:true,
                 dislikes:true,
                 likedBy:{
@@ -52,7 +53,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-    const { title, content, authorId, image, postType } = await req.json();
+    const { title, content, authorId, image, video, postType } = await req.json();
     
     try {
         await prisma.post.create({
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
                 title,
                 content,
                 image: image || null,
+                video: video || null,
                 authorId,
                 likes: 0,
                 dislikes: 0,
@@ -179,6 +181,3 @@ export async function DELETE(req: NextRequest) {
         await prisma.$disconnect();
     }
 }
-
-
-
